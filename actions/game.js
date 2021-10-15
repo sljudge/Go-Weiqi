@@ -16,10 +16,19 @@ export const setToPlay = (color) => ({
 
 // ------------------------------------------------------------------------------
 
-export const UPDATE_LIBERTY = 'UPDATE_LIBERTY'
+export const UPDATE_NODE = 'UPDATE_NODE'
 
-export const updateLiberty = (i) => ({
-   type: UPDATE_LIBERTY,
+export const updateNode = (i) => ({
+   type: UPDATE_NODE,
+   i
+})
+
+// ------------------------------------------------------------------------------
+
+export const CLEAR_NODE = 'CLEAR_NODE'
+
+export const clearNode = (i) => ({
+   type: CLEAR_NODE,
    i
 })
 
@@ -39,6 +48,24 @@ export const SET_FOCUS_POINT = 'SET_FOCUS_POINT'
 export const setFocusPoint = (i) => ({
    type: SET_FOCUS_POINT,
    i
+})
+
+// ------------------------------------------------------------------------------
+
+export const SET_STONES_TO_BE_REMOVED = 'SET_STONES_TO_BE_REMOVED'
+
+export const setStonesToBeRemoved = (array) => ({
+   type: SET_STONES_TO_BE_REMOVED,
+   array
+})
+
+// ------------------------------------------------------------------------------
+
+export const SET_KO = 'SET_KO'
+
+export const setKo = (bool) => ({
+   type: SET_KO,
+   bool
 })
 
 // ------------------------------------------------------------------------------

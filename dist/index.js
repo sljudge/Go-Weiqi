@@ -2984,12 +2984,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "setBoardSize": () => (/* binding */ setBoardSize),
 /* harmony export */   "SET_TO_PLAY": () => (/* binding */ SET_TO_PLAY),
 /* harmony export */   "setToPlay": () => (/* binding */ setToPlay),
-/* harmony export */   "UPDATE_LIBERTY": () => (/* binding */ UPDATE_LIBERTY),
-/* harmony export */   "updateLiberty": () => (/* binding */ updateLiberty),
+/* harmony export */   "UPDATE_NODE": () => (/* binding */ UPDATE_NODE),
+/* harmony export */   "updateNode": () => (/* binding */ updateNode),
+/* harmony export */   "CLEAR_NODE": () => (/* binding */ CLEAR_NODE),
+/* harmony export */   "clearNode": () => (/* binding */ clearNode),
 /* harmony export */   "ATTEMPT_MOVE": () => (/* binding */ ATTEMPT_MOVE),
 /* harmony export */   "attemptMove": () => (/* binding */ attemptMove),
 /* harmony export */   "SET_FOCUS_POINT": () => (/* binding */ SET_FOCUS_POINT),
-/* harmony export */   "setFocusPoint": () => (/* binding */ setFocusPoint)
+/* harmony export */   "setFocusPoint": () => (/* binding */ setFocusPoint),
+/* harmony export */   "SET_STONES_TO_BE_REMOVED": () => (/* binding */ SET_STONES_TO_BE_REMOVED),
+/* harmony export */   "setStonesToBeRemoved": () => (/* binding */ setStonesToBeRemoved),
+/* harmony export */   "SET_KO": () => (/* binding */ SET_KO),
+/* harmony export */   "setKo": () => (/* binding */ setKo)
 /* harmony export */ });
 var SET_BOARD_SIZE = 'SET_BOARD_SIZE';
 var setBoardSize = function setBoardSize(_int) {
@@ -3007,10 +3013,18 @@ var setToPlay = function setToPlay(color) {
   };
 }; // ------------------------------------------------------------------------------
 
-var UPDATE_LIBERTY = 'UPDATE_LIBERTY';
-var updateLiberty = function updateLiberty(i) {
+var UPDATE_NODE = 'UPDATE_NODE';
+var updateNode = function updateNode(i) {
   return {
-    type: UPDATE_LIBERTY,
+    type: UPDATE_NODE,
+    i: i
+  };
+}; // ------------------------------------------------------------------------------
+
+var CLEAR_NODE = 'CLEAR_NODE';
+var clearNode = function clearNode(i) {
+  return {
+    type: CLEAR_NODE,
     i: i
   };
 }; // ------------------------------------------------------------------------------
@@ -3031,6 +3045,22 @@ var setFocusPoint = function setFocusPoint(i) {
   };
 }; // ------------------------------------------------------------------------------
 
+var SET_STONES_TO_BE_REMOVED = 'SET_STONES_TO_BE_REMOVED';
+var setStonesToBeRemoved = function setStonesToBeRemoved(array) {
+  return {
+    type: SET_STONES_TO_BE_REMOVED,
+    array: array
+  };
+}; // ------------------------------------------------------------------------------
+
+var SET_KO = 'SET_KO';
+var setKo = function setKo(bool) {
+  return {
+    type: SET_KO,
+    bool: bool
+  };
+}; // ------------------------------------------------------------------------------
+
 /***/ }),
 
 /***/ "./components/App.js":
@@ -3046,7 +3076,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _Liberty__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Liberty */ "./components/Liberty.js");
+/* harmony import */ var _Node__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Node */ "./components/Node.js");
 /* harmony import */ var _Handicap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Handicap */ "./components/Handicap.js");
 /* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Line */ "./components/Line.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
@@ -3068,7 +3098,7 @@ var App = function App(props) {
 
     for (var i = 0; i < Math.pow(boardSize, 2); i++) {
       // LIBERTIES
-      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Liberty__WEBPACK_IMPORTED_MODULE_2__["default"], {
+      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Node__WEBPACK_IMPORTED_MODULE_2__["default"], {
         i: i
       })); // HANDICAPS
 
@@ -3115,7 +3145,7 @@ var App = function App(props) {
         height: "90vh",
         maxWidth: '1200px',
         maxHeight: '1200px',
-        backgroundImage: 'url("./images/wood-bg.jpg"'
+        backgroundImage: 'url("./images/wood-bg.jpg")'
       },
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
         className: "w-full h-full relative flex flex-wrap",
@@ -3161,137 +3191,19 @@ var Handicap = function Handicap(props) {
     return state.game.boardSize;
   });
   var row = Math.floor(i / boardSize);
+  var column = i % boardSize;
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {}, []);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
     id: "h".concat(i),
     className: "min-w-2 min-h-2 h-2 w-2 absolute rounded-full bg-gray-800 absolute z-10",
     style: {
-      left: "calc(".concat(Math.floor(i % boardSize / (boardSize - 1) * 100), "% - 0.25rem)"),
+      left: "calc(".concat(Math.floor(column / (boardSize - 1) * 100), "% - 0.25rem)"),
       top: "calc(".concat(Math.floor(row / (boardSize - 1) * 100), "% - 0.25rem)")
     }
   }, "h".concat(i));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Handicap);
-
-/***/ }),
-
-/***/ "./components/Liberty.js":
-/*!*******************************!*\
-  !*** ./components/Liberty.js ***!
-  \*******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-
-
-
-var Liberty = function Liberty(props) {
-  var _props = _objectSpread({}, props),
-      i = _props.i;
-
-  var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
-  var boardSize = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
-    return state.game.boardSize;
-  });
-  var toPlay = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
-    return state.game.toPlay;
-  });
-  var status = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
-    return state.game.board[i];
-  });
-  var focusPoint = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
-    return state.game.focusPoint;
-  });
-  var row = Math.floor(i / boardSize);
-
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
-      _useState2 = _slicedToArray(_useState, 2),
-      confirmMove = _useState2[0],
-      setConfirmMove = _useState2[1];
-
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('hover:bg-gray-100'),
-      _useState4 = _slicedToArray(_useState3, 2),
-      hoverClass = _useState4[0],
-      setHoverClass = _useState4[1];
-
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(status === 'o' ? 'bg-gray-100' : status === 'x' ? 'bg-gray-700' : ''),
-      _useState6 = _slicedToArray(_useState5, 2),
-      backgroundClass = _useState6[0],
-      setBackgroundClass = _useState6[1];
-
-  var handleClick = function handleClick() {
-    if (status === '.') {
-      if (focusPoint !== i) {
-        dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.setFocusPoint)(i));
-        console.log(i, i / boardSize);
-        setConfirmMove(true);
-        return;
-      } else {
-        dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.attemptMove)(i));
-        setConfirmMove(false);
-      }
-    }
-  };
-
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    if (status === '.') {
-      setHoverClass(toPlay === 'white' ? 'hover:bg-gray-100' : 'hover:bg-gray-700');
-    }
-  }, [toPlay]);
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    setBackgroundClass(status === 'o' ? 'bg-gray-100' : status === 'x' ? 'bg-gray-700' : '');
-  }, [status]);
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    if (status === ".") {
-      if (focusPoint == i) {
-        setBackgroundClass(toPlay === 'white' ? 'bg-gray-100' : 'bg-gray-700');
-      } else {
-        setBackgroundClass('');
-      }
-    }
-  }, [focusPoint]);
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
-    id: i,
-    className: "min-w-12 min-h-12 h-12 w-12 absolute rounded-full absolute z-20 ".concat(hoverClass, " ").concat(backgroundClass),
-    style: {
-      opacity: confirmMove ? 0.3 : status === '.' ? 0.25 : 1,
-      left: "calc(".concat(Math.floor(i % boardSize / (boardSize - 1) * 100), "% - 1.5rem)"),
-      top: "calc(".concat(Math.floor(row / (boardSize - 1) * 100), "% - 1.5rem)")
-    },
-    onClick: handleClick
-  }, i);
-};
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Liberty);
 
 /***/ }),
 
@@ -3365,7 +3277,7 @@ var Line = function Line(props) {
   }, [focusPoint]);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
     id: identifier,
-    className: "absolute ".concat(isHighlighting ? 'bg-green-500 border-gray-200 border-2 shadow-2xl' : 'bg-gray-500', " ").concat(direction === "horizontal" ? 'w-full' : 'h-full'),
+    className: "absolute ".concat(isHighlighting ? 'border-gray-200 border-2 shadow-2xl' : 'bg-gray-500', " ").concat(direction === "horizontal" ? 'w-full' : 'h-full'),
     style: {
       top: direction === 'horizontal' ? spaceIncrement : 0,
       left: direction === 'vertical' ? spaceIncrement : 0,
@@ -3376,6 +3288,146 @@ var Line = function Line(props) {
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Line);
+
+/***/ }),
+
+/***/ "./components/Node.js":
+/*!****************************!*\
+  !*** ./components/Node.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+
+
+
+var Node = function Node(props) {
+  var _props = _objectSpread({}, props),
+      i = _props.i;
+
+  var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
+  var toPlay = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.toPlay;
+  });
+  var focusPoint = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.focusPoint;
+  });
+  var boardSize = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.boardSize;
+  });
+  var board = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.board;
+  });
+  var status = board[i];
+  var row = Math.floor(i / boardSize);
+  var column = i % boardSize;
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(),
+      _useState2 = _slicedToArray(_useState, 2),
+      hoverClass = _useState2[0],
+      setHoverClass = _useState2[1];
+
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(status === 'o' ? 'bg-gray-100' : status === 'x' ? 'bg-gray-700' : ''),
+      _useState4 = _slicedToArray(_useState3, 2),
+      backgroundClass = _useState4[0],
+      setBackgroundClass = _useState4[1];
+
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("min-w-12 min-h-12 h-12 w-12"),
+      _useState6 = _slicedToArray(_useState5, 2),
+      sizeClassNames = _useState6[0],
+      setSizeClassNames = _useState6[1];
+
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('1.5rem'),
+      _useState8 = _slicedToArray(_useState7, 2),
+      offset = _useState8[0],
+      setOffset = _useState8[1];
+  /**********************
+   * FUNCTIONS
+   **********************/
+
+
+  var handleClick = function handleClick() {
+    // const isDead = checkIfDead()
+    if (status === '.') {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.attemptMove)(i));
+    }
+  };
+
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    if (status === '.') {
+      setHoverClass(toPlay === 'white' ? 'hover:bg-gray-100' : 'hover:bg-gray-700');
+    }
+  }, [toPlay]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    setBackgroundClass(status === 'o' ? 'bg-gray-100' : status === 'x' ? 'bg-gray-700' : '');
+  }, [status]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    if (status === ".") {
+      if (focusPoint == i) {
+        setBackgroundClass(toPlay === 'white' ? 'bg-gray-100' : 'bg-gray-700');
+      } else {
+        setBackgroundClass('');
+      }
+    }
+  }, [focusPoint]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    if (boardSize <= 9) {
+      setSizeClassNames("min-w-12 min-h-12 h-12 w-12");
+      setOffset('1.5rem');
+    } else if (boardSize <= 13) {
+      setSizeClassNames("min-w-8 min-h-8 h-8 w-8");
+      setOffset('1rem');
+    } else {
+      setSizeClassNames("min-w-6 min-h-6 h-6 w-6");
+      setOffset('0.75rem');
+    }
+  }, [boardSize]);
+  /*********************
+   * RETURN
+   *********************/
+
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+    id: i,
+    className: "absolute rounded-full absolute z-20 ".concat(sizeClassNames, " ").concat(hoverClass, " ").concat(backgroundClass),
+    style: {
+      opacity: status === '.' ? 0.25 : 1,
+      left: "calc(".concat(Math.floor(column / (boardSize - 1) * 100), "% - ").concat(offset, ")"),
+      top: "calc(".concat(Math.floor(row / (boardSize - 1) * 100), "% - ").concat(offset, ")")
+    },
+    onClick: handleClick,
+    children: [" ", i]
+  }, i);
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Node);
 
 /***/ }),
 
@@ -3432,40 +3484,144 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-saga/effects */ "./node_modules/redux-saga/dist/redux-saga-effects-npm-proxy.esm.js");
 /* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../helpers */ "./helpers/index.js");
 
 
 var _marked = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(handleAttemptMove),
-    _marked2 = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(watcher);
+    _marked2 = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(handleMove),
+    _marked3 = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(watcher);
+
 
 
 
 
 
 function handleAttemptMove(action) {
+  var board, toPlay, focusPoint, ko, previousBoardPosition, Validator, toBeRemoved, hasLiberty;
   return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleAttemptMove$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.next = 2;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.board;
+          });
+
+        case 2:
+          board = _context.sent;
+          _context.next = 5;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.toPlay;
+          });
+
+        case 5:
+          toPlay = _context.sent;
+          _context.next = 8;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.focusPoint;
+          });
+
+        case 8:
+          focusPoint = _context.sent;
+          _context.next = 11;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.ko;
+          });
+
+        case 11:
+          ko = _context.sent;
+          _context.next = 14;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.previousBoardPosition;
+          });
+
+        case 14:
+          previousBoardPosition = _context.sent;
+
+          if (!(focusPoint !== action.i)) {
+            _context.next = 44;
+            break;
+          }
+
+          console.log(toPlay, board);
+          Validator = new _helpers__WEBPACK_IMPORTED_MODULE_3__.Validate(board, toPlay, previousBoardPosition, ko);
+
+          if (Validator.validateKO(action.i)) {
+            _context.next = 20;
+            break;
+          }
+
+          return _context.abrupt("return");
+
+        case 20:
+          _context.next = 22;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_STONES_TO_BE_REMOVED,
+            array: []
+          });
+
+        case 22:
+          _context.next = 24;
+          return Validator.handleCapture(action.i);
+
+        case 24:
+          toBeRemoved = _context.sent;
+          console.log('to be removed', action.i, toBeRemoved);
+
+          if (!(toBeRemoved.length == 0)) {
+            _context.next = 32;
+            break;
+          }
+
+          _context.next = 29;
+          return Validator.hasLiberties(action.i);
+
+        case 29:
+          hasLiberty = _context.sent;
+          _context.next = 34;
+          break;
+
+        case 32:
+          _context.next = 34;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_STONES_TO_BE_REMOVED,
+            array: toBeRemoved
+          });
+
+        case 34:
+          console.log('SAGA', hasLiberty, toBeRemoved);
+
+          if (!(toBeRemoved.length > 0 || hasLiberty)) {
+            _context.next = 40;
+            break;
+          }
+
+          _context.next = 38;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
+            i: action.i
+          });
+
+        case 38:
+          _context.next = 42;
+          break;
+
+        case 40:
+          _context.next = 42;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
             i: null
           });
 
-        case 2:
-          _context.next = 4;
-          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
-            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_LIBERTY,
-            i: action.i
-          });
+        case 42:
+          _context.next = 46;
+          break;
 
-        case 4:
-          _context.next = 6;
-          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
-            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_TO_PLAY
-          });
+        case 44:
+          _context.next = 46;
+          return handleMove(action.i);
 
-        case 6:
+        case 46:
         case "end":
           return _context.stop();
       }
@@ -3473,20 +3629,137 @@ function handleAttemptMove(action) {
   }, _marked);
 }
 
-function watcher() {
-  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function watcher$(_context2) {
+function handleMove(i) {
+  var toBeRemoved, ko, _i, j;
+
+  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleMove$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
           _context2.next = 2;
-          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.takeEvery)(_actions_game__WEBPACK_IMPORTED_MODULE_2__.ATTEMPT_MOVE, handleAttemptMove);
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.stonesToBeRemoved;
+          });
 
         case 2:
+          toBeRemoved = _context2.sent;
+          _context2.next = 5;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.ko;
+          });
+
+        case 5:
+          ko = _context2.sent;
+          console.log('handle move', toBeRemoved);
+          _context2.next = 9;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_NODE,
+            i: i
+          });
+
+        case 9:
+          if (!(toBeRemoved.length > 0)) {
+            _context2.next = 28;
+            break;
+          }
+
+          _context2.next = 12;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_KO,
+            bool: true
+          });
+
+        case 12:
+          _i = 0;
+
+        case 13:
+          if (!(_i < toBeRemoved.length)) {
+            _context2.next = 24;
+            break;
+          }
+
+          j = 0;
+
+        case 15:
+          if (!(j < toBeRemoved[_i].length)) {
+            _context2.next = 21;
+            break;
+          }
+
+          _context2.next = 18;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.CLEAR_NODE,
+            i: toBeRemoved[_i][j]
+          });
+
+        case 18:
+          j++;
+          _context2.next = 15;
+          break;
+
+        case 21:
+          _i++;
+          _context2.next = 13;
+          break;
+
+        case 24:
+          _context2.next = 26;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_STONES_TO_BE_REMOVED,
+            array: []
+          });
+
+        case 26:
+          _context2.next = 31;
+          break;
+
+        case 28:
+          if (!ko) {
+            _context2.next = 31;
+            break;
+          }
+
+          _context2.next = 31;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_KO,
+            bool: false
+          });
+
+        case 31:
+          _context2.next = 33;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_TO_PLAY
+          });
+
+        case 33:
+          _context2.next = 35;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
+            i: null
+          });
+
+        case 35:
         case "end":
           return _context2.stop();
       }
     }
   }, _marked2);
+}
+
+function watcher() {
+  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function watcher$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.next = 2;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.takeEvery)(_actions_game__WEBPACK_IMPORTED_MODULE_2__.ATTEMPT_MOVE, handleAttemptMove);
+
+        case 2:
+        case "end":
+          return _context3.stop();
+      }
+    }
+  }, _marked3);
 }
 
 /***/ }),
@@ -3539,6 +3812,241 @@ function configureStore(preloadedState) {
 
 /***/ }),
 
+/***/ "./helpers/Validate.js":
+/*!*****************************!*\
+  !*** ./helpers/Validate.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Validate = /*#__PURE__*/function () {
+  function Validate(board, toPlay, previousBoardPosition, ko) {
+    _classCallCheck(this, Validate);
+
+    this.board = board;
+    this.previousBoardPosition = previousBoardPosition;
+    this.ko = ko;
+    this.toPlay = toPlay;
+    this.playerChar = toPlay === 'black' ? 'x' : 'o';
+    this.opponentChar = toPlay === 'black' ? 'o' : 'x';
+    this.boardSize = Math.sqrt(board.length);
+    this.hasBeenChecked = [];
+    this.toBeRemoved = [];
+    this.startOfChain = 1;
+  }
+
+  _createClass(Validate, [{
+    key: "validateKO",
+    value: function validateKO(i) {
+      if (this.ko) {
+        return this.previousBoardPosition !== this.board.replaceAt(i, this.playerChar);
+      } else {
+        return true;
+      }
+    }
+  }, {
+    key: "handleCapture",
+    value: function handleCapture(i) {
+      this.hasBeenChecked = [i];
+      this.isValid = false; // console.log('-------------HANDLE CAPTURE-------------')
+
+      var id;
+      var row = Math.floor(i / this.boardSize);
+      var column = i % this.boardSize; // top
+
+      id = i - this.boardSize;
+
+      if (row != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        this.isChainDead(id);
+      } // right
+
+
+      id = i + 1;
+
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        this.isChainDead(id);
+      } // bottom
+
+
+      id = i + this.boardSize;
+
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        this.isChainDead(id);
+      } // left
+
+
+      id = i - 1;
+
+      if (column != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        this.isChainDead(id);
+      } // console.log('-------------END CAPTURE-------------')
+
+
+      this.isValid = false;
+      return this.toBeRemoved;
+    }
+  }, {
+    key: "isChainDead",
+    value: function isChainDead(i) {
+      this.isValid = undefined;
+      var hasLibs = this.hasLiberties(i, this.opponentChar);
+
+      if (!hasLibs) {
+        this.toBeRemoved.push(this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length));
+      }
+
+      this.startOfChain = this.hasBeenChecked.length; // console.log('has libs', i, hasLibs, this.hasBeenChecked, this.toBeRemoved, this.startOfChain)
+    }
+  }, {
+    key: "countScore",
+    value: function countScore() {
+      this.hasBeenChecked = [];
+
+      for (var i = 0; i < this.board.length; i++) {}
+    }
+  }, {
+    key: "hasLiberties",
+    value: function hasLiberties(i) {
+      var playingAs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.playerChar;
+      var countScore = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      // console.log('-------------HAS LIBERTIES---------------')
+      // console.log('has liberty', i, this.board, playingAs)
+      this.hasBeenChecked.push(i);
+      var id;
+      var row = Math.floor(i / this.boardSize);
+      var column = i % this.boardSize; // top
+
+      id = i - this.boardSize;
+
+      if (row != 0 && !this.hasBeenChecked.includes(id)) {
+        // console.log('top')
+        if (this.board[id] === '.') {
+          // console.log('top', i, 1)
+          if (countScore) {
+            this.hasLiberties(id, playingAs);
+          } else {
+            this.isValid = true;
+          }
+        } else if (this.board[id] === playingAs) {
+          // console.log('top', i, 2)
+          if (countScore) {
+            this.isValid = true;
+          } else {
+            this.hasLiberties(id, playingAs);
+          }
+        } // console.log('top', i, 3)
+
+      } //right
+
+
+      id = i + 1;
+
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        // console.log('right')
+        if (this.board[id] === '.') {
+          // console.log('right', i, 1)
+          if (countScore) {
+            this.hasLiberties(id, playingAs);
+          } else {
+            this.isValid = true;
+          }
+        } else if (this.board[id] === playingAs) {
+          // console.log('right', i, 2)
+          if (countScore) {
+            this.isValid = true;
+          } else {
+            this.hasLiberties(id, playingAs);
+          }
+        } // console.log('right', i, 3)
+
+      } // bottom
+
+
+      id = i + this.boardSize;
+
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        // console.log('bottom', i, id, this.hasBeenChecked, playingAs, this.board[id])
+        // console.log(this.boardSize, this.board.length, i + this.boardSize)
+        if (this.board[id] === '.') {
+          // console.log('bottom', i, 1)
+          if (countScore) {
+            this.hasLiberties(id, playingAs);
+          } else {
+            this.isValid = true;
+          }
+        } else if (this.board[id] === playingAs) {
+          // console.log('bottom', i, 2)
+          if (countScore) {
+            this.isValid = true;
+          } else {
+            this.hasLiberties(id, playingAs);
+          }
+        } // console.log('bottom', i, 3)
+
+      } // left
+
+
+      id = i - 1;
+
+      if (column != 0 && !this.hasBeenChecked.includes(id)) {
+        // console.log('left')
+        if (this.board[id] === '.') {
+          // console.log('left', i, 1)
+          if (countScore) {
+            this.hasLiberties(id, playingAs);
+          } else {
+            this.isValid = true;
+          }
+        } else if (this.board[id] === playingAs) {
+          // console.log('left', i, 2)
+          if (countScore) {
+            this.isValid = true;
+          } else {
+            this.hasLiberties(id, playingAs);
+          }
+        } // console.log('left', i, 3)
+
+      } // console.log('-------------END HAS LIBERTIES---------------', this.isValid)
+
+
+      return this.isValid || false;
+    }
+  }]);
+
+  return Validate;
+}();
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Validate);
+
+/***/ }),
+
+/***/ "./helpers/index.js":
+/*!**************************!*\
+  !*** ./helpers/index.js ***!
+  \**************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Validate": () => (/* reexport safe */ _Validate__WEBPACK_IMPORTED_MODULE_0__["default"])
+/* harmony export */ });
+/* harmony import */ var _Validate__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Validate */ "./helpers/Validate.js");
+
+
+
+/***/ }),
+
 /***/ "./reducers/game.js":
 /*!**************************!*\
   !*** ./reducers/game.js ***!
@@ -3560,12 +4068,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
-var boardSize = 13;
+var boardSize = 9;
 var initialState = {
-  toPlay: 'black',
+  toPlay: 'white',
   boardSize: boardSize,
-  board: '.'.repeat(Math.pow(boardSize, 2)),
-  focusPoint: null
+  // board: '.'.repeat(Math.pow(boardSize, 2)),
+  board: '.....xx......x...x....ox.x.....xox.x.....oxx......ox.x..ox..xx....x...ox........o',
+  focusPoint: null,
+  stonesToBeRemoved: [],
+  ko: false,
+  previousBoardPosition: null
 };
 
 var reducer = function reducer() {
@@ -3589,10 +4101,18 @@ var reducer = function reducer() {
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.UPDATE_LIBERTY:
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.UPDATE_NODE:
       return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           board: draftState.board.replaceAt(action.i, draftState.toPlay === 'black' ? 'x' : 'o')
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.CLEAR_NODE:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          board: draftState.board.replaceAt(action.i, '.')
         });
       });
     //-----------------------------------------------------------------------------------------------------//
@@ -3601,6 +4121,23 @@ var reducer = function reducer() {
       return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           focusPoint: action.i
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.SET_STONES_TO_BE_REMOVED:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          stonesToBeRemoved: action.array
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.SET_KO:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          ko: action.bool,
+          previousBoardPosition: action.bool ? draftState.board : null
         });
       });
     //-----------------------------------------------------------------------------------------------------//
