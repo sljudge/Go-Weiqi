@@ -9,6 +9,7 @@ import { checkScore } from '../actions/game'
 const App = props => {
     const dispatch = useDispatch()
     const boardSize = useSelector(state => state.game.boardSize)
+    const score = useSelector(state => state.game.score)
 
     const renderLibertiesAndHandicaps = () => {
         const output = []
@@ -55,11 +56,7 @@ const App = props => {
     return (
         <div className="bg-gray-300 text-white flex justify-center items-center p-12">
 
-            <div className="absolute top-0 left-0 p-8">
-                <div onClick={handleCheckScore} className="cursor-pointer px-6 py-2 flex justify-center items-center bg-green-600 rounded-md hover:bg-green-500">
-                    Check Score
-                </div>
-            </div>
+
 
             <div className="relative p-12 bg-cover bg-no-repeat"
                 style={{
@@ -74,6 +71,18 @@ const App = props => {
                     {
                         renderBoard()
                     }
+                </div>
+            </div>
+
+            <div className="p-8 bg-gray-400 mx-12" >
+                <div onClick={handleCheckScore} className="cursor-pointer px-6 py-2 flex justify-center items-center bg-green-600 rounded-md hover:bg-green-500">
+                    Check Score
+                </div>
+                <div>
+                    white: {score.white.area + score.white.captures}
+                </div>
+                <div>
+                    black: {score.black.area + score.black.captures}
                 </div>
             </div>
         </div>

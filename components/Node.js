@@ -91,7 +91,8 @@ const Node = props => {
                     top: `calc(${Math.floor(row / (boardSize - 1) * 100)}% - ${offset})`
                 }
             }
-            onClick={handleClick} > {i}
+            onClick={handleClick} >
+            {/* {i} */}
         </div>
 
     )

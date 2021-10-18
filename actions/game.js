@@ -93,3 +93,12 @@ export const cancelScoring = () => ({
 })
 
 // ------------------------------------------------------------------------------
+
+export const UPDATE_SCORE = 'UPDATE_SCORE'
+
+export const updateScore = (json = { black: {}, white: {} }) => ({
+   type: UPDATE_SCORE,
+   json
+})
+
+// ------------------------------------------------------------------------------

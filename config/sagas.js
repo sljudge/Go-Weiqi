@@ -1,6 +1,6 @@
 import { takeEvery, select, call, put, delay } from 'redux-saga/effects'
 import { push } from 'connected-react-router'
-import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO, CHECK_SCORE, UPDATE_BOARD } from '../actions/game'
+import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO, CHECK_SCORE, UPDATE_BOARD, UPDATE_SCORE } from '../actions/game'
 import { Validate } from '../helpers'
 
 
@@ -42,13 +42,22 @@ function* handleAttemptMove(action) {
 function* handleMove(i) {
     const toBeRemoved = yield select(state => state.game.stonesToBeRemoved)
     const ko = yield select(state => state.game.ko)
+    const toPlay = yield select(state => state.game.toPlay)
 
     yield put({ type: UPDATE_NODE, i: i })
 
     if (toBeRemoved.length > 0) {
         yield put({ type: SET_KO, bool: true })
 
+        console.log('to be removed', toBeRemoved)
+
         for (let i = 0; i < toBeRemoved.length; i++) {
+            yield put({
+                type: UPDATE_SCORE, json: {
+                    black: { captures: toPlay === 'black' ? toBeRemoved[i].length : undefined },
+                    white: { captures: toPlay === 'white' ? toBeRemoved[i].length : undefined }
+                }
+            })
             for (let j = 0; j < toBeRemoved[i].length; j++) {
                 yield put({ type: CLEAR_NODE, i: toBeRemoved[i][j] })
             }
@@ -73,19 +82,33 @@ function* handleCheckScore(action) {
     if (scoringAreas.length > 1) {
 
         let tempBoard = board.slice(0, board.length)
+        let blackArea = 0
+        let whiteArea = 0
 
-        scoringAreas.forEach(item => {
+        scoringAreas.forEach(area => {
 
-            if (item.owner !== '.') {
-                item.chain.forEach(node => {
-                    tempBoard = tempBoard.replaceAt(node, item.owner.toUpperCase())
-                    // console.log('temp board', node, tempBoard, item.owner.toUpperCase())
+            if (area.owner !== '.') {
+
+                if (area.owner === 'x') {
+                    blackArea += area.chain.length
+                } else {
+                    whiteArea += area.chain.length
+                }
+
+                area.chain.forEach(node => {
+                    tempBoard = tempBoard.replaceAt(node, area.owner.toUpperCase())
                 })
             }
 
         })
 
         yield put({ type: UPDATE_BOARD, board: tempBoard })
+        yield put({
+            type: UPDATE_SCORE, json: {
+                black: { area: blackArea },
+                white: { area: whiteArea }
+            }
+        })
     }
 }
 

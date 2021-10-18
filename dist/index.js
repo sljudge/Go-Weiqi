@@ -3001,7 +3001,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "CHECK_SCORE": () => (/* binding */ CHECK_SCORE),
 /* harmony export */   "checkScore": () => (/* binding */ checkScore),
 /* harmony export */   "CANCEL_SCORING": () => (/* binding */ CANCEL_SCORING),
-/* harmony export */   "cancelScoring": () => (/* binding */ cancelScoring)
+/* harmony export */   "cancelScoring": () => (/* binding */ cancelScoring),
+/* harmony export */   "UPDATE_SCORE": () => (/* binding */ UPDATE_SCORE),
+/* harmony export */   "updateScore": () => (/* binding */ updateScore)
 /* harmony export */ });
 var SET_BOARD_SIZE = 'SET_BOARD_SIZE';
 var setBoardSize = function setBoardSize(_int) {
@@ -3089,6 +3091,18 @@ var cancelScoring = function cancelScoring() {
   };
 }; // ------------------------------------------------------------------------------
 
+var UPDATE_SCORE = 'UPDATE_SCORE';
+var updateScore = function updateScore() {
+  var json = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+    black: {},
+    white: {}
+  };
+  return {
+    type: UPDATE_SCORE,
+    json: json
+  };
+}; // ------------------------------------------------------------------------------
+
 /***/ }),
 
 /***/ "./components/App.js":
@@ -3122,6 +3136,9 @@ var App = function App(props) {
   var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
   var boardSize = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.boardSize;
+  });
+  var score = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.score;
   });
 
   var renderLibertiesAndHandicaps = function renderLibertiesAndHandicaps() {
@@ -3175,13 +3192,6 @@ var App = function App(props) {
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
     className: "bg-gray-300 text-white flex justify-center items-center p-12",
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
-      className: "absolute top-0 left-0 p-8",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
-        onClick: handleCheckScore,
-        className: "cursor-pointer px-6 py-2 flex justify-center items-center bg-green-600 rounded-md hover:bg-green-500",
-        children: "Check Score"
-      })
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
       className: "relative p-12 bg-cover bg-no-repeat",
       style: {
         width: "90vh",
@@ -3194,6 +3204,17 @@ var App = function App(props) {
         className: "w-full h-full relative flex flex-wrap",
         children: renderBoard()
       })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+      className: "p-8 bg-gray-400 mx-12",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+        onClick: handleCheckScore,
+        className: "cursor-pointer px-6 py-2 flex justify-center items-center bg-green-600 rounded-md hover:bg-green-500",
+        children: "Check Score"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+        children: ["white: ", score.white.area + score.white.captures]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+        children: ["black: ", score.black.area + score.black.captures]
+      })]
     })]
   });
 };
@@ -3474,7 +3495,7 @@ var Node = function Node(props) {
    * RETURN
    *********************/
 
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
     id: i,
     className: "absolute z-20 ".concat(sizeClassNames, " ").concat(hoverClass, " ").concat(backgroundClass, " ").concat(scoreClassName),
     style: {
@@ -3482,8 +3503,7 @@ var Node = function Node(props) {
       left: "calc(".concat(Math.floor(column / (boardSize - 1) * 100), "% - ").concat(offset, ")"),
       top: "calc(".concat(Math.floor(row / (boardSize - 1) * 100), "% - ").concat(offset, ")")
     },
-    onClick: handleClick,
-    children: [" ", i]
+    onClick: handleClick
   }, i);
 };
 
@@ -3688,7 +3708,7 @@ function handleAttemptMove(action) {
 }
 
 function handleMove(i) {
-  var toBeRemoved, ko, _i, j;
+  var toBeRemoved, ko, toPlay, _i, j;
 
   return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleMove$(_context2) {
     while (1) {
@@ -3709,93 +3729,115 @@ function handleMove(i) {
         case 5:
           ko = _context2.sent;
           _context2.next = 8;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.toPlay;
+          });
+
+        case 8:
+          toPlay = _context2.sent;
+          _context2.next = 11;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_NODE,
             i: i
           });
 
-        case 8:
+        case 11:
           if (!(toBeRemoved.length > 0)) {
-            _context2.next = 27;
+            _context2.next = 33;
             break;
           }
 
-          _context2.next = 11;
+          _context2.next = 14;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_KO,
             bool: true
           });
 
-        case 11:
+        case 14:
+          console.log('to be removed', toBeRemoved);
           _i = 0;
 
-        case 12:
+        case 16:
           if (!(_i < toBeRemoved.length)) {
-            _context2.next = 23;
+            _context2.next = 29;
             break;
           }
 
+          _context2.next = 19;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_SCORE,
+            json: {
+              black: {
+                captures: toPlay === 'black' ? toBeRemoved[_i].length : undefined
+              },
+              white: {
+                captures: toPlay === 'white' ? toBeRemoved[_i].length : undefined
+              }
+            }
+          });
+
+        case 19:
           j = 0;
 
-        case 14:
+        case 20:
           if (!(j < toBeRemoved[_i].length)) {
-            _context2.next = 20;
+            _context2.next = 26;
             break;
           }
 
-          _context2.next = 17;
+          _context2.next = 23;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.CLEAR_NODE,
             i: toBeRemoved[_i][j]
           });
 
-        case 17:
-          j++;
-          _context2.next = 14;
-          break;
-
-        case 20:
-          _i++;
-          _context2.next = 12;
-          break;
-
         case 23:
-          _context2.next = 25;
+          j++;
+          _context2.next = 20;
+          break;
+
+        case 26:
+          _i++;
+          _context2.next = 16;
+          break;
+
+        case 29:
+          _context2.next = 31;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_STONES_TO_BE_REMOVED,
             array: []
           });
 
-        case 25:
-          _context2.next = 30;
+        case 31:
+          _context2.next = 36;
           break;
 
-        case 27:
+        case 33:
           if (!ko) {
-            _context2.next = 30;
+            _context2.next = 36;
             break;
           }
 
-          _context2.next = 30;
+          _context2.next = 36;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_KO,
             bool: false
           });
 
-        case 30:
-          _context2.next = 32;
+        case 36:
+          _context2.next = 38;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_TO_PLAY
           });
 
-        case 32:
-          _context2.next = 34;
+        case 38:
+          _context2.next = 40;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
             i: null
           });
 
-        case 34:
+        case 40:
         case "end":
           return _context2.stop();
       }
@@ -3804,7 +3846,7 @@ function handleMove(i) {
 }
 
 function handleCheckScore(action) {
-  var board, Validator, scoringAreas, tempBoard;
+  var board, Validator, scoringAreas, tempBoard, blackArea, whiteArea;
   return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleCheckScore$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
@@ -3825,25 +3867,47 @@ function handleCheckScore(action) {
           console.log('test score: ', scoringAreas);
 
           if (!(scoringAreas.length > 1)) {
-            _context3.next = 13;
+            _context3.next = 17;
             break;
           }
 
           tempBoard = board.slice(0, board.length);
-          scoringAreas.forEach(function (item) {
-            if (item.owner !== '.') {
-              item.chain.forEach(function (node) {
-                tempBoard = tempBoard.replaceAt(node, item.owner.toUpperCase()); // console.log('temp board', node, tempBoard, item.owner.toUpperCase())
+          blackArea = 0;
+          whiteArea = 0;
+          scoringAreas.forEach(function (area) {
+            if (area.owner !== '.') {
+              if (area.owner === 'x') {
+                blackArea += area.chain.length;
+              } else {
+                whiteArea += area.chain.length;
+              }
+
+              area.chain.forEach(function (node) {
+                tempBoard = tempBoard.replaceAt(node, area.owner.toUpperCase());
               });
             }
           });
-          _context3.next = 13;
+          _context3.next = 15;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_BOARD,
             board: tempBoard
           });
 
-        case 13:
+        case 15:
+          _context3.next = 17;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_SCORE,
+            json: {
+              black: {
+                area: blackArea
+              },
+              white: {
+                area: whiteArea
+              }
+            }
+          });
+
+        case 17:
         case "end":
           return _context3.stop();
       }
@@ -4212,12 +4276,22 @@ var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  board: '.o...xx..o..xx...x....ox.x...x.xox.x...x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
+  board: '.oxx.xxooo..xx.o.x....oxxx...x.xox.x...x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
   previousBoardPosition: null,
-  checkingScore: false
+  checkingScore: false,
+  score: {
+    black: {
+      area: 0,
+      captures: 0
+    },
+    white: {
+      area: 0,
+      captures: 0
+    }
+  }
 };
 
 var reducer = function reducer() {
@@ -4303,7 +4377,36 @@ var reducer = function reducer() {
       return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           checkingScore: false,
-          board: draftState.board.replace(/[XO]/g, '.')
+          board: draftState.board.replace(/[XO]/g, '.'),
+          score: {
+            black: {
+              area: 0,
+              captures: draftState.score.black.captures
+            },
+            white: {
+              area: 0,
+              captures: draftState.score.white.captures
+            }
+          }
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.UPDATE_SCORE:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+        var whiteData = action.json.white;
+        var blackData = action.json.black;
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          score: {
+            black: {
+              area: blackData.area ? blackData.area : draftState.score.black.area,
+              captures: blackData.captures ? draftState.score.black.captures + blackData.captures : draftState.score.black.captures
+            },
+            white: {
+              area: whiteData.area ? whiteData.area : draftState.score.white.area,
+              captures: whiteData.captures ? draftState.score.white.captures + whiteData.captures : draftState.score.white.captures
+            }
+          }
         });
       });
     //-----------------------------------------------------------------------------------------------------//

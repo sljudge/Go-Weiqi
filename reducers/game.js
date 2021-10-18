@@ -8,7 +8,8 @@ import {
     SET_KO,
     UPDATE_BOARD,
     CHECK_SCORE,
-    CANCEL_SCORING
+    CANCEL_SCORING,
+    UPDATE_SCORE
 } from '../actions/game'
 
 const boardSize = 9
@@ -16,12 +17,22 @@ const initialState = {
     toPlay: 'white',
     boardSize: boardSize,
     // board: '.'.repeat(Math.pow(boardSize, 2)),
-    board: '.o...xx..o..xx...x....ox.x...x.xox.x...x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
+    board: '.oxx.xxooo..xx.o.x....oxxx...x.xox.x...x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
     focusPoint: null,
     stonesToBeRemoved: [],
     ko: false,
     previousBoardPosition: null,
-    checkingScore: false
+    checkingScore: false,
+    score: {
+        black: {
+            area: 0,
+            captures: 0
+        },
+        white: {
+            area: 0,
+            captures: 0
+        }
+    },
 }
 
 const reducer = (state = initialState, action) => {
@@ -89,8 +100,38 @@ const reducer = (state = initialState, action) => {
             return produce(state, draftState => ({
                 ...draftState,
                 checkingScore: false,
-                board: draftState.board.replace(/[XO]/g, '.')
+                board: draftState.board.replace(/[XO]/g, '.'),
+                score: {
+                    black: {
+                        area: 0,
+                        captures: draftState.score.black.captures
+                    },
+                    white: {
+                        area: 0,
+                        captures: draftState.score.white.captures
+                    }
+                }
             }))
+        //-----------------------------------------------------------------------------------------------------//
+        case UPDATE_SCORE:
+            return produce(state, draftState => {
+                const whiteData = action.json.white
+                const blackData = action.json.black
+
+                return {
+                    ...draftState,
+                    score: {
+                        black: {
+                            area: blackData.area ? blackData.area : draftState.score.black.area,
+                            captures: blackData.captures ? draftState.score.black.captures + blackData.captures : draftState.score.black.captures
+                        },
+                        white: {
+                            area: whiteData.area ? whiteData.area : draftState.score.white.area,
+                            captures: whiteData.captures ? draftState.score.white.captures + whiteData.captures : draftState.score.white.captures
+                        }
+                    },
+                }
+            })
         //-----------------------------------------------------------------------------------------------------//
         default:
             return state
