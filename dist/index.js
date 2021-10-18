@@ -2988,6 +2988,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "updateNode": () => (/* binding */ updateNode),
 /* harmony export */   "CLEAR_NODE": () => (/* binding */ CLEAR_NODE),
 /* harmony export */   "clearNode": () => (/* binding */ clearNode),
+/* harmony export */   "UPDATE_BOARD": () => (/* binding */ UPDATE_BOARD),
+/* harmony export */   "updateBoard": () => (/* binding */ updateBoard),
 /* harmony export */   "ATTEMPT_MOVE": () => (/* binding */ ATTEMPT_MOVE),
 /* harmony export */   "attemptMove": () => (/* binding */ attemptMove),
 /* harmony export */   "SET_FOCUS_POINT": () => (/* binding */ SET_FOCUS_POINT),
@@ -2995,7 +2997,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "SET_STONES_TO_BE_REMOVED": () => (/* binding */ SET_STONES_TO_BE_REMOVED),
 /* harmony export */   "setStonesToBeRemoved": () => (/* binding */ setStonesToBeRemoved),
 /* harmony export */   "SET_KO": () => (/* binding */ SET_KO),
-/* harmony export */   "setKo": () => (/* binding */ setKo)
+/* harmony export */   "setKo": () => (/* binding */ setKo),
+/* harmony export */   "CHECK_SCORE": () => (/* binding */ CHECK_SCORE),
+/* harmony export */   "checkScore": () => (/* binding */ checkScore),
+/* harmony export */   "CANCEL_SCORING": () => (/* binding */ CANCEL_SCORING),
+/* harmony export */   "cancelScoring": () => (/* binding */ cancelScoring)
 /* harmony export */ });
 var SET_BOARD_SIZE = 'SET_BOARD_SIZE';
 var setBoardSize = function setBoardSize(_int) {
@@ -3026,6 +3032,14 @@ var clearNode = function clearNode(i) {
   return {
     type: CLEAR_NODE,
     i: i
+  };
+}; // ------------------------------------------------------------------------------
+
+var UPDATE_BOARD = 'UPDATE_BOARD';
+var updateBoard = function updateBoard(i) {
+  return {
+    type: UPDATE_BOARD,
+    board: board
   };
 }; // ------------------------------------------------------------------------------
 
@@ -3061,6 +3075,20 @@ var setKo = function setKo(bool) {
   };
 }; // ------------------------------------------------------------------------------
 
+var CHECK_SCORE = 'CHECK_SCORE';
+var checkScore = function checkScore() {
+  return {
+    type: CHECK_SCORE
+  };
+}; // ------------------------------------------------------------------------------
+
+var CANCEL_SCORING = 'CANCEL_SCORING';
+var cancelScoring = function cancelScoring() {
+  return {
+    type: CANCEL_SCORING
+  };
+}; // ------------------------------------------------------------------------------
+
 /***/ }),
 
 /***/ "./components/App.js":
@@ -3079,7 +3107,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Node__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Node */ "./components/Node.js");
 /* harmony import */ var _Handicap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Handicap */ "./components/Handicap.js");
 /* harmony import */ var _Line__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Line */ "./components/Line.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
+
 
 
 
@@ -3088,6 +3119,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var App = function App(props) {
+  var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
   var boardSize = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.boardSize;
   });
@@ -3098,14 +3130,14 @@ var App = function App(props) {
 
     for (var i = 0; i < Math.pow(boardSize, 2); i++) {
       // LIBERTIES
-      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Node__WEBPACK_IMPORTED_MODULE_2__["default"], {
+      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Node__WEBPACK_IMPORTED_MODULE_2__["default"], {
         i: i
-      })); // HANDICAPS
+      }, i)); // HANDICAPS
 
       if (i == handicapSpaceSeparator * boardSize + handicapSpaceSeparator || i == (handicapSpaceSeparator + 1) * boardSize - handicapSpaceSeparator - 1 || i == (boardSize - handicapSpaceSeparator - 1) * boardSize + handicapSpaceSeparator || i == (boardSize - handicapSpaceSeparator) * boardSize - handicapSpaceSeparator - 1 || i == (Math.pow(boardSize, 2) - 1) / 2) {
-        output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Handicap__WEBPACK_IMPORTED_MODULE_3__["default"], {
+        output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Handicap__WEBPACK_IMPORTED_MODULE_3__["default"], {
           i: i
-        }));
+        }, "d-".concat(i)));
       }
     }
 
@@ -3117,16 +3149,16 @@ var App = function App(props) {
 
     for (var i = 0; i < boardSize; i++) {
       var spaceIncrement = "".concat(Math.floor(i / (boardSize - 1) * 100), "%");
-      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Line__WEBPACK_IMPORTED_MODULE_4__["default"], {
+      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Line__WEBPACK_IMPORTED_MODULE_4__["default"], {
         i: i,
         direction: "horizontal",
         spaceIncrement: spaceIncrement
-      }));
-      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Line__WEBPACK_IMPORTED_MODULE_4__["default"], {
+      }, "h-".concat(i)));
+      output.push( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Line__WEBPACK_IMPORTED_MODULE_4__["default"], {
         i: i,
         direction: "vertical",
         spaceIncrement: spaceIncrement
-      }));
+      }, "v-".concat(i)));
     }
 
     return output;
@@ -3136,9 +3168,20 @@ var App = function App(props) {
     return [renderLines(), renderLibertiesAndHandicaps()];
   };
 
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+  var handleCheckScore = function handleCheckScore() {
+    return dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_5__.checkScore)());
+  };
+
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
     className: "bg-gray-300 text-white flex justify-center items-center p-12",
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+      className: "absolute top-0 left-0 p-8",
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
+        onClick: handleCheckScore,
+        className: "cursor-pointer px-6 py-2 flex justify-center items-center bg-green-600 rounded-md hover:bg-green-500",
+        children: "Check Score"
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
       className: "relative p-12 bg-cover bg-no-repeat",
       style: {
         width: "90vh",
@@ -3147,11 +3190,11 @@ var App = function App(props) {
         maxHeight: '1200px',
         backgroundImage: 'url("./images/wood-bg.jpg")'
       },
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
         className: "w-full h-full relative flex flex-wrap",
         children: renderBoard()
       })
-    })
+    })]
   });
 };
 
@@ -3346,6 +3389,9 @@ var Node = function Node(props) {
   var board = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.board;
   });
+  var checkingScore = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.checkingScore;
+  });
   var status = board[i];
   var row = Math.floor(i / boardSize);
   var column = i % boardSize;
@@ -3355,7 +3401,7 @@ var Node = function Node(props) {
       hoverClass = _useState2[0],
       setHoverClass = _useState2[1];
 
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(status === 'o' ? 'bg-gray-100' : status === 'x' ? 'bg-gray-700' : ''),
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(status.toLowerCase() === 'o' ? 'bg-gray-100' : status.toLowerCase() === 'x' ? 'bg-gray-700' : ''),
       _useState4 = _slicedToArray(_useState3, 2),
       backgroundClass = _useState4[0],
       setBackgroundClass = _useState4[1];
@@ -3365,19 +3411,27 @@ var Node = function Node(props) {
       sizeClassNames = _useState6[0],
       setSizeClassNames = _useState6[1];
 
-  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('1.5rem'),
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("rounded-full"),
       _useState8 = _slicedToArray(_useState7, 2),
-      offset = _useState8[0],
-      setOffset = _useState8[1];
+      scoreClassName = _useState8[0],
+      setScoreClassName = _useState8[1];
+
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('1.5rem'),
+      _useState10 = _slicedToArray(_useState9, 2),
+      offset = _useState10[0],
+      setOffset = _useState10[1];
   /**********************
    * FUNCTIONS
    **********************/
 
 
   var handleClick = function handleClick() {
-    // const isDead = checkIfDead()
     if (status === '.') {
       dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.attemptMove)(i));
+    }
+
+    if (checkingScore) {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.cancelScoring)());
     }
   };
 
@@ -3387,7 +3441,13 @@ var Node = function Node(props) {
     }
   }, [toPlay]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    setBackgroundClass(status === 'o' ? 'bg-gray-100' : status === 'x' ? 'bg-gray-700' : '');
+    setBackgroundClass(status.toLowerCase() === 'o' ? 'bg-gray-100' : status.toLowerCase() === 'x' ? 'bg-gray-700' : '');
+
+    if (status === 'O' || status === "X") {
+      setScoreClassName('opacity-50 rounded-none hover:rounded-full hover:scale-100 transform scale-75');
+    } else {
+      setScoreClassName('rounded-full');
+    }
   }, [status]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     if (status === ".") {
@@ -3416,9 +3476,9 @@ var Node = function Node(props) {
 
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
     id: i,
-    className: "absolute rounded-full absolute z-20 ".concat(sizeClassNames, " ").concat(hoverClass, " ").concat(backgroundClass),
+    className: "absolute z-20 ".concat(sizeClassNames, " ").concat(hoverClass, " ").concat(backgroundClass, " ").concat(scoreClassName),
     style: {
-      opacity: status === '.' ? 0.25 : 1,
+      opacity: ['.', 'X', 'O'].includes(status) ? 0.25 : 1,
       left: "calc(".concat(Math.floor(column / (boardSize - 1) * 100), "% - ").concat(offset, ")"),
       top: "calc(".concat(Math.floor(row / (boardSize - 1) * 100), "% - ").concat(offset, ")")
     },
@@ -3489,7 +3549,8 @@ __webpack_require__.r(__webpack_exports__);
 
 var _marked = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(handleAttemptMove),
     _marked2 = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(handleMove),
-    _marked3 = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(watcher);
+    _marked3 = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(handleCheckScore),
+    _marked4 = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(watcher);
 
 
 
@@ -3539,7 +3600,7 @@ function handleAttemptMove(action) {
           previousBoardPosition = _context.sent;
 
           if (!(focusPoint !== action.i)) {
-            _context.next = 44;
+            _context.next = 42;
             break;
           }
 
@@ -3566,62 +3627,59 @@ function handleAttemptMove(action) {
 
         case 24:
           toBeRemoved = _context.sent;
-          console.log('to be removed', action.i, toBeRemoved);
 
           if (!(toBeRemoved.length == 0)) {
-            _context.next = 32;
+            _context.next = 31;
             break;
           }
 
-          _context.next = 29;
+          _context.next = 28;
           return Validator.hasLiberties(action.i);
 
-        case 29:
+        case 28:
           hasLiberty = _context.sent;
-          _context.next = 34;
+          _context.next = 33;
           break;
 
-        case 32:
-          _context.next = 34;
+        case 31:
+          _context.next = 33;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_STONES_TO_BE_REMOVED,
             array: toBeRemoved
           });
 
-        case 34:
-          console.log('SAGA', hasLiberty, toBeRemoved);
-
+        case 33:
           if (!(toBeRemoved.length > 0 || hasLiberty)) {
-            _context.next = 40;
+            _context.next = 38;
             break;
           }
 
-          _context.next = 38;
+          _context.next = 36;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
             i: action.i
           });
 
-        case 38:
-          _context.next = 42;
+        case 36:
+          _context.next = 40;
           break;
 
-        case 40:
-          _context.next = 42;
+        case 38:
+          _context.next = 40;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
             i: null
           });
 
-        case 42:
-          _context.next = 46;
+        case 40:
+          _context.next = 44;
           break;
 
-        case 44:
-          _context.next = 46;
+        case 42:
+          _context.next = 44;
           return handleMove(action.i);
 
-        case 46:
+        case 44:
         case "end":
           return _context.stop();
       }
@@ -3650,95 +3708,94 @@ function handleMove(i) {
 
         case 5:
           ko = _context2.sent;
-          console.log('handle move', toBeRemoved);
-          _context2.next = 9;
+          _context2.next = 8;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_NODE,
             i: i
           });
 
-        case 9:
+        case 8:
           if (!(toBeRemoved.length > 0)) {
-            _context2.next = 28;
+            _context2.next = 27;
             break;
           }
 
-          _context2.next = 12;
+          _context2.next = 11;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_KO,
             bool: true
           });
 
-        case 12:
+        case 11:
           _i = 0;
 
-        case 13:
+        case 12:
           if (!(_i < toBeRemoved.length)) {
-            _context2.next = 24;
+            _context2.next = 23;
             break;
           }
 
           j = 0;
 
-        case 15:
+        case 14:
           if (!(j < toBeRemoved[_i].length)) {
-            _context2.next = 21;
+            _context2.next = 20;
             break;
           }
 
-          _context2.next = 18;
+          _context2.next = 17;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.CLEAR_NODE,
             i: toBeRemoved[_i][j]
           });
 
-        case 18:
+        case 17:
           j++;
-          _context2.next = 15;
+          _context2.next = 14;
           break;
 
-        case 21:
+        case 20:
           _i++;
-          _context2.next = 13;
+          _context2.next = 12;
           break;
 
-        case 24:
-          _context2.next = 26;
+        case 23:
+          _context2.next = 25;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_STONES_TO_BE_REMOVED,
             array: []
           });
 
-        case 26:
-          _context2.next = 31;
+        case 25:
+          _context2.next = 30;
           break;
 
-        case 28:
+        case 27:
           if (!ko) {
-            _context2.next = 31;
+            _context2.next = 30;
             break;
           }
 
-          _context2.next = 31;
+          _context2.next = 30;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_KO,
             bool: false
           });
 
-        case 31:
-          _context2.next = 33;
+        case 30:
+          _context2.next = 32;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_TO_PLAY
           });
 
-        case 33:
-          _context2.next = 35;
+        case 32:
+          _context2.next = 34;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
             i: null
           });
 
-        case 35:
+        case 34:
         case "end":
           return _context2.stop();
       }
@@ -3746,20 +3803,72 @@ function handleMove(i) {
   }, _marked2);
 }
 
-function watcher() {
-  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function watcher$(_context3) {
+function handleCheckScore(action) {
+  var board, Validator, scoringAreas, tempBoard;
+  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleCheckScore$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
           _context3.next = 2;
-          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.takeEvery)(_actions_game__WEBPACK_IMPORTED_MODULE_2__.ATTEMPT_MOVE, handleAttemptMove);
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
+            return state.game.board;
+          });
 
         case 2:
+          board = _context3.sent;
+          Validator = new _helpers__WEBPACK_IMPORTED_MODULE_3__.Validate(board);
+          _context3.next = 6;
+          return Validator.checkScore();
+
+        case 6:
+          scoringAreas = _context3.sent;
+          console.log('test score: ', scoringAreas);
+
+          if (!(scoringAreas.length > 1)) {
+            _context3.next = 13;
+            break;
+          }
+
+          tempBoard = board.slice(0, board.length);
+          scoringAreas.forEach(function (item) {
+            if (item.owner !== '.') {
+              item.chain.forEach(function (node) {
+                tempBoard = tempBoard.replaceAt(node, item.owner.toUpperCase()); // console.log('temp board', node, tempBoard, item.owner.toUpperCase())
+              });
+            }
+          });
+          _context3.next = 13;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_BOARD,
+            board: tempBoard
+          });
+
+        case 13:
         case "end":
           return _context3.stop();
       }
     }
   }, _marked3);
+}
+
+function watcher() {
+  return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function watcher$(_context4) {
+    while (1) {
+      switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.next = 2;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.takeEvery)(_actions_game__WEBPACK_IMPORTED_MODULE_2__.ATTEMPT_MOVE, handleAttemptMove);
+
+        case 2:
+          _context4.next = 4;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.takeEvery)(_actions_game__WEBPACK_IMPORTED_MODULE_2__.CHECK_SCORE, handleCheckScore);
+
+        case 4:
+        case "end":
+          return _context4.stop();
+      }
+    }
+  }, _marked4);
 }
 
 /***/ }),
@@ -3843,6 +3952,7 @@ var Validate = /*#__PURE__*/function () {
     this.hasBeenChecked = [];
     this.toBeRemoved = [];
     this.startOfChain = 1;
+    this.score = [];
   }
 
   _createClass(Validate, [{
@@ -3858,8 +3968,7 @@ var Validate = /*#__PURE__*/function () {
     key: "handleCapture",
     value: function handleCapture(i) {
       this.hasBeenChecked = [i];
-      this.isValid = false; // console.log('-------------HANDLE CAPTURE-------------')
-
+      this.isValid = false;
       var id;
       var row = Math.floor(i / this.boardSize);
       var column = i % this.boardSize; // top
@@ -3889,8 +3998,7 @@ var Validate = /*#__PURE__*/function () {
 
       if (column != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
         this.isChainDead(id);
-      } // console.log('-------------END CAPTURE-------------')
-
+      }
 
       this.isValid = false;
       return this.toBeRemoved;
@@ -3899,28 +4007,18 @@ var Validate = /*#__PURE__*/function () {
     key: "isChainDead",
     value: function isChainDead(i) {
       this.isValid = undefined;
-      var hasLibs = this.hasLiberties(i, this.opponentChar);
 
-      if (!hasLibs) {
+      if (!this.hasLiberties(i, this.opponentChar)) {
         this.toBeRemoved.push(this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length));
       }
 
-      this.startOfChain = this.hasBeenChecked.length; // console.log('has libs', i, hasLibs, this.hasBeenChecked, this.toBeRemoved, this.startOfChain)
-    }
-  }, {
-    key: "countScore",
-    value: function countScore() {
-      this.hasBeenChecked = [];
-
-      for (var i = 0; i < this.board.length; i++) {}
+      this.startOfChain = this.hasBeenChecked.length;
     }
   }, {
     key: "hasLiberties",
     value: function hasLiberties(i) {
       var playingAs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.playerChar;
       var countScore = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      // console.log('-------------HAS LIBERTIES---------------')
-      // console.log('has liberty', i, this.board, playingAs)
       this.hasBeenChecked.push(i);
       var id;
       var row = Math.floor(i / this.boardSize);
@@ -3929,97 +4027,138 @@ var Validate = /*#__PURE__*/function () {
       id = i - this.boardSize;
 
       if (row != 0 && !this.hasBeenChecked.includes(id)) {
-        // console.log('top')
         if (this.board[id] === '.') {
-          // console.log('top', i, 1)
-          if (countScore) {
-            this.hasLiberties(id, playingAs);
-          } else {
-            this.isValid = true;
-          }
+          this.isValid = true;
         } else if (this.board[id] === playingAs) {
-          // console.log('top', i, 2)
-          if (countScore) {
-            this.isValid = true;
-          } else {
-            this.hasLiberties(id, playingAs);
-          }
-        } // console.log('top', i, 3)
-
+          this.hasLiberties(id, playingAs);
+        }
       } //right
 
 
       id = i + 1;
 
       if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        // console.log('right')
         if (this.board[id] === '.') {
-          // console.log('right', i, 1)
-          if (countScore) {
-            this.hasLiberties(id, playingAs);
-          } else {
-            this.isValid = true;
-          }
+          this.isValid = true;
         } else if (this.board[id] === playingAs) {
-          // console.log('right', i, 2)
-          if (countScore) {
-            this.isValid = true;
-          } else {
-            this.hasLiberties(id, playingAs);
-          }
-        } // console.log('right', i, 3)
-
+          this.hasLiberties(id, playingAs);
+        }
       } // bottom
 
 
       id = i + this.boardSize;
 
       if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        // console.log('bottom', i, id, this.hasBeenChecked, playingAs, this.board[id])
-        // console.log(this.boardSize, this.board.length, i + this.boardSize)
         if (this.board[id] === '.') {
-          // console.log('bottom', i, 1)
-          if (countScore) {
-            this.hasLiberties(id, playingAs);
-          } else {
-            this.isValid = true;
-          }
+          this.isValid = true;
         } else if (this.board[id] === playingAs) {
-          // console.log('bottom', i, 2)
-          if (countScore) {
-            this.isValid = true;
-          } else {
-            this.hasLiberties(id, playingAs);
-          }
-        } // console.log('bottom', i, 3)
-
+          this.hasLiberties(id, playingAs);
+        }
       } // left
 
 
       id = i - 1;
 
       if (column != 0 && !this.hasBeenChecked.includes(id)) {
-        // console.log('left')
         if (this.board[id] === '.') {
-          // console.log('left', i, 1)
-          if (countScore) {
-            this.hasLiberties(id, playingAs);
-          } else {
-            this.isValid = true;
-          }
+          this.isValid = true;
         } else if (this.board[id] === playingAs) {
-          // console.log('left', i, 2)
-          if (countScore) {
-            this.isValid = true;
-          } else {
-            this.hasLiberties(id, playingAs);
-          }
-        } // console.log('left', i, 3)
-
-      } // console.log('-------------END HAS LIBERTIES---------------', this.isValid)
-
+          this.hasLiberties(id, playingAs);
+        }
+      }
 
       return this.isValid || false;
+    }
+  }, {
+    key: "scoreChain",
+    value: function scoreChain(i) {
+      if (!this.hasBeenChecked.includes(i)) {
+        this.hasBeenChecked.push(i);
+      } else {
+        return;
+      }
+
+      var id;
+      var row = Math.floor(i / this.boardSize);
+      var column = i % this.boardSize; // top
+
+      id = i - this.boardSize;
+
+      if (row != 0 && !this.hasBeenChecked.includes(id)) {
+        if (this.board[id] === '.') {
+          this.scoreChain(id);
+        } else if (!this.chainOwner) {
+          this.chainOwner = this.board[id];
+        } else if (this.board[id] !== this.chainOwner) {
+          this.chainOwner = '.';
+        }
+      } //right
+
+
+      id = i + 1;
+
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        if (this.board[id] === '.') {
+          this.scoreChain(id);
+        } else if (!this.chainOwner) {
+          this.chainOwner = this.board[id];
+        } else if (this.board[id] !== this.chainOwner) {
+          this.chainOwner = '.';
+        }
+      } // bottom
+
+
+      id = i + this.boardSize;
+
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        if (this.board[id] === '.') {
+          this.scoreChain(id);
+        } else if (!this.chainOwner) {
+          this.chainOwner = this.board[id];
+        } else if (this.board[id] !== this.chainOwner) {
+          this.chainOwner = '.';
+        }
+      } // left
+
+
+      id = i - 1;
+
+      if (column != 0 && !this.hasBeenChecked.includes(id)) {
+        if (this.board[id] === '.') {
+          this.scoreChain(id);
+        } else if (!this.chainOwner) {
+          this.chainOwner = this.board[id];
+        } else if (this.board[id] !== this.chainOwner) {
+          this.chainOwner = '.';
+        }
+      }
+
+      return {
+        owner: this.chainOwner,
+        chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length),
+        score: this.hasBeenChecked.length - this.startOfChain
+      };
+    }
+  }, {
+    key: "checkScore",
+    value: function checkScore() {
+      console.log('---------------checking score--------------');
+      this.hasBeenChecked = [];
+      this.startOfChain = 0;
+
+      for (var i = 0; i < this.board.length; i++) {
+        if (this.board[i] === '.') {
+          var chainScore = this.scoreChain(i);
+          this.startOfChain = this.hasBeenChecked.length;
+          this.chainOwner = undefined;
+
+          if (chainScore) {
+            this.score.push(chainScore);
+          }
+        }
+      }
+
+      return this.score; // return this.scoreChain(74)
     }
   }]);
 
@@ -4073,11 +4212,12 @@ var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  board: '.....xx......x...x....ox.x.....xox.x.....oxx......ox.x..ox..xx....x...ox........o',
+  board: '.o...xx..o..xx...x....ox.x...x.xox.x...x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
-  previousBoardPosition: null
+  previousBoardPosition: null,
+  checkingScore: false
 };
 
 var reducer = function reducer() {
@@ -4117,6 +4257,14 @@ var reducer = function reducer() {
       });
     //-----------------------------------------------------------------------------------------------------//
 
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.UPDATE_BOARD:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          board: action.board
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
     case _actions_game__WEBPACK_IMPORTED_MODULE_0__.SET_FOCUS_POINT:
       return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
@@ -4138,6 +4286,24 @@ var reducer = function reducer() {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           ko: action.bool,
           previousBoardPosition: action.bool ? draftState.board : null
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.CHECK_SCORE:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          checkingScore: true,
+          focusPoint: null
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.CANCEL_SCORING:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          checkingScore: false,
+          board: draftState.board.replace(/[XO]/g, '.')
         });
       });
     //-----------------------------------------------------------------------------------------------------//

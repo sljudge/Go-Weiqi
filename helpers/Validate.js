@@ -10,6 +10,7 @@ class Validate {
         this.hasBeenChecked = []
         this.toBeRemoved = []
         this.startOfChain = 1
+        this.score = []
     }
 
     validateKO(i) {
@@ -23,7 +24,6 @@ class Validate {
     handleCapture(i) {
         this.hasBeenChecked = [i]
         this.isValid = false
-        // console.log('-------------HANDLE CAPTURE-------------')
         let id
         const row = Math.floor((i) / this.boardSize)
         const column = i % this.boardSize
@@ -47,7 +47,6 @@ class Validate {
         if (column != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
             this.isChainDead(id)
         }
-        // console.log('-------------END CAPTURE-------------')
         this.isValid = false
         return this.toBeRemoved
     }
@@ -55,26 +54,16 @@ class Validate {
     isChainDead(i) {
         this.isValid = undefined
 
-        let hasLibs = this.hasLiberties(i, this.opponentChar)
-        if (!hasLibs) {
+        if (!this.hasLiberties(i, this.opponentChar)) {
             this.toBeRemoved.push(
                 this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length)
             )
         }
         this.startOfChain = this.hasBeenChecked.length
-        // console.log('has libs', i, hasLibs, this.hasBeenChecked, this.toBeRemoved, this.startOfChain)
     }
 
-    countScore() {
-        this.hasBeenChecked = []
-        for (let i = 0; i < this.board.length; i++) {
-
-        }
-    }
 
     hasLiberties(i, playingAs = this.playerChar, countScore = false) {
-        // console.log('-------------HAS LIBERTIES---------------')
-        // console.log('has liberty', i, this.board, playingAs)
         this.hasBeenChecked.push(i)
 
         let id
@@ -84,90 +73,118 @@ class Validate {
         // top
         id = (i - this.boardSize)
         if (row != 0 && !this.hasBeenChecked.includes(id)) {
-            // console.log('top')
             if (this.board[id] === '.') {
-                // console.log('top', i, 1)
-                if (countScore) {
-                    this.hasLiberties(id, playingAs)
-                } else {
-                    this.isValid = true
-                }
+                this.isValid = true
             } else if (this.board[id] === playingAs) {
-                // console.log('top', i, 2)
-                if (countScore) {
-                    this.isValid = true
-                } else {
-                    this.hasLiberties(id, playingAs)
-                }
+                this.hasLiberties(id, playingAs)
             }
-            // console.log('top', i, 3)
         }
         //right
         id = (i + 1)
         if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            // console.log('right')
             if (this.board[id] === '.') {
-                // console.log('right', i, 1)
-                if (countScore) {
-                    this.hasLiberties(id, playingAs)
-                } else {
-                    this.isValid = true
-                }
+                this.isValid = true
             } else if (this.board[id] === playingAs) {
-                // console.log('right', i, 2)
-                if (countScore) {
-                    this.isValid = true
-                } else {
-                    this.hasLiberties(id, playingAs)
-                }
+                this.hasLiberties(id, playingAs)
             }
-            // console.log('right', i, 3)
         }
         // bottom
         id = (i + this.boardSize)
         if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            // console.log('bottom', i, id, this.hasBeenChecked, playingAs, this.board[id])
-            // console.log(this.boardSize, this.board.length, i + this.boardSize)
             if (this.board[id] === '.') {
-                // console.log('bottom', i, 1)
-                if (countScore) {
-                    this.hasLiberties(id, playingAs)
-                } else {
-                    this.isValid = true
-                }
+                this.isValid = true
             } else if (this.board[id] === playingAs) {
-                // console.log('bottom', i, 2)
-                if (countScore) {
-                    this.isValid = true
-                } else {
-                    this.hasLiberties(id, playingAs)
-                }
+                this.hasLiberties(id, playingAs)
             }
-            // console.log('bottom', i, 3)
         }
         // left
         id = (i - 1)
         if (column != 0 && !this.hasBeenChecked.includes(id)) {
-            // console.log('left')
             if (this.board[id] === '.') {
-                // console.log('left', i, 1)
-                if (countScore) {
-                    this.hasLiberties(id, playingAs)
-                } else {
-                    this.isValid = true
-                }
+                this.isValid = true
             } else if (this.board[id] === playingAs) {
-                // console.log('left', i, 2)
-                if (countScore) {
-                    this.isValid = true
-                } else {
-                    this.hasLiberties(id, playingAs)
+                this.hasLiberties(id, playingAs)
+            }
+        }
+        return this.isValid || false
+    }
+
+
+    scoreChain(i) {
+        if (!this.hasBeenChecked.includes(i)) {
+            this.hasBeenChecked.push(i)
+        } else {
+            return;
+        }
+        let id
+        const row = Math.floor((i) / this.boardSize)
+        const column = i % this.boardSize
+
+        // top
+        id = (i - this.boardSize)
+        if (row != 0 && !this.hasBeenChecked.includes(id)) {
+            if (this.board[id] === '.') {
+                this.scoreChain(id)
+            } else if (!this.chainOwner) {
+                this.chainOwner = this.board[id]
+            } else if (this.board[id] !== this.chainOwner) {
+                this.chainOwner = '.'
+            }
+        }
+        //right
+        id = (i + 1)
+        if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+            if (this.board[id] === '.') {
+                this.scoreChain(id)
+            } else if (!this.chainOwner) {
+                this.chainOwner = this.board[id]
+            } else if (this.board[id] !== this.chainOwner) {
+                this.chainOwner = '.'
+            }
+        }
+        // bottom
+        id = (i + this.boardSize)
+        if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+            if (this.board[id] === '.') {
+                this.scoreChain(id)
+            } else if (!this.chainOwner) {
+                this.chainOwner = this.board[id]
+            } else if (this.board[id] !== this.chainOwner) {
+                this.chainOwner = '.'
+            }
+        }
+        // left
+        id = (i - 1)
+        if (column != 0 && !this.hasBeenChecked.includes(id)) {
+            if (this.board[id] === '.') {
+                this.scoreChain(id)
+            } else if (!this.chainOwner) {
+                this.chainOwner = this.board[id]
+            } else if (this.board[id] !== this.chainOwner) {
+                this.chainOwner = '.'
+            }
+        }
+
+        return { owner: this.chainOwner, chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length), score: this.hasBeenChecked.length - this.startOfChain }
+    }
+
+    checkScore() {
+        console.log('---------------checking score--------------')
+        this.hasBeenChecked = []
+        this.startOfChain = 0
+        for (let i = 0; i < this.board.length; i++) {
+            if (this.board[i] === '.') {
+
+                const chainScore = this.scoreChain(i)
+                this.startOfChain = this.hasBeenChecked.length
+                this.chainOwner = undefined
+                if (chainScore) {
+                    this.score.push(chainScore)
                 }
             }
-            // console.log('left', i, 3)
         }
-        // console.log('-------------END HAS LIBERTIES---------------', this.isValid)
-        return this.isValid || false
+        return this.score
+        // return this.scoreChain(74)
     }
 }
 

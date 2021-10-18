@@ -31,6 +31,14 @@ export const clearNode = (i) => ({
    type: CLEAR_NODE,
    i
 })
+// ------------------------------------------------------------------------------
+
+export const UPDATE_BOARD = 'UPDATE_BOARD'
+
+export const updateBoard = (i) => ({
+   type: UPDATE_BOARD,
+   board
+})
 
 // ------------------------------------------------------------------------------
 
@@ -66,6 +74,22 @@ export const SET_KO = 'SET_KO'
 export const setKo = (bool) => ({
    type: SET_KO,
    bool
+})
+
+// ------------------------------------------------------------------------------
+
+export const CHECK_SCORE = 'CHECK_SCORE'
+
+export const checkScore = () => ({
+   type: CHECK_SCORE
+})
+
+// ------------------------------------------------------------------------------
+
+export const CANCEL_SCORING = 'CANCEL_SCORING'
+
+export const cancelScoring = () => ({
+   type: CANCEL_SCORING
 })
 
 // ------------------------------------------------------------------------------

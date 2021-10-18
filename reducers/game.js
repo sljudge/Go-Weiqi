@@ -6,6 +6,9 @@ import {
     CLEAR_NODE,
     SET_STONES_TO_BE_REMOVED,
     SET_KO,
+    UPDATE_BOARD,
+    CHECK_SCORE,
+    CANCEL_SCORING
 } from '../actions/game'
 
 const boardSize = 9
@@ -13,11 +16,12 @@ const initialState = {
     toPlay: 'white',
     boardSize: boardSize,
     // board: '.'.repeat(Math.pow(boardSize, 2)),
-    board: '.....xx......x...x....ox.x.....xox.x.....oxx......ox.x..ox..xx....x...ox........o',
+    board: '.o...xx..o..xx...x....ox.x...x.xox.x...x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
     focusPoint: null,
     stonesToBeRemoved: [],
     ko: false,
-    previousBoardPosition: null
+    previousBoardPosition: null,
+    checkingScore: false
 }
 
 const reducer = (state = initialState, action) => {
@@ -49,6 +53,12 @@ const reducer = (state = initialState, action) => {
                 board: draftState.board.replaceAt(action.i, '.')
             }))
         //-----------------------------------------------------------------------------------------------------//
+        case UPDATE_BOARD:
+            return produce(state, draftState => ({
+                ...draftState,
+                board: action.board,
+            }))
+        //-----------------------------------------------------------------------------------------------------//
         case SET_FOCUS_POINT:
             return produce(state, draftState => ({
                 ...draftState,
@@ -66,6 +76,20 @@ const reducer = (state = initialState, action) => {
                 ...draftState,
                 ko: action.bool,
                 previousBoardPosition: action.bool ? draftState.board : null
+            }))
+        //-----------------------------------------------------------------------------------------------------//
+        case CHECK_SCORE:
+            return produce(state, draftState => ({
+                ...draftState,
+                checkingScore: true,
+                focusPoint: null
+            }))
+        //-----------------------------------------------------------------------------------------------------//
+        case CANCEL_SCORING:
+            return produce(state, draftState => ({
+                ...draftState,
+                checkingScore: false,
+                board: draftState.board.replace(/[XO]/g, '.')
             }))
         //-----------------------------------------------------------------------------------------------------//
         default:

@@ -1,6 +1,6 @@
 import { takeEvery, select, call, put, delay } from 'redux-saga/effects'
 import { push } from 'connected-react-router'
-import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO } from '../actions/game'
+import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO, CHECK_SCORE, UPDATE_BOARD } from '../actions/game'
 import { Validate } from '../helpers'
 
 
@@ -22,7 +22,6 @@ function* handleAttemptMove(action) {
         yield put({ type: SET_STONES_TO_BE_REMOVED, array: [] })
 
         const toBeRemoved = yield Validator.handleCapture(action.i)
-        console.log('to be removed', action.i, toBeRemoved)
 
         let hasLiberty
         if (toBeRemoved.length == 0) {
@@ -30,7 +29,6 @@ function* handleAttemptMove(action) {
         } else {
             yield put({ type: SET_STONES_TO_BE_REMOVED, array: toBeRemoved })
         }
-        console.log('SAGA', hasLiberty, toBeRemoved)
         if (toBeRemoved.length > 0 || hasLiberty) {
             yield put({ type: SET_FOCUS_POINT, i: action.i })
         } else {
@@ -44,7 +42,6 @@ function* handleAttemptMove(action) {
 function* handleMove(i) {
     const toBeRemoved = yield select(state => state.game.stonesToBeRemoved)
     const ko = yield select(state => state.game.ko)
-    console.log('handle move', toBeRemoved)
 
     yield put({ type: UPDATE_NODE, i: i })
 
@@ -66,6 +63,33 @@ function* handleMove(i) {
     yield put({ type: SET_FOCUS_POINT, i: null })
 }
 
+function* handleCheckScore(action) {
+    const board = yield select(state => state.game.board)
+
+    const Validator = new Validate(board)
+
+    const scoringAreas = yield Validator.checkScore()
+    console.log('test score: ', scoringAreas)
+    if (scoringAreas.length > 1) {
+
+        let tempBoard = board.slice(0, board.length)
+
+        scoringAreas.forEach(item => {
+
+            if (item.owner !== '.') {
+                item.chain.forEach(node => {
+                    tempBoard = tempBoard.replaceAt(node, item.owner.toUpperCase())
+                    // console.log('temp board', node, tempBoard, item.owner.toUpperCase())
+                })
+            }
+
+        })
+
+        yield put({ type: UPDATE_BOARD, board: tempBoard })
+    }
+}
+
 export function* watcher() {
     yield takeEvery(ATTEMPT_MOVE, handleAttemptMove)
+    yield takeEvery(CHECK_SCORE, handleCheckScore)
 }
