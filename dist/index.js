@@ -3882,17 +3882,17 @@ function handleCheckScore(action) {
           scoringAreas.forEach(function (area) {
             if (area.owner !== '.') {
               if (area.owner === 'x') {
+                if (area.capture) {
+                  blackCaptures += area.chain.length;
+                }
+
                 blackArea += area.chain.length;
-
-                if (area.capture) {
-                  blackCaptures += area.capture.length;
-                }
               } else {
-                whiteArea += area.chain.length;
-
                 if (area.capture) {
-                  whiteCaptures += area.capture.length;
+                  whiteCaptures += area.chain.length;
                 }
+
+                whiteArea += area.chain.length;
               }
 
               area.chain.forEach(function (node) {
@@ -4367,10 +4367,21 @@ var Validate = /*#__PURE__*/function () {
       if (this.deadBehindEnemyLines()) {
         this.areas.push({
           owner: this.board[temp] === 'x' ? 'o' : 'x',
-          chain: [].concat(_toConsumableArray(this.currentChain), _toConsumableArray(this.chainEyesAndLibs)),
-          capture: this.currentChain
+          chain: _toConsumableArray(this.currentChain),
+          capture: true
         });
-      }
+        this.areas.push({
+          owner: this.board[temp] === 'x' ? 'o' : 'x',
+          chain: _toConsumableArray(this.chainEyesAndLibs)
+        });
+      } // if (this.deadBehindEnemyLines()) {
+      //     this.areas.push({
+      //         owner: this.board[temp] === 'x' ? 'o' : 'x',
+      //         chain: [...this.currentChain, ...this.chainEyesAndLibs],
+      //         capture: this.currentChain
+      //     })
+      // }
+
 
       return this.areas; // for (let i = 0; i < this.board.length; i++) {
       //     if (this.board[i] !== '.') {

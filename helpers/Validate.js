@@ -274,12 +274,23 @@ class Validate {
         if (this.deadBehindEnemyLines()) {
             this.areas.push({
                 owner: this.board[temp] === 'x' ? 'o' : 'x',
-                chain: [...this.currentChain, ...this.chainEyesAndLibs],
-                capture: this.currentChain
+                chain: [...this.currentChain],
+                capture: true
+            })
+            this.areas.push({
+                owner: this.board[temp] === 'x' ? 'o' : 'x',
+                chain: [...this.chainEyesAndLibs],
             })
         }
 
 
+        // if (this.deadBehindEnemyLines()) {
+        //     this.areas.push({
+        //         owner: this.board[temp] === 'x' ? 'o' : 'x',
+        //         chain: [...this.currentChain, ...this.chainEyesAndLibs],
+        //         capture: this.currentChain
+        //     })
+        // }
         return this.areas
         // for (let i = 0; i < this.board.length; i++) {
         //     if (this.board[i] !== '.') {

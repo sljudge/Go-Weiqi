@@ -92,15 +92,15 @@ function* handleCheckScore(action) {
             if (area.owner !== '.') {
 
                 if (area.owner === 'x') {
+                    if (area.capture) {
+                        blackCaptures += area.chain.length
+                    }
                     blackArea += area.chain.length
-                    if (area.capture) {
-                        blackCaptures += area.capture.length
-                    }
                 } else {
-                    whiteArea += area.chain.length
                     if (area.capture) {
-                        whiteCaptures += area.capture.length
+                        whiteCaptures += area.chain.length
                     }
+                    whiteArea += area.chain.length
                 }
 
                 area.chain.forEach(node => {
