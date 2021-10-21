@@ -78,12 +78,14 @@ function* handleCheckScore(action) {
     const Validator = new Validate(board)
 
     const scoringAreas = yield Validator.checkScore()
-    console.log('test score: ', scoringAreas)
+    console.log('scoring areas', scoringAreas)
     if (scoringAreas.length > 1) {
 
         let tempBoard = board.slice(0, board.length)
         let blackArea = 0
+        let blackCaptures = 0
         let whiteArea = 0
+        let whiteCaptures = 0
 
         scoringAreas.forEach(area => {
 
@@ -91,8 +93,14 @@ function* handleCheckScore(action) {
 
                 if (area.owner === 'x') {
                     blackArea += area.chain.length
+                    if (area.capture) {
+                        blackCaptures += area.capture.length
+                    }
                 } else {
                     whiteArea += area.chain.length
+                    if (area.capture) {
+                        whiteCaptures += area.capture.length
+                    }
                 }
 
                 area.chain.forEach(node => {
@@ -105,8 +113,14 @@ function* handleCheckScore(action) {
         yield put({ type: UPDATE_BOARD, board: tempBoard })
         yield put({
             type: UPDATE_SCORE, json: {
-                black: { area: blackArea },
-                white: { area: whiteArea }
+                black: {
+                    area: blackArea,
+                    captures: blackCaptures
+                },
+                white: {
+                    area: whiteArea,
+                    captures: whiteCaptures
+                }
             }
         })
     }

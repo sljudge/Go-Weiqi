@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { attemptMove, setFocusPoint, clearNode, cancelScoring } from '../actions/game'
+import { attemptMove, cancelScoring } from '../actions/game'
 
 const Node = props => {
     const { i } = { ...props }
@@ -24,11 +24,10 @@ const Node = props => {
      * FUNCTIONS
      **********************/
     const handleClick = () => {
-        if (status === '.') {
-            dispatch(attemptMove(i))
-        }
         if (checkingScore) {
             dispatch(cancelScoring())
+        } else if (status === '.') {
+            dispatch(attemptMove(i))
         }
     }
 
@@ -76,6 +75,10 @@ const Node = props => {
         }
     }, [boardSize])
 
+    useEffect(() => {
+
+    }, [])
+
     /*********************
      * RETURN
      *********************/
@@ -92,7 +95,7 @@ const Node = props => {
                 }
             }
             onClick={handleClick} >
-            {/* {i} */}
+            <span className="text-gray-500">{i}</span>
         </div>
 
     )

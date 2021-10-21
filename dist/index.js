@@ -3447,12 +3447,10 @@ var Node = function Node(props) {
 
 
   var handleClick = function handleClick() {
-    if (status === '.') {
-      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.attemptMove)(i));
-    }
-
     if (checkingScore) {
       dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.cancelScoring)());
+    } else if (status === '.') {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.attemptMove)(i));
     }
   };
 
@@ -3491,6 +3489,7 @@ var Node = function Node(props) {
       setOffset('0.75rem');
     }
   }, [boardSize]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {}, []);
   /*********************
    * RETURN
    *********************/
@@ -3503,7 +3502,11 @@ var Node = function Node(props) {
       left: "calc(".concat(Math.floor(column / (boardSize - 1) * 100), "% - ").concat(offset, ")"),
       top: "calc(".concat(Math.floor(row / (boardSize - 1) * 100), "% - ").concat(offset, ")")
     },
-    onClick: handleClick
+    onClick: handleClick,
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
+      className: "text-gray-500",
+      children: i
+    })
   }, i);
 };
 
@@ -3846,7 +3849,7 @@ function handleMove(i) {
 }
 
 function handleCheckScore(action) {
-  var board, Validator, scoringAreas, tempBoard, blackArea, whiteArea;
+  var board, Validator, scoringAreas, tempBoard, blackArea, blackCaptures, whiteArea, whiteCaptures;
   return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleCheckScore$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
@@ -3864,22 +3867,32 @@ function handleCheckScore(action) {
 
         case 6:
           scoringAreas = _context3.sent;
-          console.log('test score: ', scoringAreas);
+          console.log('scoring areas', scoringAreas);
 
           if (!(scoringAreas.length > 1)) {
-            _context3.next = 17;
+            _context3.next = 19;
             break;
           }
 
           tempBoard = board.slice(0, board.length);
           blackArea = 0;
+          blackCaptures = 0;
           whiteArea = 0;
+          whiteCaptures = 0;
           scoringAreas.forEach(function (area) {
             if (area.owner !== '.') {
               if (area.owner === 'x') {
                 blackArea += area.chain.length;
+
+                if (area.capture) {
+                  blackCaptures += area.capture.length;
+                }
               } else {
                 whiteArea += area.chain.length;
+
+                if (area.capture) {
+                  whiteCaptures += area.capture.length;
+                }
               }
 
               area.chain.forEach(function (node) {
@@ -3887,27 +3900,29 @@ function handleCheckScore(action) {
               });
             }
           });
-          _context3.next = 15;
+          _context3.next = 17;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_BOARD,
             board: tempBoard
           });
 
-        case 15:
-          _context3.next = 17;
+        case 17:
+          _context3.next = 19;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_SCORE,
             json: {
               black: {
-                area: blackArea
+                area: blackArea,
+                captures: blackCaptures
               },
               white: {
-                area: whiteArea
+                area: whiteArea,
+                captures: whiteCaptures
               }
             }
           });
 
-        case 17:
+        case 19:
         case "end":
           return _context3.stop();
       }
@@ -3996,6 +4011,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -4016,7 +4043,7 @@ var Validate = /*#__PURE__*/function () {
     this.hasBeenChecked = [];
     this.toBeRemoved = [];
     this.startOfChain = 1;
-    this.score = [];
+    this.areas = [];
   }
 
   _createClass(Validate, [{
@@ -4082,7 +4109,6 @@ var Validate = /*#__PURE__*/function () {
     key: "hasLiberties",
     value: function hasLiberties(i) {
       var playingAs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.playerChar;
-      var countScore = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       this.hasBeenChecked.push(i);
       var id;
       var row = Math.floor(i / this.boardSize);
@@ -4132,6 +4158,28 @@ var Validate = /*#__PURE__*/function () {
       }
 
       return this.isValid || false;
+    }
+  }, {
+    key: "calculateAreas",
+    value: function calculateAreas() {
+      console.log('---------------checking areas--------------');
+      this.hasBeenChecked = [];
+      this.startOfChain = 0;
+
+      for (var i = 0; i < this.board.length; i++) {
+        if (this.board[i] === '.') {
+          var chainScore = this.scoreChain(i);
+          this.startOfChain = this.hasBeenChecked.length;
+          this.chainOwner = undefined;
+
+          if (chainScore) {
+            this.areas.push(chainScore);
+          }
+        }
+      }
+
+      console.log(this.areas);
+      return this.areas;
     }
   }, {
     key: "scoreChain",
@@ -4199,30 +4247,136 @@ var Validate = /*#__PURE__*/function () {
 
       return {
         owner: this.chainOwner,
-        chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length),
-        score: this.hasBeenChecked.length - this.startOfChain
+        chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length)
       };
+    }
+  }, {
+    key: "handleCountEyesAndLibs",
+    value: function handleCountEyesAndLibs(id, owner) {
+      var _this = this;
+
+      if (this.hasBeenChecked.includes(id) || this.chainEyesAndLibs.includes(id)) {
+        return;
+      }
+
+      this.hasBeenChecked.push(id);
+
+      if (this.board[id] === '.') {
+        this.areas.forEach(function (area) {
+          if (area.chain.includes(id)) {
+            if (area.owner === owner) {
+              var _this$chainEyesAndLib;
+
+              console.log('add eye', id);
+
+              (_this$chainEyesAndLib = _this.chainEyesAndLibs).push.apply(_this$chainEyesAndLib, _toConsumableArray(area.chain));
+
+              _this.eyes.push(area.chain);
+
+              _this.countEyesAndLibs(id, owner);
+            } else if (area.owner === '.') {
+              var _this$libs, _this$chainEyesAndLib2;
+
+              (_this$libs = _this.libs).push.apply(_this$libs, _toConsumableArray(area.chain));
+
+              (_this$chainEyesAndLib2 = _this.chainEyesAndLibs).push.apply(_this$chainEyesAndLib2, _toConsumableArray(area.chain));
+            }
+          }
+        });
+      } else if (this.board[id] === owner) {
+        this.currentChain.push(id);
+        this.countEyesAndLibs(id, owner);
+      }
+    }
+  }, {
+    key: "countEyesAndLibs",
+    value: function countEyesAndLibs(i, owner) {
+      var id;
+      var row = Math.floor(i / this.boardSize);
+      var column = i % this.boardSize; // top
+
+      id = i - this.boardSize;
+
+      if (row != 0 && !this.hasBeenChecked.includes(id)) {
+        this.handleCountEyesAndLibs(id, owner);
+      } //right
+
+
+      id = i + 1;
+
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        this.handleCountEyesAndLibs(id, owner);
+      } // bottom
+
+
+      id = i + this.boardSize;
+
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        this.handleCountEyesAndLibs(id, owner);
+      } // left
+
+
+      id = i - 1;
+
+      if (column != 0 && !this.hasBeenChecked.includes(id)) {
+        this.handleCountEyesAndLibs(id, owner);
+      }
+
+      return {
+        id: i,
+        eyesAndLibs: this.chainEyesAndLibs,
+        eyes: this.eyes,
+        libs: this.libs,
+        hasBeenChecked: this.hasBeenChecked,
+        currentChain: this.currentChain
+      };
+    }
+  }, {
+    key: "deadBehindEnemyLines",
+    value: function deadBehindEnemyLines() {
+      if (this.eyes.length < 2) {
+        if (this.libs.length > 2) {
+          return false;
+        } else if (this.eyes.length === 1) {
+          var isDead = true;
+          this.eyes.forEach(function (eye) {
+            if (eye.length >= 3) {
+              isDead = false;
+            }
+          });
+          return isDead;
+        }
+
+        return true;
+      } else {
+        return false;
+      }
     }
   }, {
     key: "checkScore",
     value: function checkScore() {
-      console.log('---------------checking score--------------');
-      this.hasBeenChecked = [];
-      this.startOfChain = 0;
+      this.calculateAreas();
+      this.eyes = [];
+      this.libs = [];
+      this.chainEyesAndLibs = [];
+      this.hasBeenChecked = [temp];
+      this.currentChain = [];
+      var temp = 9;
+      console.log(this.countEyesAndLibs(temp, this.board[temp])); // console.log('is dead', this.deadBehindEnemyLines())
 
-      for (var i = 0; i < this.board.length; i++) {
-        if (this.board[i] === '.') {
-          var chainScore = this.scoreChain(i);
-          this.startOfChain = this.hasBeenChecked.length;
-          this.chainOwner = undefined;
-
-          if (chainScore) {
-            this.score.push(chainScore);
-          }
-        }
+      if (this.deadBehindEnemyLines()) {
+        this.areas.push({
+          owner: this.board[temp] === 'x' ? 'o' : 'x',
+          chain: [].concat(_toConsumableArray(this.currentChain), _toConsumableArray(this.chainEyesAndLibs)),
+          capture: this.currentChain
+        });
       }
 
-      return this.score; // return this.scoreChain(74)
+      return this.areas; // for (let i = 0; i < this.board.length; i++) {
+      //     if (this.board[i] !== '.') {
+      //         this.deadBehindEnemyLines(i, this.board[i])
+      //     }
+      // }
     }
   }]);
 
@@ -4276,7 +4430,7 @@ var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  board: '.oxx.xxooo..xx.o.x....oxxx...x.xox.x...x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
+  board: '.oxx.xxoooxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
