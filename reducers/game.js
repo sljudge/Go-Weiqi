@@ -17,7 +17,7 @@ const initialState = {
     toPlay: 'white',
     boardSize: boardSize,
     // board: '.'.repeat(Math.pow(boardSize, 2)),
-    board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxoo..o',
+    board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
     focusPoint: null,
     stonesToBeRemoved: [],
     ko: false,

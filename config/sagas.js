@@ -77,39 +77,28 @@ function* handleCheckScore(action) {
 
     const Validator = new Validate(board)
 
-    const scoringAreas = yield Validator.checkScore()
-    console.log('scoring areas', scoringAreas)
-    // yield put({ type: UPDATE_BOARD, board: scoringAreas })
+    const scoreData = yield Validator.checkScore()
+    console.log('scoring areas', scoreData.areas)
+    // yield put({ type: UPDATE_BOARD, board: scoreData.areas })
 
-    if (scoringAreas.length > 1) {
+    if (scoreData.areas.length > 1) {
 
         let tempBoard = board.slice(0, board.length)
         let blackArea = 0
-        let blackCaptures = 0
         let whiteArea = 0
-        let whiteCaptures = 0
 
-        scoringAreas.forEach(area => {
+        scoreData.areas.forEach(area => {
 
             if (area.owner !== '.') {
-
                 if (area.owner === 'x') {
-                    if (area.capture) {
-                        blackCaptures += area.chain.length
-                    }
                     blackArea += area.chain.length
                 } else {
-                    if (area.capture) {
-                        whiteCaptures += area.chain.length
-                    }
                     whiteArea += area.chain.length
                 }
-
                 area.chain.forEach(node => {
                     tempBoard = tempBoard.replaceAt(node, area.owner.toUpperCase())
                 })
             }
-
         })
 
         yield put({ type: UPDATE_BOARD, board: tempBoard })
@@ -117,11 +106,11 @@ function* handleCheckScore(action) {
             type: UPDATE_SCORE, json: {
                 black: {
                     area: blackArea,
-                    captures: blackCaptures
+                    captures: scoreData.blackDraftCaptures
                 },
                 white: {
                     area: whiteArea,
-                    captures: whiteCaptures
+                    captures: scoreData.whiteDraftCaptures
                 }
             }
         })

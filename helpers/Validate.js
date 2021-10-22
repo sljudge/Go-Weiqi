@@ -11,6 +11,8 @@ class Validate {
         this.toBeRemoved = []
         this.startOfChain = 1
         this.areas = []
+        this.blackDraftCaptures = 0
+        this.whiteDraftCaptures = 0
     }
 
     validateKO(i) {
@@ -220,22 +222,23 @@ class Validate {
 
 
     deadBehindEnemyLines() {
-        if (this.eyes.length < 2) {
-            if (this.libs.length > 2) {
-                return false
-            } else if (this.eyes.length === 1) {
-                let isDead = true
-                this.eyes.forEach(eye => {
-                    if (eye.length >= 3) {
-                        isDead = false
-                    }
-                })
-                return isDead
-            }
-            return true
-        } else {
+        if (this.eyes.length >= 2) {
             return false
         }
+        if (this.libs.length > 2) {
+            return false
+        }
+        if (this.eyes.length === 1) {
+            let isDead = true
+            this.eyes.forEach(eye => {
+                if (eye.length >= 3) {
+                    isDead = false
+                }
+            })
+            return isDead
+        }
+        return true
+
     }
 
     scoreDraftCaptures(i) {
@@ -248,6 +251,11 @@ class Validate {
         const deadBehindEnemyLines = this.deadBehindEnemyLines()
         console.log('dead behind lines', deadBehindEnemyLines, this.currentChain)
         if (deadBehindEnemyLines) {
+            if (this.board[i] === 'o') {
+                this.blackDraftCaptures += this.currentChain.length
+            } else {
+                this.whiteDraftCaptures += this.currentChain.length
+            }
             this.currentChain.forEach(node => this.board = this.board.replaceAt(node, '.'))
             this.calculateAreas()
         }
@@ -255,6 +263,8 @@ class Validate {
 
     checkScore() {
         console.log(this.board.length)
+        this.blackDraftCaptures = 0
+        this.whiteDraftCaptures = 0
         this.calculateAreas()
 
         // this.scoreDraftCaptures(15)
@@ -271,8 +281,8 @@ class Validate {
 
 
 
-
-        return this.areas
+        // return this.areas
+        return { areas: this.areas, blackDraftCaptures: this.blackDraftCaptures, whiteDraftCaptures: this.whiteDraftCaptures }
     }
 
 

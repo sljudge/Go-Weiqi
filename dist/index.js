@@ -3849,7 +3849,7 @@ function handleMove(i) {
 }
 
 function handleCheckScore(action) {
-  var board, Validator, scoringAreas, tempBoard, blackArea, blackCaptures, whiteArea, whiteCaptures;
+  var board, Validator, scoreData, tempBoard, blackArea, whiteArea;
   return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleCheckScore$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
@@ -3866,32 +3866,22 @@ function handleCheckScore(action) {
           return Validator.checkScore();
 
         case 6:
-          scoringAreas = _context3.sent;
-          console.log('scoring areas', scoringAreas); // yield put({ type: UPDATE_BOARD, board: scoringAreas })
+          scoreData = _context3.sent;
+          console.log('scoring areas', scoreData.areas); // yield put({ type: UPDATE_BOARD, board: scoreData.areas })
 
-          if (!(scoringAreas.length > 1)) {
-            _context3.next = 19;
+          if (!(scoreData.areas.length > 1)) {
+            _context3.next = 17;
             break;
           }
 
           tempBoard = board.slice(0, board.length);
           blackArea = 0;
-          blackCaptures = 0;
           whiteArea = 0;
-          whiteCaptures = 0;
-          scoringAreas.forEach(function (area) {
+          scoreData.areas.forEach(function (area) {
             if (area.owner !== '.') {
               if (area.owner === 'x') {
-                if (area.capture) {
-                  blackCaptures += area.chain.length;
-                }
-
                 blackArea += area.chain.length;
               } else {
-                if (area.capture) {
-                  whiteCaptures += area.chain.length;
-                }
-
                 whiteArea += area.chain.length;
               }
 
@@ -3900,29 +3890,29 @@ function handleCheckScore(action) {
               });
             }
           });
-          _context3.next = 17;
+          _context3.next = 15;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_BOARD,
             board: tempBoard
           });
 
-        case 17:
-          _context3.next = 19;
+        case 15:
+          _context3.next = 17;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_SCORE,
             json: {
               black: {
                 area: blackArea,
-                captures: blackCaptures
+                captures: scoreData.blackDraftCaptures
               },
               white: {
                 area: whiteArea,
-                captures: whiteCaptures
+                captures: scoreData.whiteDraftCaptures
               }
             }
           });
 
-        case 19:
+        case 17:
         case "end":
           return _context3.stop();
       }
@@ -4044,6 +4034,8 @@ var Validate = /*#__PURE__*/function () {
     this.toBeRemoved = [];
     this.startOfChain = 1;
     this.areas = [];
+    this.blackDraftCaptures = 0;
+    this.whiteDraftCaptures = 0;
   }
 
   _createClass(Validate, [{
@@ -4313,23 +4305,25 @@ var Validate = /*#__PURE__*/function () {
   }, {
     key: "deadBehindEnemyLines",
     value: function deadBehindEnemyLines() {
-      if (this.eyes.length < 2) {
-        if (this.libs.length > 2) {
-          return false;
-        } else if (this.eyes.length === 1) {
-          var isDead = true;
-          this.eyes.forEach(function (eye) {
-            if (eye.length >= 3) {
-              isDead = false;
-            }
-          });
-          return isDead;
-        }
-
-        return true;
-      } else {
+      if (this.eyes.length >= 2) {
         return false;
       }
+
+      if (this.libs.length > 2) {
+        return false;
+      }
+
+      if (this.eyes.length === 1) {
+        var isDead = true;
+        this.eyes.forEach(function (eye) {
+          if (eye.length >= 3) {
+            isDead = false;
+          }
+        });
+        return isDead;
+      }
+
+      return true;
     }
   }, {
     key: "scoreDraftCaptures",
@@ -4346,6 +4340,12 @@ var Validate = /*#__PURE__*/function () {
       console.log('dead behind lines', deadBehindEnemyLines, this.currentChain);
 
       if (deadBehindEnemyLines) {
+        if (this.board[i] === 'o') {
+          this.blackDraftCaptures += this.currentChain.length;
+        } else {
+          this.whiteDraftCaptures += this.currentChain.length;
+        }
+
         this.currentChain.forEach(function (node) {
           return _this2.board = _this2.board.replaceAt(node, '.');
         });
@@ -4356,6 +4356,8 @@ var Validate = /*#__PURE__*/function () {
     key: "checkScore",
     value: function checkScore() {
       console.log(this.board.length);
+      this.blackDraftCaptures = 0;
+      this.whiteDraftCaptures = 0;
       this.calculateAreas(); // this.scoreDraftCaptures(15)
 
       for (var i = 0; i < this.board.length; i++) {
@@ -4365,8 +4367,13 @@ var Validate = /*#__PURE__*/function () {
       }
 
       console.log(this.areas); // return this.board
+      // return this.areas
 
-      return this.areas;
+      return {
+        areas: this.areas,
+        blackDraftCaptures: this.blackDraftCaptures,
+        whiteDraftCaptures: this.whiteDraftCaptures
+      };
     }
   }]);
 
@@ -4420,7 +4427,7 @@ var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxoo..o',
+  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
