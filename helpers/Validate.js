@@ -21,7 +21,7 @@ class Validate {
         }
     }
 
-    handleCapture(i) {
+    captureChain(i) {
         this.hasBeenChecked = [i]
         this.isValid = false
         let id
@@ -30,28 +30,28 @@ class Validate {
         // top
         id = (i - this.boardSize)
         if (row != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-            this.isChainDead(id)
+            this.handleCaptureChain(id)
         }
         // right
         id = (i + 1)
         if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-            this.isChainDead(id)
+            this.handleCaptureChain(id)
         }
         // bottom
         id = (i + this.boardSize)
         if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-            this.isChainDead(id)
+            this.handleCaptureChain(id)
         }
         // left
         id = (i - 1)
         if (column != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-            this.isChainDead(id)
+            this.handleCaptureChain(id)
         }
         this.isValid = false
         return this.toBeRemoved
     }
 
-    isChainDead(i) {
+    handleCaptureChain(i) {
         this.isValid = undefined
 
         if (!this.hasLiberties(i, this.opponentChar)) {
@@ -73,44 +73,37 @@ class Validate {
         // top
         id = (i - this.boardSize)
         if (row != 0 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.isValid = true
-            } else if (this.board[id] === playingAs) {
-                this.hasLiberties(id, playingAs)
-            }
+            this.handleHasLiberties(id, playingAs)
         }
         //right
         id = (i + 1)
         if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.isValid = true
-            } else if (this.board[id] === playingAs) {
-                this.hasLiberties(id, playingAs)
-            }
+            this.handleHasLiberties(id, playingAs)
         }
         // bottom
         id = (i + this.boardSize)
         if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.isValid = true
-            } else if (this.board[id] === playingAs) {
-                this.hasLiberties(id, playingAs)
-            }
+            this.handleHasLiberties(id, playingAs)
         }
         // left
         id = (i - 1)
         if (column != 0 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.isValid = true
-            } else if (this.board[id] === playingAs) {
-                this.hasLiberties(id, playingAs)
-            }
+            this.handleHasLiberties(id, playingAs)
         }
         return this.isValid || false
     }
 
+    handleHasLiberties(id, playingAs) {
+        if (this.board[id] === '.') {
+            this.isValid = true
+        } else if (this.board[id] === playingAs) {
+            this.hasLiberties(id, playingAs)
+        }
+    }
+
     calculateAreas() {
         console.log('---------------checking areas--------------')
+        this.areas = []
         this.hasBeenChecked = []
         this.startOfChain = 0
         for (let i = 0; i < this.board.length; i++) {
@@ -142,73 +135,33 @@ class Validate {
         // top
         id = (i - this.boardSize)
         if (row != 0 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.scoreChain(id)
-            } else if (!this.chainOwner) {
-                this.chainOwner = this.board[id]
-            } else if (this.board[id] !== this.chainOwner) {
-                this.chainOwner = '.'
-            }
+            this.handleScoreChain(id)
         }
         //right
         id = (i + 1)
         if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.scoreChain(id)
-            } else if (!this.chainOwner) {
-                this.chainOwner = this.board[id]
-            } else if (this.board[id] !== this.chainOwner) {
-                this.chainOwner = '.'
-            }
+            this.handleScoreChain(id)
         }
         // bottom
         id = (i + this.boardSize)
         if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.scoreChain(id)
-            } else if (!this.chainOwner) {
-                this.chainOwner = this.board[id]
-            } else if (this.board[id] !== this.chainOwner) {
-                this.chainOwner = '.'
-            }
+            this.handleScoreChain(id)
         }
         // left
         id = (i - 1)
         if (column != 0 && !this.hasBeenChecked.includes(id)) {
-            if (this.board[id] === '.') {
-                this.scoreChain(id)
-            } else if (!this.chainOwner) {
-                this.chainOwner = this.board[id]
-            } else if (this.board[id] !== this.chainOwner) {
-                this.chainOwner = '.'
-            }
+            this.handleScoreChain(id)
         }
-
         return { owner: this.chainOwner, chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length) }
     }
 
-    handleCountEyesAndLibs(id, owner) {
-        if (this.hasBeenChecked.includes(id) || this.chainEyesAndLibs.includes(id)) {
-            return;
-        }
-        this.hasBeenChecked.push(id)
+    handleScoreChain(id) {
         if (this.board[id] === '.') {
-            this.areas.forEach(area => {
-                if (area.chain.includes(id)) {
-                    if (area.owner === owner) {
-                        console.log('add eye', id)
-                        this.chainEyesAndLibs.push(...area.chain)
-                        this.eyes.push(area.chain)
-                        this.countEyesAndLibs(id, owner)
-                    } else if (area.owner === '.') {
-                        this.libs.push(...area.chain)
-                        this.chainEyesAndLibs.push(...area.chain)
-                    }
-                }
-            })
-        } else if (this.board[id] === owner) {
-            this.currentChain.push(id)
-            this.countEyesAndLibs(id, owner)
+            this.scoreChain(id)
+        } else if (!this.chainOwner) {
+            this.chainOwner = this.board[id]
+        } else if (this.board[id] !== this.chainOwner) {
+            this.chainOwner = '.'
         }
     }
 
@@ -237,7 +190,32 @@ class Validate {
         if (column != 0 && !this.hasBeenChecked.includes(id)) {
             this.handleCountEyesAndLibs(id, owner)
         }
-        return { id: i, eyesAndLibs: this.chainEyesAndLibs, eyes: this.eyes, libs: this.libs, hasBeenChecked: this.hasBeenChecked, currentChain: this.currentChain }
+        console.log('---------------counting eyes and libs--------------')
+        return { id: i, eyesAndLibs: this.chainEyesAndLibs, eyes: this.eyes, libs: this.libs, hasBeenChecked: this.hasBeenChecked, currentChain: this.currentChain, owner: owner }
+    }
+
+    handleCountEyesAndLibs(id, owner) {
+        if (this.chainEyesAndLibs.includes(id)) {
+            return;
+        }
+        this.hasBeenChecked.push(id)
+        if (this.board[id] === '.') {
+            this.areas.forEach(area => {
+                if (area.chain.includes(id)) {
+                    if (area.owner === owner) {
+                        this.chainEyesAndLibs.push(...area.chain)
+                        this.eyes.push(area.chain)
+                        this.countEyesAndLibs(id, owner)
+                    } else if (area.owner === '.') {
+                        this.libs.push(id)
+                        this.chainEyesAndLibs.push(id)
+                    }
+                }
+            })
+        } else if (this.board[id] === owner && !this.currentChain.includes(id)) {
+            this.currentChain.push(id)
+            this.countEyesAndLibs(id, owner)
+        }
     }
 
 
@@ -260,43 +238,41 @@ class Validate {
         }
     }
 
-    checkScore() {
-        this.calculateAreas()
-
+    scoreDraftCaptures(i) {
         this.eyes = []
         this.libs = []
         this.chainEyesAndLibs = []
-        this.hasBeenChecked = [temp]
-        this.currentChain = []
-        let temp = 9
-        console.log(this.countEyesAndLibs(temp, this.board[temp]))
-        // console.log('is dead', this.deadBehindEnemyLines())
-        if (this.deadBehindEnemyLines()) {
-            this.areas.push({
-                owner: this.board[temp] === 'x' ? 'o' : 'x',
-                chain: [...this.currentChain],
-                capture: true
-            })
-            this.areas.push({
-                owner: this.board[temp] === 'x' ? 'o' : 'x',
-                chain: [...this.chainEyesAndLibs],
-            })
+        this.hasBeenChecked = []
+        this.currentChain = [i]
+        console.log('count', i, this.countEyesAndLibs(i, this.board[i]))
+        const deadBehindEnemyLines = this.deadBehindEnemyLines()
+        console.log('dead behind lines', deadBehindEnemyLines, this.currentChain)
+        if (deadBehindEnemyLines) {
+            this.currentChain.forEach(node => this.board = this.board.replaceAt(node, '.'))
+            this.calculateAreas()
+        }
+    }
+
+    checkScore() {
+        console.log(this.board.length)
+        this.calculateAreas()
+
+        // this.scoreDraftCaptures(15)
+        for (let i = 0; i < this.board.length; i++) {
+            if (this.board[i] !== '.') {
+                this.scoreDraftCaptures(i)
+            }
         }
 
+        console.log(this.areas)
 
-        // if (this.deadBehindEnemyLines()) {
-        //     this.areas.push({
-        //         owner: this.board[temp] === 'x' ? 'o' : 'x',
-        //         chain: [...this.currentChain, ...this.chainEyesAndLibs],
-        //         capture: this.currentChain
-        //     })
-        // }
+        // return this.board
+
+
+
+
+
         return this.areas
-        // for (let i = 0; i < this.board.length; i++) {
-        //     if (this.board[i] !== '.') {
-        //         this.deadBehindEnemyLines(i, this.board[i])
-        //     }
-        // }
     }
 
 

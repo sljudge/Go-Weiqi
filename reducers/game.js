@@ -17,7 +17,7 @@ const initialState = {
     toPlay: 'white',
     boardSize: boardSize,
     // board: '.'.repeat(Math.pow(boardSize, 2)),
-    board: '.oxx.xxoooxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
+    board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxoo..o',
     focusPoint: null,
     stonesToBeRemoved: [],
     ko: false,
@@ -26,11 +26,13 @@ const initialState = {
     score: {
         black: {
             area: 0,
-            captures: 0
+            captures: 0,
+            draftCaptures: 0
         },
         white: {
             area: 0,
-            captures: 0
+            captures: 0,
+            draftCaptures: 0
         }
     },
 }
@@ -92,6 +94,7 @@ const reducer = (state = initialState, action) => {
         case CHECK_SCORE:
             return produce(state, draftState => ({
                 ...draftState,
+                previousBoardPosition: draftState.board,
                 checkingScore: true,
                 focusPoint: null
             }))
@@ -100,15 +103,15 @@ const reducer = (state = initialState, action) => {
             return produce(state, draftState => ({
                 ...draftState,
                 checkingScore: false,
-                board: draftState.board.replace(/[XO]/g, '.'),
+                board: draftState.previousBoardPosition,
                 score: {
                     black: {
                         area: 0,
-                        captures: draftState.score.black.captures
+                        captures: draftState.score.black.captures - draftState.score.black.draftCaptures
                     },
                     white: {
                         area: 0,
-                        captures: draftState.score.white.captures
+                        captures: draftState.score.white.captures - draftState.score.white.draftCaptures
                     }
                 }
             }))
@@ -123,11 +126,13 @@ const reducer = (state = initialState, action) => {
                     score: {
                         black: {
                             area: blackData.area ? blackData.area : draftState.score.black.area,
-                            captures: blackData.captures ? draftState.score.black.captures + blackData.captures : draftState.score.black.captures
+                            captures: blackData.captures ? draftState.score.black.captures + blackData.captures : draftState.score.black.captures,
+                            draftCaptures: blackData.captures
                         },
                         white: {
                             area: whiteData.area ? whiteData.area : draftState.score.white.area,
-                            captures: whiteData.captures ? draftState.score.white.captures + whiteData.captures : draftState.score.white.captures
+                            captures: whiteData.captures ? draftState.score.white.captures + whiteData.captures : draftState.score.white.captures,
+                            draftCaptures: whiteData.captures
                         }
                     },
                 }

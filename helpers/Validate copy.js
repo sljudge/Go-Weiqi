@@ -183,13 +183,11 @@ class Validate {
                 this.chainOwner = '.'
             }
         }
-
         return { owner: this.chainOwner, chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length) }
     }
 
     handleCountEyesAndLibs(id, owner) {
-        console.log('counting eyes and libs: ', id)
-        if (this.hasBeenChecked.includes(id) || this.chainEyesAndLibs.includes(id)) {
+        if (this.chainEyesAndLibs.includes(id)) {
             return;
         }
         this.hasBeenChecked.push(id)
@@ -197,7 +195,6 @@ class Validate {
             this.areas.forEach(area => {
                 if (area.chain.includes(id)) {
                     if (area.owner === owner) {
-                        console.log('add eye', id)
                         this.chainEyesAndLibs.push(...area.chain)
                         this.eyes.push(area.chain)
                         this.countEyesAndLibs(id, owner)
@@ -207,7 +204,8 @@ class Validate {
                     }
                 }
             })
-        } else if (this.board[id] === owner) {
+        } else if (this.board[id] === owner && !this.currentChain.includes(id)) {
+            this.currentChain.push(id)
             this.countEyesAndLibs(id, owner)
         }
     }
@@ -237,7 +235,8 @@ class Validate {
         if (column != 0 && !this.hasBeenChecked.includes(id)) {
             this.handleCountEyesAndLibs(id, owner)
         }
-        return { id: i, eyesAndLibs: this.chainEyesAndLibs, eyes: this.eyes, libs: this.libs, hasBeenChecked: this.hasBeenChecked }
+        console.log('---------------counting eyes and libs--------------')
+        return { id: i, eyesAndLibs: this.chainEyesAndLibs, eyes: this.eyes, libs: this.libs, hasBeenChecked: this.hasBeenChecked, currentChain: this.currentChain }
     }
 
 
@@ -260,24 +259,41 @@ class Validate {
         }
     }
 
-    checkScore() {
-        this.calculateAreas()
-
+    scoreDraftCaptures(i) {
         this.eyes = []
         this.libs = []
         this.chainEyesAndLibs = []
-        let temp = 1
-        this.hasBeenChecked = [temp]
-        console.log(this.countEyesAndLibs(temp, this.board[temp]))
-        console.log('is dead', this.deadBehindEnemyLines())
+        this.hasBeenChecked = []
+        this.currentChain = [i]
+        console.log(this.countEyesAndLibs(i, this.board[i]))
+        const deadBehindEnemyLines = this.deadBehindEnemyLines()
+        console.log('dead behind lines', deadBehindEnemyLines)
+        if (deadBehindEnemyLines) {
+            this.areas.push({
+                owner: this.board[i] === 'x' ? 'o' : 'x',
+                chain: [...this.currentChain],
+                capture: true
+            })
+            this.areas.push({
+                owner: this.board[i] === 'x' ? 'o' : 'x',
+                chain: [...this.chainEyesAndLibs],
+            })
+        }
+    }
+
+    checkScore() {
+        this.calculateAreas()
+
+        // for (let i = 0; i < this.board.length; i++) {
+        this.scoreDraftCaptures(15)
+        // }
+
+
+
+
 
 
         return this.areas
-        // for (let i = 0; i < this.board.length; i++) {
-        //     if (this.board[i] !== '.') {
-        //         this.deadBehindEnemyLines(i, this.board[i])
-        //     }
-        // }
     }
 
 

@@ -21,7 +21,7 @@ function* handleAttemptMove(action) {
 
         yield put({ type: SET_STONES_TO_BE_REMOVED, array: [] })
 
-        const toBeRemoved = yield Validator.handleCapture(action.i)
+        const toBeRemoved = yield Validator.captureChain(action.i)
 
         let hasLiberty
         if (toBeRemoved.length == 0) {
@@ -79,6 +79,8 @@ function* handleCheckScore(action) {
 
     const scoringAreas = yield Validator.checkScore()
     console.log('scoring areas', scoringAreas)
+    // yield put({ type: UPDATE_BOARD, board: scoringAreas })
+
     if (scoringAreas.length > 1) {
 
         let tempBoard = board.slice(0, board.length)

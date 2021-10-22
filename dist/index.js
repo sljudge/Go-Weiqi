@@ -3646,7 +3646,7 @@ function handleAttemptMove(action) {
 
         case 22:
           _context.next = 24;
-          return Validator.handleCapture(action.i);
+          return Validator.captureChain(action.i);
 
         case 24:
           toBeRemoved = _context.sent;
@@ -3867,7 +3867,7 @@ function handleCheckScore(action) {
 
         case 6:
           scoringAreas = _context3.sent;
-          console.log('scoring areas', scoringAreas);
+          console.log('scoring areas', scoringAreas); // yield put({ type: UPDATE_BOARD, board: scoringAreas })
 
           if (!(scoringAreas.length > 1)) {
             _context3.next = 19;
@@ -4056,8 +4056,8 @@ var Validate = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "handleCapture",
-    value: function handleCapture(i) {
+    key: "captureChain",
+    value: function captureChain(i) {
       this.hasBeenChecked = [i];
       this.isValid = false;
       var id;
@@ -4067,36 +4067,36 @@ var Validate = /*#__PURE__*/function () {
       id = i - this.boardSize;
 
       if (row != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-        this.isChainDead(id);
+        this.handleCaptureChain(id);
       } // right
 
 
       id = i + 1;
 
       if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-        this.isChainDead(id);
+        this.handleCaptureChain(id);
       } // bottom
 
 
       id = i + this.boardSize;
 
       if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-        this.isChainDead(id);
+        this.handleCaptureChain(id);
       } // left
 
 
       id = i - 1;
 
       if (column != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
-        this.isChainDead(id);
+        this.handleCaptureChain(id);
       }
 
       this.isValid = false;
       return this.toBeRemoved;
     }
   }, {
-    key: "isChainDead",
-    value: function isChainDead(i) {
+    key: "handleCaptureChain",
+    value: function handleCaptureChain(i) {
       this.isValid = undefined;
 
       if (!this.hasLiberties(i, this.opponentChar)) {
@@ -4117,52 +4117,46 @@ var Validate = /*#__PURE__*/function () {
       id = i - this.boardSize;
 
       if (row != 0 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.isValid = true;
-        } else if (this.board[id] === playingAs) {
-          this.hasLiberties(id, playingAs);
-        }
+        this.handleHasLiberties(id, playingAs);
       } //right
 
 
       id = i + 1;
 
       if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.isValid = true;
-        } else if (this.board[id] === playingAs) {
-          this.hasLiberties(id, playingAs);
-        }
+        this.handleHasLiberties(id, playingAs);
       } // bottom
 
 
       id = i + this.boardSize;
 
       if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.isValid = true;
-        } else if (this.board[id] === playingAs) {
-          this.hasLiberties(id, playingAs);
-        }
+        this.handleHasLiberties(id, playingAs);
       } // left
 
 
       id = i - 1;
 
       if (column != 0 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.isValid = true;
-        } else if (this.board[id] === playingAs) {
-          this.hasLiberties(id, playingAs);
-        }
+        this.handleHasLiberties(id, playingAs);
       }
 
       return this.isValid || false;
     }
   }, {
+    key: "handleHasLiberties",
+    value: function handleHasLiberties(id, playingAs) {
+      if (this.board[id] === '.') {
+        this.isValid = true;
+      } else if (this.board[id] === playingAs) {
+        this.hasLiberties(id, playingAs);
+      }
+    }
+  }, {
     key: "calculateAreas",
     value: function calculateAreas() {
       console.log('---------------checking areas--------------');
+      this.areas = [];
       this.hasBeenChecked = [];
       this.startOfChain = 0;
 
@@ -4197,52 +4191,28 @@ var Validate = /*#__PURE__*/function () {
       id = i - this.boardSize;
 
       if (row != 0 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.scoreChain(id);
-        } else if (!this.chainOwner) {
-          this.chainOwner = this.board[id];
-        } else if (this.board[id] !== this.chainOwner) {
-          this.chainOwner = '.';
-        }
+        this.handleScoreChain(id);
       } //right
 
 
       id = i + 1;
 
       if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.scoreChain(id);
-        } else if (!this.chainOwner) {
-          this.chainOwner = this.board[id];
-        } else if (this.board[id] !== this.chainOwner) {
-          this.chainOwner = '.';
-        }
+        this.handleScoreChain(id);
       } // bottom
 
 
       id = i + this.boardSize;
 
       if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.scoreChain(id);
-        } else if (!this.chainOwner) {
-          this.chainOwner = this.board[id];
-        } else if (this.board[id] !== this.chainOwner) {
-          this.chainOwner = '.';
-        }
+        this.handleScoreChain(id);
       } // left
 
 
       id = i - 1;
 
       if (column != 0 && !this.hasBeenChecked.includes(id)) {
-        if (this.board[id] === '.') {
-          this.scoreChain(id);
-        } else if (!this.chainOwner) {
-          this.chainOwner = this.board[id];
-        } else if (this.board[id] !== this.chainOwner) {
-          this.chainOwner = '.';
-        }
+        this.handleScoreChain(id);
       }
 
       return {
@@ -4251,41 +4221,14 @@ var Validate = /*#__PURE__*/function () {
       };
     }
   }, {
-    key: "handleCountEyesAndLibs",
-    value: function handleCountEyesAndLibs(id, owner) {
-      var _this = this;
-
-      if (this.hasBeenChecked.includes(id) || this.chainEyesAndLibs.includes(id)) {
-        return;
-      }
-
-      this.hasBeenChecked.push(id);
-
+    key: "handleScoreChain",
+    value: function handleScoreChain(id) {
       if (this.board[id] === '.') {
-        this.areas.forEach(function (area) {
-          if (area.chain.includes(id)) {
-            if (area.owner === owner) {
-              var _this$chainEyesAndLib;
-
-              console.log('add eye', id);
-
-              (_this$chainEyesAndLib = _this.chainEyesAndLibs).push.apply(_this$chainEyesAndLib, _toConsumableArray(area.chain));
-
-              _this.eyes.push(area.chain);
-
-              _this.countEyesAndLibs(id, owner);
-            } else if (area.owner === '.') {
-              var _this$libs, _this$chainEyesAndLib2;
-
-              (_this$libs = _this.libs).push.apply(_this$libs, _toConsumableArray(area.chain));
-
-              (_this$chainEyesAndLib2 = _this.chainEyesAndLibs).push.apply(_this$chainEyesAndLib2, _toConsumableArray(area.chain));
-            }
-          }
-        });
-      } else if (this.board[id] === owner) {
-        this.currentChain.push(id);
-        this.countEyesAndLibs(id, owner);
+        this.scoreChain(id);
+      } else if (!this.chainOwner) {
+        this.chainOwner = this.board[id];
+      } else if (this.board[id] !== this.chainOwner) {
+        this.chainOwner = '.';
       }
     }
   }, {
@@ -4322,14 +4265,50 @@ var Validate = /*#__PURE__*/function () {
         this.handleCountEyesAndLibs(id, owner);
       }
 
+      console.log('---------------counting eyes and libs--------------');
       return {
         id: i,
         eyesAndLibs: this.chainEyesAndLibs,
         eyes: this.eyes,
         libs: this.libs,
         hasBeenChecked: this.hasBeenChecked,
-        currentChain: this.currentChain
+        currentChain: this.currentChain,
+        owner: owner
       };
+    }
+  }, {
+    key: "handleCountEyesAndLibs",
+    value: function handleCountEyesAndLibs(id, owner) {
+      var _this = this;
+
+      if (this.chainEyesAndLibs.includes(id)) {
+        return;
+      }
+
+      this.hasBeenChecked.push(id);
+
+      if (this.board[id] === '.') {
+        this.areas.forEach(function (area) {
+          if (area.chain.includes(id)) {
+            if (area.owner === owner) {
+              var _this$chainEyesAndLib;
+
+              (_this$chainEyesAndLib = _this.chainEyesAndLibs).push.apply(_this$chainEyesAndLib, _toConsumableArray(area.chain));
+
+              _this.eyes.push(area.chain);
+
+              _this.countEyesAndLibs(id, owner);
+            } else if (area.owner === '.') {
+              _this.libs.push(id);
+
+              _this.chainEyesAndLibs.push(id);
+            }
+          }
+        });
+      } else if (this.board[id] === owner && !this.currentChain.includes(id)) {
+        this.currentChain.push(id);
+        this.countEyesAndLibs(id, owner);
+      }
     }
   }, {
     key: "deadBehindEnemyLines",
@@ -4353,41 +4332,41 @@ var Validate = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "checkScore",
-    value: function checkScore() {
-      this.calculateAreas();
+    key: "scoreDraftCaptures",
+    value: function scoreDraftCaptures(i) {
+      var _this2 = this;
+
       this.eyes = [];
       this.libs = [];
       this.chainEyesAndLibs = [];
-      this.hasBeenChecked = [temp];
-      this.currentChain = [];
-      var temp = 9;
-      console.log(this.countEyesAndLibs(temp, this.board[temp])); // console.log('is dead', this.deadBehindEnemyLines())
+      this.hasBeenChecked = [];
+      this.currentChain = [i];
+      console.log('count', i, this.countEyesAndLibs(i, this.board[i]));
+      var deadBehindEnemyLines = this.deadBehindEnemyLines();
+      console.log('dead behind lines', deadBehindEnemyLines, this.currentChain);
 
-      if (this.deadBehindEnemyLines()) {
-        this.areas.push({
-          owner: this.board[temp] === 'x' ? 'o' : 'x',
-          chain: _toConsumableArray(this.currentChain),
-          capture: true
+      if (deadBehindEnemyLines) {
+        this.currentChain.forEach(function (node) {
+          return _this2.board = _this2.board.replaceAt(node, '.');
         });
-        this.areas.push({
-          owner: this.board[temp] === 'x' ? 'o' : 'x',
-          chain: _toConsumableArray(this.chainEyesAndLibs)
-        });
-      } // if (this.deadBehindEnemyLines()) {
-      //     this.areas.push({
-      //         owner: this.board[temp] === 'x' ? 'o' : 'x',
-      //         chain: [...this.currentChain, ...this.chainEyesAndLibs],
-      //         capture: this.currentChain
-      //     })
-      // }
+        this.calculateAreas();
+      }
+    }
+  }, {
+    key: "checkScore",
+    value: function checkScore() {
+      console.log(this.board.length);
+      this.calculateAreas(); // this.scoreDraftCaptures(15)
 
+      for (var i = 0; i < this.board.length; i++) {
+        if (this.board[i] !== '.') {
+          this.scoreDraftCaptures(i);
+        }
+      }
 
-      return this.areas; // for (let i = 0; i < this.board.length; i++) {
-      //     if (this.board[i] !== '.') {
-      //         this.deadBehindEnemyLines(i, this.board[i])
-      //     }
-      // }
+      console.log(this.areas); // return this.board
+
+      return this.areas;
     }
   }]);
 
@@ -4441,7 +4420,7 @@ var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  board: '.oxx.xxoooxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
+  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxoo..o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
@@ -4450,11 +4429,13 @@ var initialState = {
   score: {
     black: {
       area: 0,
-      captures: 0
+      captures: 0,
+      draftCaptures: 0
     },
     white: {
       area: 0,
-      captures: 0
+      captures: 0,
+      draftCaptures: 0
     }
   }
 };
@@ -4532,6 +4513,7 @@ var reducer = function reducer() {
     case _actions_game__WEBPACK_IMPORTED_MODULE_0__.CHECK_SCORE:
       return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
+          previousBoardPosition: draftState.board,
           checkingScore: true,
           focusPoint: null
         });
@@ -4542,15 +4524,15 @@ var reducer = function reducer() {
       return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           checkingScore: false,
-          board: draftState.board.replace(/[XO]/g, '.'),
+          board: draftState.previousBoardPosition,
           score: {
             black: {
               area: 0,
-              captures: draftState.score.black.captures
+              captures: draftState.score.black.captures - draftState.score.black.draftCaptures
             },
             white: {
               area: 0,
-              captures: draftState.score.white.captures
+              captures: draftState.score.white.captures - draftState.score.white.draftCaptures
             }
           }
         });
@@ -4565,11 +4547,13 @@ var reducer = function reducer() {
           score: {
             black: {
               area: blackData.area ? blackData.area : draftState.score.black.area,
-              captures: blackData.captures ? draftState.score.black.captures + blackData.captures : draftState.score.black.captures
+              captures: blackData.captures ? draftState.score.black.captures + blackData.captures : draftState.score.black.captures,
+              draftCaptures: blackData.captures
             },
             white: {
               area: whiteData.area ? whiteData.area : draftState.score.white.area,
-              captures: whiteData.captures ? draftState.score.white.captures + whiteData.captures : draftState.score.white.captures
+              captures: whiteData.captures ? draftState.score.white.captures + whiteData.captures : draftState.score.white.captures,
+              draftCaptures: whiteData.captures
             }
           }
         });
