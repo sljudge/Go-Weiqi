@@ -3623,11 +3623,11 @@ function handleAttemptMove(action) {
           previousBoardPosition = _context.sent;
 
           if (!(focusPoint !== action.i)) {
-            _context.next = 42;
+            _context.next = 43;
             break;
           }
 
-          console.log(toPlay, board);
+          console.log('handle attempt move', toPlay, board);
           Validator = new _helpers__WEBPACK_IMPORTED_MODULE_3__.Validate(board, toPlay, previousBoardPosition, ko);
 
           if (Validator.validateKO(action.i)) {
@@ -3672,37 +3672,39 @@ function handleAttemptMove(action) {
           });
 
         case 33:
+          console.log('handle attempt move', toBeRemoved, hasLiberty);
+
           if (!(toBeRemoved.length > 0 || hasLiberty)) {
-            _context.next = 38;
+            _context.next = 39;
             break;
           }
 
-          _context.next = 36;
+          _context.next = 37;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
             i: action.i
           });
 
-        case 36:
-          _context.next = 40;
+        case 37:
+          _context.next = 41;
           break;
 
-        case 38:
-          _context.next = 40;
+        case 39:
+          _context.next = 41;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_FOCUS_POINT,
             i: null
           });
 
-        case 40:
-          _context.next = 44;
+        case 41:
+          _context.next = 45;
           break;
 
-        case 42:
-          _context.next = 44;
+        case 43:
+          _context.next = 45;
           return handleMove(action.i);
 
-        case 44:
+        case 45:
         case "end":
           return _context.stop();
       }
@@ -4031,6 +4033,7 @@ var Validate = /*#__PURE__*/function () {
     this.opponentChar = toPlay === 'black' ? 'o' : 'x';
     this.boardSize = Math.sqrt(board.length);
     this.hasBeenChecked = [];
+    this.inSeki = [];
     this.toBeRemoved = [];
     this.startOfChain = 1;
     this.areas = [];
@@ -4090,8 +4093,10 @@ var Validate = /*#__PURE__*/function () {
     key: "handleCaptureChain",
     value: function handleCaptureChain(i) {
       this.isValid = undefined;
+      var hasLibs = this.hasLiberties(i, this.opponentChar);
+      console.log('has libs', i, this.opponentChar, hasLibs);
 
-      if (!this.hasLiberties(i, this.opponentChar)) {
+      if (!hasLibs) {
         this.toBeRemoved.push(this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length));
       }
 
@@ -4101,47 +4106,55 @@ var Validate = /*#__PURE__*/function () {
     key: "hasLiberties",
     value: function hasLiberties(i) {
       var playingAs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.playerChar;
+      var board = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.board;
       this.hasBeenChecked.push(i);
       var id;
       var row = Math.floor(i / this.boardSize);
-      var column = i % this.boardSize; // top
+      var column = i % this.boardSize; // console.log('has liberties', i, playingAs, board, board.length, row, column)
+      // top
 
       id = i - this.boardSize;
 
       if (row != 0 && !this.hasBeenChecked.includes(id)) {
-        this.handleHasLiberties(id, playingAs);
+        // console.log('has libs top', id)
+        this.handleHasLiberties(id, playingAs, board);
       } //right
 
 
       id = i + 1;
 
       if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        this.handleHasLiberties(id, playingAs);
+        // console.log('has libs right', id)
+        this.handleHasLiberties(id, playingAs, board);
       } // bottom
 
 
       id = i + this.boardSize;
 
       if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        this.handleHasLiberties(id, playingAs);
+        // console.log('has libs bottom', id)
+        this.handleHasLiberties(id, playingAs, board);
       } // left
 
 
       id = i - 1;
 
       if (column != 0 && !this.hasBeenChecked.includes(id)) {
-        this.handleHasLiberties(id, playingAs);
+        // console.log('has libs left', id)
+        this.handleHasLiberties(id, playingAs, board);
       }
 
       return this.isValid || false;
     }
   }, {
     key: "handleHasLiberties",
-    value: function handleHasLiberties(id, playingAs) {
-      if (this.board[id] === '.') {
+    value: function handleHasLiberties(id, playingAs, board) {
+      if (board[id] === '.') {
+        // console.log('-------------libs END 1------------------', this.hasBeenChecked)
         this.isValid = true;
-      } else if (this.board[id] === playingAs) {
-        this.hasLiberties(id, playingAs);
+      } else if (board[id] === playingAs) {
+        // console.log('libs CONTINUE ', id)
+        this.hasLiberties(id, playingAs, board);
       }
     }
   }, {
@@ -4304,13 +4317,25 @@ var Validate = /*#__PURE__*/function () {
     }
   }, {
     key: "deadBehindEnemyLines",
-    value: function deadBehindEnemyLines() {
+    value: function deadBehindEnemyLines(id) {
       if (this.eyes.length >= 2) {
         return false;
       }
 
       if (this.libs.length > 2) {
         return false;
+      }
+
+      if (this.chainEyesAndLibs.length == 2) {
+        if (this.inSeki.includes(id)) {
+          return false;
+        } else if (this.checkForSeki(id)) {
+          var _this$inSeki;
+
+          (_this$inSeki = this.inSeki).push.apply(_this$inSeki, _toConsumableArray(this.currentChain));
+
+          return false;
+        }
       }
 
       if (this.eyes.length === 1) {
@@ -4326,6 +4351,25 @@ var Validate = /*#__PURE__*/function () {
       return true;
     }
   }, {
+    key: "checkForSeki",
+    value: function checkForSeki(id) {
+      console.log('---------checking for seki-----------------');
+      var tempBoard = this.board; // check white at 0 && check black at 1
+
+      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[0], 'o');
+      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[1], 'x');
+      var checkOne = this.hasLiberties(this.chainEyesAndLibs[0], 'o', tempBoard);
+      var checkTwo = this.hasLiberties(this.chainEyesAndLibs[1], 'x', tempBoard); // check black at 0 and white at 1
+
+      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[0], 'x');
+      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[1], 'o');
+      var checkThree = this.hasLiberties(this.chainEyesAndLibs[0], 'x', tempBoard);
+      var checkFour = this.hasLiberties(this.chainEyesAndLibs[1], 'o', tempBoard);
+      console.log(checkOne, checkTwo, checkThree, checkFour);
+      console.log('SEKI has been checked', this.currentChain);
+      return ![checkOne, checkTwo, checkThree, checkFour].includes(true);
+    }
+  }, {
     key: "scoreDraftCaptures",
     value: function scoreDraftCaptures(i) {
       var _this2 = this;
@@ -4336,8 +4380,8 @@ var Validate = /*#__PURE__*/function () {
       this.hasBeenChecked = [];
       this.currentChain = [i];
       console.log('count', i, this.countEyesAndLibs(i, this.board[i]));
-      var deadBehindEnemyLines = this.deadBehindEnemyLines();
-      console.log('dead behind lines', deadBehindEnemyLines, this.currentChain);
+      var deadBehindEnemyLines = this.deadBehindEnemyLines(i);
+      console.log('dead behind lines', deadBehindEnemyLines, this.currentChain, this.inSeki);
 
       if (deadBehindEnemyLines) {
         if (this.board[i] === 'o') {
@@ -4366,9 +4410,7 @@ var Validate = /*#__PURE__*/function () {
         }
       }
 
-      console.log(this.areas); // return this.board
-      // return this.areas
-
+      console.log(this.areas);
       return {
         areas: this.areas,
         blackDraftCaptures: this.blackDraftCaptures,
@@ -4427,7 +4469,17 @@ var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
+  // board: 'x.ox.o...x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+  // seki 1
+  board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+  // seki 2
+  // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
+  // seki 3
+  // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
+  // seki 4
+  // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
+  // scoring
+  // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,

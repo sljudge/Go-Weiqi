@@ -17,7 +17,23 @@ const initialState = {
     toPlay: 'white',
     boardSize: boardSize,
     // board: '.'.repeat(Math.pow(boardSize, 2)),
-    board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
+    // board: 'x.ox.o...x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+
+    // seki 1
+    board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+
+    // seki 2
+    // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
+
+    // seki 3
+    // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
+
+    // seki 4
+    // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
+
+    // scoring
+    // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
+
     focusPoint: null,
     stonesToBeRemoved: [],
     ko: false,

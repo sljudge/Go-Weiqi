@@ -12,7 +12,7 @@ function* handleAttemptMove(action) {
     const previousBoardPosition = yield select(state => state.game.previousBoardPosition)
 
     if (focusPoint !== action.i) {
-        console.log(toPlay, board)
+        console.log('handle attempt move', toPlay, board)
         const Validator = new Validate(board, toPlay, previousBoardPosition, ko)
 
         if (!Validator.validateKO(action.i)) {
@@ -29,6 +29,7 @@ function* handleAttemptMove(action) {
         } else {
             yield put({ type: SET_STONES_TO_BE_REMOVED, array: toBeRemoved })
         }
+        console.log('handle attempt move', toBeRemoved, hasLiberty)
         if (toBeRemoved.length > 0 || hasLiberty) {
             yield put({ type: SET_FOCUS_POINT, i: action.i })
         } else {
