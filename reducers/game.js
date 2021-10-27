@@ -1,4 +1,5 @@
-import produce from 'immer'
+import produce, { enableMapSet } from 'immer'
+enableMapSet();
 import {
     SET_TO_PLAY,
     UPDATE_NODE,
@@ -17,10 +18,10 @@ const initialState = {
     toPlay: 'white',
     boardSize: boardSize,
     // board: '.'.repeat(Math.pow(boardSize, 2)),
-    // board: 'x.ox.o...x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+    // board: '.xxo.ox..xxxooox..oooxxxx....ooo.................................................',
 
     // seki 1
-    board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+    // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
 
     // seki 2
     // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
@@ -32,7 +33,7 @@ const initialState = {
     // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
 
     // scoring
-    // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
+    board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
 
     focusPoint: null,
     stonesToBeRemoved: [],

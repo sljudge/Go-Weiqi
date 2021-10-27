@@ -7,8 +7,11 @@ class Validate {
         this.playerChar = toPlay === 'black' ? 'x' : 'o'
         this.opponentChar = toPlay === 'black' ? 'o' : 'x'
         this.boardSize = Math.sqrt(board.length)
-        this.hasBeenChecked = []
-        this.toBeRemoved = []
+        this.hasBeenChecked = new Set
+        this.currentChain = new Set
+        this.chainEyesAndLibs = new Set
+        this.inSeki = new Set
+        this.toBeRemoved = new Set
         this.startOfChain = 1
         this.areas = []
         this.blackDraftCaptures = 0
@@ -24,29 +27,29 @@ class Validate {
     }
 
     captureChain(i) {
-        this.hasBeenChecked = [i]
+        this.hasBeenChecked.add(i)
         this.isValid = false
         let id
         const row = Math.floor((i) / this.boardSize)
         const column = i % this.boardSize
         // top
         id = (i - this.boardSize)
-        if (row != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        if (row != 0 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
             this.handleCaptureChain(id)
         }
         // right
         id = (i + 1)
-        if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
             this.handleCaptureChain(id)
         }
         // bottom
         id = (i + this.boardSize)
-        if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
             this.handleCaptureChain(id)
         }
         // left
         id = (i - 1)
-        if (column != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+        if (column != 0 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
             this.handleCaptureChain(id)
         }
         this.isValid = false
@@ -57,52 +60,60 @@ class Validate {
         this.isValid = undefined
 
         const hasLibs = this.hasLiberties(i, this.opponentChar)
-        console.log('has libs', i, hasLibs)
+        console.log('has libs', i, this.opponentChar, hasLibs)
 
         if (!hasLibs) {
-            this.toBeRemoved.push(
-                this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length)
+            this.toBeRemoved.add(
+                Array.from([...this.hasBeenChecked]).slice(this.startOfChain, this.hasBeenChecked.size)
             )
         }
-        this.startOfChain = this.hasBeenChecked.length
+        this.startOfChain = this.hasBeenChecked.size
     }
 
 
     hasLiberties(i, playingAs = this.playerChar, board = this.board) {
-        this.hasBeenChecked.push(i)
+        this.hasBeenChecked.add(i)
 
 
         let id
-        const row = Math.floor((i) / board)
-        const column = i % board
+        const row = Math.floor((i) / this.boardSize)
+        const column = i % this.boardSize
+        console.log('has liberties', i, playingAs, board, board.length, row, column, this.hasBeenChecked)
 
         // top
         id = (i - this.boardSize)
-        if (row != 0 && !this.hasBeenChecked.includes(id)) {
+        if (row != 0 && !this.hasBeenChecked.has(id)) {
+            console.log('has libs top', id)
             this.handleHasLiberties(id, playingAs, board)
         }
         //right
         id = (i + 1)
-        if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+            console.log('has libs right', id)
             this.handleHasLiberties(id, playingAs, board)
         }
         // bottom
         id = (i + this.boardSize)
-        if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+            console.log('has libs bottom', id)
             this.handleHasLiberties(id, playingAs, board)
         }
         // left
         id = (i - 1)
-        if (column != 0 && !this.hasBeenChecked.includes(id)) {
+        if (column != 0 && !this.hasBeenChecked.has(id)) {
+            console.log('has libs left', id)
             this.handleHasLiberties(id, playingAs, board)
         }
         return this.isValid || false
     }
 
     handleHasLiberties(id, playingAs, board) {
+        console.log('handle has libs', id, playingAs)
         if (board[id] === '.') {
+            console.log('-------------libs END 1------------------', this.hasBeenChecked)
             this.isValid = true
         } else if (board[id] === playingAs) {
+            console.log('libs CONTINUE ', id)
             this.hasLiberties(id, playingAs, board)
         }
     }
@@ -110,27 +121,27 @@ class Validate {
     calculateAreas() {
         console.log('---------------checking areas--------------')
         this.areas = []
-        this.hasBeenChecked = []
+        this.hasBeenChecked = new Set
         this.startOfChain = 0
         for (let i = 0; i < this.board.length; i++) {
             if (this.board[i] === '.') {
 
                 const chainScore = this.scoreChain(i)
-                this.startOfChain = this.hasBeenChecked.length
+                this.startOfChain = this.hasBeenChecked.size
                 this.chainOwner = undefined
                 if (chainScore) {
                     this.areas.push(chainScore)
                 }
             }
         }
-        console.log(this.areas)
+        console.log('-------------checking areas END----------', this.areas)
         return this.areas
     }
 
 
     scoreChain(i) {
-        if (!this.hasBeenChecked.includes(i)) {
-            this.hasBeenChecked.push(i)
+        if (!this.hasBeenChecked.has(i)) {
+            this.hasBeenChecked.add(i)
         } else {
             return;
         }
@@ -140,25 +151,25 @@ class Validate {
 
         // top
         id = (i - this.boardSize)
-        if (row != 0 && !this.hasBeenChecked.includes(id)) {
+        if (row != 0 && !this.hasBeenChecked.has(id)) {
             this.handleScoreChain(id)
         }
         //right
         id = (i + 1)
-        if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
             this.handleScoreChain(id)
         }
         // bottom
         id = (i + this.boardSize)
-        if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+        if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
             this.handleScoreChain(id)
         }
         // left
         id = (i - 1)
-        if (column != 0 && !this.hasBeenChecked.includes(id)) {
+        if (column != 0 && !this.hasBeenChecked.has(id)) {
             this.handleScoreChain(id)
         }
-        return { owner: this.chainOwner, chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length) }
+        return { owner: this.chainOwner, chain: Array.from([...this.hasBeenChecked]).slice(this.startOfChain, this.hasBeenChecked.size) }
     }
 
     handleScoreChain(id) {
@@ -171,74 +182,88 @@ class Validate {
         }
     }
 
-    countEyesAndLibs(i, owner) {
+    countEyesAndLibs(i, owner, board = this.board) {
         let id
         const row = Math.floor((i) / this.boardSize)
         const column = i % this.boardSize
 
         // top
         id = (i - this.boardSize)
-        if (row != 0 && !this.hasBeenChecked.includes(id)) {
-            this.handleCountEyesAndLibs(id, owner)
+        if (row != 0 && !this.hasBeenChecked.has(id)) {
+            this.handleCountEyesAndLibs(id, owner, board)
         }
         //right
         id = (i + 1)
-        if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            this.handleCountEyesAndLibs(id, owner)
+        if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+            this.handleCountEyesAndLibs(id, owner, board)
         }
         // bottom
         id = (i + this.boardSize)
-        if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-            this.handleCountEyesAndLibs(id, owner)
+        if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+            this.handleCountEyesAndLibs(id, owner, board)
         }
         // left
         id = (i - 1)
-        if (column != 0 && !this.hasBeenChecked.includes(id)) {
-            this.handleCountEyesAndLibs(id, owner)
+        if (column != 0 && !this.hasBeenChecked.has(id)) {
+            this.handleCountEyesAndLibs(id, owner, board)
         }
         console.log('---------------counting eyes and libs--------------')
-        return { id: i, eyesAndLibs: this.chainEyesAndLibs, eyes: this.eyes, libs: this.libs, hasBeenChecked: this.hasBeenChecked, currentChain: this.currentChain, owner: owner }
+        return { id: i, eyesAndLibs: this.chainEyesAndLibs, eyes: this.eyes, libs: this.libs, hasBeenChecked: this.hasBeenChecked, currentChain: this.currentChain, owner: owner, board: board }
     }
 
-    handleCountEyesAndLibs(id, owner) {
-        if (this.chainEyesAndLibs.includes(id)) {
+    handleCountEyesAndLibs(id, owner, board) {
+        if (this.chainEyesAndLibs.has(id)) {
             return;
         }
-        this.hasBeenChecked.push(id)
-        if (this.board[id] === '.') {
+        this.hasBeenChecked.add(id)
+        if (board[id] === '.') {
             this.areas.forEach(area => {
                 if (area.chain.includes(id)) {
                     if (area.owner === owner) {
-                        this.chainEyesAndLibs.push(...area.chain)
+                        this.chainEyesAndLibs.add(...area.chain)
                         this.eyes.push(area.chain)
-                        this.countEyesAndLibs(id, owner)
+                        this.countEyesAndLibs(id, owner, board)
                     } else if (area.owner === '.') {
                         this.libs.push(id)
-                        this.chainEyesAndLibs.push(id)
+                        this.chainEyesAndLibs.add(id)
                     }
                 }
             })
-        } else if (this.board[id] === owner && !this.currentChain.includes(id)) {
-            this.currentChain.push(id)
-            this.countEyesAndLibs(id, owner)
+        } else if (board[id] === owner && !this.currentChain.has(id)) {
+            this.currentChain.add(id)
+            this.countEyesAndLibs(id, owner, board)
         }
     }
 
 
     deadBehindEnemyLines(id) {
 
+        // more than two eyes
         if (this.eyes.length >= 2) {
             return false
         }
+        // more than two liberties??
         if (this.libs.length > 2) {
             return false
         }
-        if (this.chainEyesAndLibs.length == 2) {
-            if (this.checkForSeki(id)) {
+        // SEKI: shared liberties / one eye each && one liberty each
+        if (this.chainEyesAndLibs.size == 2) {
+            if (this.inSeki.has(id)) {
                 return false
+            } else {
+                const seki = this.checkForSeki(id)
+                console.log('**********************************')
+                console.log('seki', seki)
+                console.log('**********************************')
+                if (seki) {
+                    // this.inSeki.push(...this.currentChain)
+                    return false
+                }
             }
         }
+        // One eye of certain length -> needs to be able to make 2 eyes (to do)
         if (this.eyes.length === 1) {
+
             let isDead = true
             this.eyes.forEach(eye => {
                 if (eye.length >= 3) {
@@ -253,39 +278,67 @@ class Validate {
     checkForSeki(id) {
         console.log('---------checking for seki-----------------')
         let tempBoard = this.board
-        tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[0], 'o')
-        tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[1], 'x')
+        const eyes = this.eyes
+        const libs = this.libs
+        const chainEyesAndLibs = this.chainEyesAndLibs
+        let blackCheck, whiteCheck
 
-        console.log(this.hasLiberties(this.chainEyesAndLibs, this.board[id], tempBoard))
-        return !this.hasLiberties(this.chainEyesAndLibs, this.board[id], tempBoard)
-        // console.log(tempBoard)
-        // // const playingAsWhite1 = this.hasLiberties(this.chainEyesAndLibs[0], 'o', tempBoard)
-        // // const playingAsBlack1 = this.hasLiberties(this.chainEyesAndLibs[0], 'x', tempBoard)
-        // const playingAsWhite2 = this.hasLiberties(this.chainEyesAndLibs[1], 'o', tempBoard)
-        // const playingAsBlack2 = this.hasLiberties(this.chainEyesAndLibs[1], 'x', tempBoard)
-        // console.log({
-        //     // white1: playingAsWhite1,
-        //     // Black1: playingAsBlack1,
-        //     white2: playingAsWhite2,
-        //     Black2: playingAsBlack2,
-        // })
+        // sharing two liberties
+        if (eyes.length == 0) {
+            console.log('---------ONE-----------------')
+            const checkTwoLiberties = (playingAs, eyesAndLibs, board) => {
+                board = board.replaceAt(eyesAndLibs[0], playingAs)
+                board = board.replaceAt(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x')
+                return !this.hasLiberties(eyesAndLibs[0], playingAs, board) && !this.hasLiberties(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x', board)
+            }
+            // check white at 0 && check black at 1
+            blackCheck = checkTwoLiberties('x', chainEyesAndLibs, tempBoard)
+            // check black at 0 and white at 1
+            whiteCheck = checkTwoLiberties('o', chainEyesAndLibs, tempBoard)
+            return blackCheck && whiteCheck
+        }
 
+        // one eye each and one shared liberty
+        if (eyes.length == 1 && eyes[0].length == 1) {
+            console.log('---------TWO-----------------')
+            this.clearChainData()
+            const checkOneEyeEach = (playingAs) => {
+                this.clearChainData()
+                tempBoard = tempBoard.replaceAt(libs[0], playingAs)
+                console.log('SEKI count', libs[0], this.countEyesAndLibs(libs[0], tempBoard[libs[0]], tempBoard))
+                // if one eye left of length one then check for liberties
+                if (this.eyes.length == 1 && this.eyes[0].length == 1) {
+                    tempBoard.replaceAt(this.eyes[0], playingAs === 'x' ? 'o' : 'x')
+                    return !this.hasLiberties(libs[0], playingAs, tempBoard)
+                }
+            }
+            // check black for life
+            blackCheck = checkOneEyeEach('x')
+            whiteCheck = checkOneEyeEach('o')
+            console.log('SEKI has been checked 2', this.currentChain, this.hasBeenChecked)
+            return blackCheck && whiteCheck
+        }
+    }
+
+    clearChainData() {
+        this.eyes = []
+        this.libs = []
+        this.chainEyesAndLibs = new Set
+        this.hasBeenChecked = new Set
+        this.currentChain = new Set
     }
 
     scoreDraftCaptures(i) {
-        this.eyes = []
-        this.libs = []
-        this.chainEyesAndLibs = []
-        this.hasBeenChecked = []
-        this.currentChain = [i]
+        this.clearChainData()
+        this.currentChain.add(i)
         console.log('count', i, this.countEyesAndLibs(i, this.board[i]))
         const deadBehindEnemyLines = this.deadBehindEnemyLines(i)
-        console.log('dead behind lines', deadBehindEnemyLines, this.currentChain)
+        console.log('dead behind lines', deadBehindEnemyLines, this.currentChain, this.inSeki)
         if (deadBehindEnemyLines) {
             if (this.board[i] === 'o') {
-                this.blackDraftCaptures += this.currentChain.length
+                this.blackDraftCaptures += this.currentChain.size
             } else {
-                this.whiteDraftCaptures += this.currentChain.length
+                this.whiteDraftCaptures += this.currentChain.size
             }
             this.currentChain.forEach(node => this.board = this.board.replaceAt(node, '.'))
             this.calculateAreas()

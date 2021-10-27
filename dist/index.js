@@ -3672,7 +3672,7 @@ function handleAttemptMove(action) {
           });
 
         case 33:
-          console.log('handle attempt move', toBeRemoved, hasLiberty);
+          console.log('handle attempt move 2', toBeRemoved, hasLiberty);
 
           if (!(toBeRemoved.length > 0 || hasLiberty)) {
             _context.next = 39;
@@ -4032,9 +4032,15 @@ var Validate = /*#__PURE__*/function () {
     this.playerChar = toPlay === 'black' ? 'x' : 'o';
     this.opponentChar = toPlay === 'black' ? 'o' : 'x';
     this.boardSize = Math.sqrt(board.length);
-    this.hasBeenChecked = [];
-    this.inSeki = [];
-    this.toBeRemoved = [];
+    this.hasBeenChecked = new Set();
+    this.currentChain = {
+      chain: new Set(),
+      eyesAndLibs: new Set(),
+      eyes: new Set(),
+      libs: new Set()
+    };
+    this.inSeki = new Set();
+    this.toBeRemoved = new Set();
     this.startOfChain = 1;
     this.areas = [];
     this.blackDraftCaptures = 0;
@@ -4051,9 +4057,20 @@ var Validate = /*#__PURE__*/function () {
       }
     }
   }, {
+    key: "clearChainData",
+    value: function clearChainData() {
+      this.hasBeenChecked = new Set();
+      this.currentChain = {
+        chain: new Set(),
+        eyesAndLibs: new Set(),
+        eyes: new Set(),
+        libs: new Set()
+      };
+    }
+  }, {
     key: "captureChain",
     value: function captureChain(i) {
-      this.hasBeenChecked = [i];
+      this.hasBeenChecked.add(i);
       this.isValid = false;
       var id;
       var row = Math.floor(i / this.boardSize);
@@ -4061,33 +4078,33 @@ var Validate = /*#__PURE__*/function () {
 
       id = i - this.boardSize;
 
-      if (row != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+      if (row != 0 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
         this.handleCaptureChain(id);
       } // right
 
 
       id = i + 1;
 
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
         this.handleCaptureChain(id);
       } // bottom
 
 
       id = i + this.boardSize;
 
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
         this.handleCaptureChain(id);
       } // left
 
 
       id = i - 1;
 
-      if (column != 0 && !this.hasBeenChecked.includes(id) && this.board[id] === this.opponentChar) {
+      if (column != 0 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
         this.handleCaptureChain(id);
       }
 
       this.isValid = false;
-      return this.toBeRemoved;
+      return Array.from(this.toBeRemoved);
     }
   }, {
     key: "handleCaptureChain",
@@ -4097,50 +4114,50 @@ var Validate = /*#__PURE__*/function () {
       console.log('has libs', i, this.opponentChar, hasLibs);
 
       if (!hasLibs) {
-        this.toBeRemoved.push(this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length));
+        this.toBeRemoved.add(Array.from(this.hasBeenChecked).slice(this.startOfChain, this.hasBeenChecked.size));
       }
 
-      this.startOfChain = this.hasBeenChecked.length;
+      this.startOfChain = this.hasBeenChecked.size;
     }
   }, {
     key: "hasLiberties",
     value: function hasLiberties(i) {
       var playingAs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.playerChar;
       var board = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.board;
-      this.hasBeenChecked.push(i);
+      this.hasBeenChecked.add(i);
       var id;
       var row = Math.floor(i / this.boardSize);
-      var column = i % this.boardSize; // console.log('has liberties', i, playingAs, board, board.length, row, column)
-      // top
+      var column = i % this.boardSize;
+      console.log('has liberties', i, playingAs, board, board.length, row, column, this.hasBeenChecked); // top
 
       id = i - this.boardSize;
 
-      if (row != 0 && !this.hasBeenChecked.includes(id)) {
-        // console.log('has libs top', id)
+      if (row != 0 && !this.hasBeenChecked.has(id)) {
+        console.log('has libs top', id);
         this.handleHasLiberties(id, playingAs, board);
       } //right
 
 
       id = i + 1;
 
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        // console.log('has libs right', id)
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+        console.log('has libs right', id);
         this.handleHasLiberties(id, playingAs, board);
       } // bottom
 
 
       id = i + this.boardSize;
 
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        // console.log('has libs bottom', id)
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+        console.log('has libs bottom', id);
         this.handleHasLiberties(id, playingAs, board);
       } // left
 
 
       id = i - 1;
 
-      if (column != 0 && !this.hasBeenChecked.includes(id)) {
-        // console.log('has libs left', id)
+      if (column != 0 && !this.hasBeenChecked.has(id)) {
+        console.log('has libs left', id);
         this.handleHasLiberties(id, playingAs, board);
       }
 
@@ -4149,11 +4166,13 @@ var Validate = /*#__PURE__*/function () {
   }, {
     key: "handleHasLiberties",
     value: function handleHasLiberties(id, playingAs, board) {
+      console.log('handle has libs', id, playingAs);
+
       if (board[id] === '.') {
-        // console.log('-------------libs END 1------------------', this.hasBeenChecked)
+        console.log('-------------libs END 1------------------', this.hasBeenChecked);
         this.isValid = true;
       } else if (board[id] === playingAs) {
-        // console.log('libs CONTINUE ', id)
+        console.log('libs CONTINUE ', id);
         this.hasLiberties(id, playingAs, board);
       }
     }
@@ -4162,13 +4181,13 @@ var Validate = /*#__PURE__*/function () {
     value: function calculateAreas() {
       console.log('---------------checking areas--------------');
       this.areas = [];
-      this.hasBeenChecked = [];
+      this.hasBeenChecked = new Set();
       this.startOfChain = 0;
 
       for (var i = 0; i < this.board.length; i++) {
         if (this.board[i] === '.') {
           var chainScore = this.scoreChain(i);
-          this.startOfChain = this.hasBeenChecked.length;
+          this.startOfChain = this.hasBeenChecked.size;
           this.chainOwner = undefined;
 
           if (chainScore) {
@@ -4177,14 +4196,14 @@ var Validate = /*#__PURE__*/function () {
         }
       }
 
-      console.log(this.areas);
+      console.log('-------------checking areas END----------', this.areas);
       return this.areas;
     }
   }, {
     key: "scoreChain",
     value: function scoreChain(i) {
-      if (!this.hasBeenChecked.includes(i)) {
-        this.hasBeenChecked.push(i);
+      if (!this.hasBeenChecked.has(i)) {
+        this.hasBeenChecked.add(i);
       } else {
         return;
       }
@@ -4195,34 +4214,34 @@ var Validate = /*#__PURE__*/function () {
 
       id = i - this.boardSize;
 
-      if (row != 0 && !this.hasBeenChecked.includes(id)) {
+      if (row != 0 && !this.hasBeenChecked.has(id)) {
         this.handleScoreChain(id);
       } //right
 
 
       id = i + 1;
 
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
         this.handleScoreChain(id);
       } // bottom
 
 
       id = i + this.boardSize;
 
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
         this.handleScoreChain(id);
       } // left
 
 
       id = i - 1;
 
-      if (column != 0 && !this.hasBeenChecked.includes(id)) {
+      if (column != 0 && !this.hasBeenChecked.has(id)) {
         this.handleScoreChain(id);
       }
 
       return {
         owner: this.chainOwner,
-        chain: this.hasBeenChecked.slice(this.startOfChain, this.hasBeenChecked.length)
+        chain: Array.from(this.hasBeenChecked).slice(this.startOfChain, this.hasBeenChecked.size)
       };
     }
   }, {
@@ -4239,108 +4258,115 @@ var Validate = /*#__PURE__*/function () {
   }, {
     key: "countEyesAndLibs",
     value: function countEyesAndLibs(i, owner) {
+      var board = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.board;
       var id;
       var row = Math.floor(i / this.boardSize);
       var column = i % this.boardSize; // top
 
       id = i - this.boardSize;
 
-      if (row != 0 && !this.hasBeenChecked.includes(id)) {
-        this.handleCountEyesAndLibs(id, owner);
+      if (row != 0 && !this.hasBeenChecked.has(id)) {
+        this.handleCountEyesAndLibs(id, owner, board);
       } //right
 
 
       id = i + 1;
 
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        this.handleCountEyesAndLibs(id, owner);
+      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+        this.handleCountEyesAndLibs(id, owner, board);
       } // bottom
 
 
       id = i + this.boardSize;
 
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.includes(id)) {
-        this.handleCountEyesAndLibs(id, owner);
+      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
+        this.handleCountEyesAndLibs(id, owner, board);
       } // left
 
 
       id = i - 1;
 
-      if (column != 0 && !this.hasBeenChecked.includes(id)) {
-        this.handleCountEyesAndLibs(id, owner);
+      if (column != 0 && !this.hasBeenChecked.has(id)) {
+        this.handleCountEyesAndLibs(id, owner, board);
       }
 
       console.log('---------------counting eyes and libs--------------');
       return {
         id: i,
-        eyesAndLibs: this.chainEyesAndLibs,
-        eyes: this.eyes,
-        libs: this.libs,
         hasBeenChecked: this.hasBeenChecked,
         currentChain: this.currentChain,
-        owner: owner
+        owner: owner,
+        board: board
       };
     }
   }, {
     key: "handleCountEyesAndLibs",
-    value: function handleCountEyesAndLibs(id, owner) {
+    value: function handleCountEyesAndLibs(id, owner, board) {
       var _this = this;
 
-      if (this.chainEyesAndLibs.includes(id)) {
+      if (this.currentChain.eyesAndLibs.has(id)) {
         return;
       }
 
-      this.hasBeenChecked.push(id);
+      this.hasBeenChecked.add(id);
 
-      if (this.board[id] === '.') {
+      if (board[id] === '.') {
         this.areas.forEach(function (area) {
           if (area.chain.includes(id)) {
             if (area.owner === owner) {
-              var _this$chainEyesAndLib;
+              var _this$currentChain$ey;
 
-              (_this$chainEyesAndLib = _this.chainEyesAndLibs).push.apply(_this$chainEyesAndLib, _toConsumableArray(area.chain));
+              (_this$currentChain$ey = _this.currentChain.eyesAndLibs).add.apply(_this$currentChain$ey, _toConsumableArray(area.chain));
 
-              _this.eyes.push(area.chain);
+              _this.currentChain.eyes.add(area.chain);
 
-              _this.countEyesAndLibs(id, owner);
+              _this.countEyesAndLibs(id, owner, board);
             } else if (area.owner === '.') {
-              _this.libs.push(id);
+              _this.currentChain.libs.add(id);
 
-              _this.chainEyesAndLibs.push(id);
+              _this.currentChain.eyesAndLibs.add(id);
             }
           }
         });
-      } else if (this.board[id] === owner && !this.currentChain.includes(id)) {
-        this.currentChain.push(id);
-        this.countEyesAndLibs(id, owner);
+      } else if (board[id] === owner && !this.currentChain.chain.has(id)) {
+        this.currentChain.chain.add(id);
+        this.countEyesAndLibs(id, owner, board);
       }
     }
   }, {
     key: "deadBehindEnemyLines",
     value: function deadBehindEnemyLines(id) {
-      if (this.eyes.length >= 2) {
+      // more than two eyes
+      if (this.currentChain.eyes.size >= 2) {
         return false;
-      }
+      } // more than two liberties??
 
-      if (this.libs.length > 2) {
+
+      if (this.currentChain.libs.size > 2) {
         return false;
-      }
+      } // SEKI: shared liberties / one eye each && one liberty each
 
-      if (this.chainEyesAndLibs.length == 2) {
-        if (this.inSeki.includes(id)) {
+
+      if (this.currentChain.eyesAndLibs.size == 2) {
+        if (this.inSeki.has(id)) {
           return false;
-        } else if (this.checkForSeki(id)) {
-          var _this$inSeki;
+        } else {
+          var seki = this.checkForSeki(id);
+          console.log('**********************************');
+          console.log('seki', seki);
+          console.log('**********************************');
 
-          (_this$inSeki = this.inSeki).push.apply(_this$inSeki, _toConsumableArray(this.currentChain));
-
-          return false;
+          if (seki) {
+            // this.inSeki.push(...this.currentChain.chain)
+            return false;
+          }
         }
-      }
+      } // One eye of certain length -> needs to be able to make 2 eyes (to do)
 
-      if (this.eyes.length === 1) {
+
+      if (this.currentChain.eyes.size === 1) {
         var isDead = true;
-        this.eyes.forEach(function (eye) {
+        this.currentChain.eyes.forEach(function (eye) {
           if (eye.length >= 3) {
             isDead = false;
           }
@@ -4353,45 +4379,74 @@ var Validate = /*#__PURE__*/function () {
   }, {
     key: "checkForSeki",
     value: function checkForSeki(id) {
+      var _this2 = this;
+
       console.log('---------checking for seki-----------------');
-      var tempBoard = this.board; // check white at 0 && check black at 1
+      var tempBoard = this.board;
+      var eyes = Array.from(this.currentChain.eyes);
+      var libs = Array.from(this.currentChain.libs);
+      var chainEyesAndLibs = Array.from(this.currentChain.eyesAndLibs);
+      var blackCheck, whiteCheck; // sharing two liberties
 
-      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[0], 'o');
-      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[1], 'x');
-      var checkOne = this.hasLiberties(this.chainEyesAndLibs[0], 'o', tempBoard);
-      var checkTwo = this.hasLiberties(this.chainEyesAndLibs[1], 'x', tempBoard); // check black at 0 and white at 1
+      if (eyes.length == 0) {
+        console.log('---------ONE-----------------');
 
-      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[0], 'x');
-      tempBoard = tempBoard.replaceAt(this.chainEyesAndLibs[1], 'o');
-      var checkThree = this.hasLiberties(this.chainEyesAndLibs[0], 'x', tempBoard);
-      var checkFour = this.hasLiberties(this.chainEyesAndLibs[1], 'o', tempBoard);
-      console.log(checkOne, checkTwo, checkThree, checkFour);
-      console.log('SEKI has been checked', this.currentChain);
-      return ![checkOne, checkTwo, checkThree, checkFour].includes(true);
+        var checkTwoLiberties = function checkTwoLiberties(playingAs, eyesAndLibs, board) {
+          board = board.replaceAt(eyesAndLibs[0], playingAs);
+          board = board.replaceAt(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x');
+          return !_this2.hasLiberties(eyesAndLibs[0], playingAs, board) && !_this2.hasLiberties(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x', board);
+        }; // check white at 0 && check black at 1
+
+
+        blackCheck = checkTwoLiberties('x', chainEyesAndLibs, tempBoard); // check black at 0 and white at 1
+
+        whiteCheck = checkTwoLiberties('o', chainEyesAndLibs, tempBoard);
+        return blackCheck && whiteCheck;
+      } // one eye each and one shared liberty
+
+
+      if (eyes.length == 1 && eyes[0].length == 1) {
+        console.log('---------TWO-----------------');
+        this.clearChainData();
+
+        var checkOneEyeEach = function checkOneEyeEach(playingAs) {
+          _this2.clearChainData();
+
+          tempBoard = tempBoard.replaceAt(libs[0], playingAs); // if one eye left of length one then check for liberties
+
+          if (_this2.currentChain.eyes.size == 1 && _this2.currentChain.eyes.values().next().value.length == 1) {
+            tempBoard.replaceAt(_this2.currentChain.eyes[0], playingAs === 'x' ? 'o' : 'x');
+            return !_this2.hasLiberties(libs[0], playingAs, tempBoard);
+          }
+        }; // check black for life
+
+
+        blackCheck = checkOneEyeEach('x');
+        whiteCheck = checkOneEyeEach('o');
+        console.log('SEKI has been checked 2', this.currentChain.chain, this.hasBeenChecked);
+        return blackCheck && whiteCheck;
+      }
     }
   }, {
     key: "scoreDraftCaptures",
     value: function scoreDraftCaptures(i) {
-      var _this2 = this;
+      var _this3 = this;
 
-      this.eyes = [];
-      this.libs = [];
-      this.chainEyesAndLibs = [];
-      this.hasBeenChecked = [];
-      this.currentChain = [i];
+      this.clearChainData();
+      this.currentChain.chain.add(i);
       console.log('count', i, this.countEyesAndLibs(i, this.board[i]));
       var deadBehindEnemyLines = this.deadBehindEnemyLines(i);
-      console.log('dead behind lines', deadBehindEnemyLines, this.currentChain, this.inSeki);
+      console.log('dead behind lines', deadBehindEnemyLines, this.currentChain.chain, this.inSeki);
 
       if (deadBehindEnemyLines) {
         if (this.board[i] === 'o') {
-          this.blackDraftCaptures += this.currentChain.length;
+          this.blackDraftCaptures += this.currentChain.chain.size;
         } else {
-          this.whiteDraftCaptures += this.currentChain.length;
+          this.whiteDraftCaptures += this.currentChain.chain.size;
         }
 
-        this.currentChain.forEach(function (node) {
-          return _this2.board = _this2.board.replaceAt(node, '.');
+        this.currentChain.chain.forEach(function (node) {
+          return _this3.board = _this3.board.replaceAt(node, '.');
         });
         this.calculateAreas();
       }
@@ -4454,8 +4509,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var immer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! immer */ "./node_modules/immer/dist/immer.esm.js");
-/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var immer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! immer */ "./node_modules/immer/dist/immer.esm.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -4463,15 +4518,16 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
+(0,immer__WEBPACK_IMPORTED_MODULE_0__.enableMapSet)();
 
 var boardSize = 9;
 var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  // board: 'x.ox.o...x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+  // board: '.xxo.ox..xxxooox..oooxxxx....ooo.................................................',
   // seki 1
-  board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+  // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
   // seki 2
   // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
   // seki 3
@@ -4479,7 +4535,7 @@ var initialState = {
   // seki 4
   // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
   // scoring
-  // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
+  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
@@ -4504,8 +4560,8 @@ var reducer = function reducer() {
   var action = arguments.length > 1 ? arguments[1] : undefined;
 
   switch (action.type) {
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.SET_TO_PLAY:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_TO_PLAY:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         var nextToPlay;
 
         if (action.color === undefined) {
@@ -4520,48 +4576,48 @@ var reducer = function reducer() {
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.UPDATE_NODE:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.UPDATE_NODE:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           board: draftState.board.replaceAt(action.i, draftState.toPlay === 'black' ? 'x' : 'o')
         });
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.CLEAR_NODE:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.CLEAR_NODE:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           board: draftState.board.replaceAt(action.i, '.')
         });
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.UPDATE_BOARD:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.UPDATE_BOARD:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           board: action.board
         });
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.SET_FOCUS_POINT:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_FOCUS_POINT:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           focusPoint: action.i
         });
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.SET_STONES_TO_BE_REMOVED:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_STONES_TO_BE_REMOVED:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           stonesToBeRemoved: action.array
         });
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.SET_KO:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_KO:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           ko: action.bool,
           previousBoardPosition: action.bool ? draftState.board : null
@@ -4569,8 +4625,8 @@ var reducer = function reducer() {
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.CHECK_SCORE:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.CHECK_SCORE:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           previousBoardPosition: draftState.board,
           checkingScore: true,
@@ -4579,8 +4635,8 @@ var reducer = function reducer() {
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.CANCEL_SCORING:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.CANCEL_SCORING:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           checkingScore: false,
           board: draftState.previousBoardPosition,
@@ -4598,8 +4654,8 @@ var reducer = function reducer() {
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_0__.UPDATE_SCORE:
-      return (0,immer__WEBPACK_IMPORTED_MODULE_1__["default"])(state, function (draftState) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.UPDATE_SCORE:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         var whiteData = action.json.white;
         var blackData = action.json.black;
         return _objectSpread(_objectSpread({}, draftState), {}, {

@@ -29,7 +29,7 @@ function* handleAttemptMove(action) {
         } else {
             yield put({ type: SET_STONES_TO_BE_REMOVED, array: toBeRemoved })
         }
-        console.log('handle attempt move', toBeRemoved, hasLiberty)
+        console.log('handle attempt move 2', toBeRemoved, hasLiberty)
         if (toBeRemoved.length > 0 || hasLiberty) {
             yield put({ type: SET_FOCUS_POINT, i: action.i })
         } else {
