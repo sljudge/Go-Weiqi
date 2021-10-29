@@ -4003,6 +4003,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -4034,6 +4036,7 @@ var Validate = /*#__PURE__*/function () {
     this.boardSize = Math.sqrt(board.length);
     this.hasBeenChecked = new Set();
     this.currentChain = {
+      owner: undefined,
       chain: new Set(),
       eyesAndLibs: new Set(),
       eyes: new Set(),
@@ -4059,8 +4062,10 @@ var Validate = /*#__PURE__*/function () {
   }, {
     key: "clearChainData",
     value: function clearChainData() {
+      console.log('!!!!!!!!!!!!!!!!!! CLEAR CHAIN DATA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       this.hasBeenChecked = new Set();
       this.currentChain = {
+        owner: undefined,
         chain: new Set(),
         eyesAndLibs: new Set(),
         eyes: new Set(),
@@ -4127,13 +4132,12 @@ var Validate = /*#__PURE__*/function () {
       this.hasBeenChecked.add(i);
       var id;
       var row = Math.floor(i / this.boardSize);
-      var column = i % this.boardSize;
-      console.log('has liberties', i, playingAs, board, board.length, row, column, this.hasBeenChecked); // top
+      var column = i % this.boardSize; // top
 
       id = i - this.boardSize;
 
       if (row != 0 && !this.hasBeenChecked.has(id)) {
-        console.log('has libs top', id);
+        // console.log('L - top', id)
         this.handleHasLiberties(id, playingAs, board);
       } //right
 
@@ -4141,7 +4145,7 @@ var Validate = /*#__PURE__*/function () {
       id = i + 1;
 
       if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        console.log('has libs right', id);
+        // console.log('L - right', id)
         this.handleHasLiberties(id, playingAs, board);
       } // bottom
 
@@ -4149,7 +4153,7 @@ var Validate = /*#__PURE__*/function () {
       id = i + this.boardSize;
 
       if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        console.log('has libs bottom', id);
+        // console.log('L - bottom', id)
         this.handleHasLiberties(id, playingAs, board);
       } // left
 
@@ -4157,23 +4161,24 @@ var Validate = /*#__PURE__*/function () {
       id = i - 1;
 
       if (column != 0 && !this.hasBeenChecked.has(id)) {
-        console.log('has libs left', id);
+        // console.log('L - left', id)
         this.handleHasLiberties(id, playingAs, board);
-      }
+      } // console.log('END has libs: ', i, this.isValid || false, this.hasBeenChecked)
+
 
       return this.isValid || false;
     }
   }, {
     key: "handleHasLiberties",
     value: function handleHasLiberties(id, playingAs, board) {
-      console.log('handle has libs', id, playingAs);
-
+      // console.log('handle has libs', id, playingAs)
       if (board[id] === '.') {
-        console.log('-------------libs END 1------------------', this.hasBeenChecked);
+        // console.log('-------------libs END 1------------------', this.hasBeenChecked)
         this.isValid = true;
       } else if (board[id] === playingAs) {
-        console.log('libs CONTINUE ', id);
+        // console.log('libs CONTINUE ', id)
         this.hasLiberties(id, playingAs, board);
+      } else {// console.log('no libs', id)
       }
     }
   }, {
@@ -4188,7 +4193,7 @@ var Validate = /*#__PURE__*/function () {
         if (this.board[i] === '.') {
           var chainScore = this.scoreChain(i);
           this.startOfChain = this.hasBeenChecked.size;
-          this.chainOwner = undefined;
+          this.currentChain.owner = undefined;
 
           if (chainScore) {
             this.areas.push(chainScore);
@@ -4240,7 +4245,7 @@ var Validate = /*#__PURE__*/function () {
       }
 
       return {
-        owner: this.chainOwner,
+        owner: this.currentChain.owner,
         chain: Array.from(this.hasBeenChecked).slice(this.startOfChain, this.hasBeenChecked.size)
       };
     }
@@ -4249,10 +4254,10 @@ var Validate = /*#__PURE__*/function () {
     value: function handleScoreChain(id) {
       if (this.board[id] === '.') {
         this.scoreChain(id);
-      } else if (!this.chainOwner) {
-        this.chainOwner = this.board[id];
-      } else if (this.board[id] !== this.chainOwner) {
-        this.chainOwner = '.';
+      } else if (!this.currentChain.owner) {
+        this.currentChain.owner = this.board[id];
+      } else if (this.board[id] !== this.currentChain.owner) {
+        this.currentChain.owner = '.';
       }
     }
   }, {
@@ -4338,26 +4343,34 @@ var Validate = /*#__PURE__*/function () {
     value: function deadBehindEnemyLines(id) {
       // more than two eyes
       if (this.currentChain.eyes.size >= 2) {
+        console.log('DBL - 1');
         return false;
       } // more than two liberties??
 
 
       if (this.currentChain.libs.size > 2) {
+        console.log('DBL - 2');
         return false;
+      }
+
+      if (this.currentChain.eyes.size == 0 && this.currentChain.libs.size < 2) {
+        console.log('DBL - 3');
+        return true;
       } // SEKI: shared liberties / one eye each && one liberty each
 
 
-      if (this.currentChain.eyesAndLibs.size == 2) {
+      if (this.currentChain.eyesAndLibs.size == 2 || this.currentChain.eyes.size == 1 && this.currentChain.eyesAndLibs.size == 3 && this.currentChain.libs.size == 2) {
+        console.log('DBL - 4');
+
         if (this.inSeki.has(id)) {
           return false;
         } else {
           var seki = this.checkForSeki(id);
           console.log('**********************************');
-          console.log('seki', seki);
+          console.log('seki', seki, id, this.inSeki);
           console.log('**********************************');
 
           if (seki) {
-            // this.inSeki.push(...this.currentChain.chain)
             return false;
           }
         }
@@ -4365,6 +4378,7 @@ var Validate = /*#__PURE__*/function () {
 
 
       if (this.currentChain.eyes.size === 1) {
+        console.log('DBL - 5');
         var isDead = true;
         this.currentChain.eyes.forEach(function (eye) {
           if (eye.length >= 3) {
@@ -4381,17 +4395,23 @@ var Validate = /*#__PURE__*/function () {
     value: function checkForSeki(id) {
       var _this2 = this;
 
-      console.log('---------checking for seki-----------------');
+      console.log('---------checking for seki-----------------', id);
       var tempBoard = this.board;
       var eyes = Array.from(this.currentChain.eyes);
       var libs = Array.from(this.currentChain.libs);
       var chainEyesAndLibs = Array.from(this.currentChain.eyesAndLibs);
-      var blackCheck, whiteCheck; // sharing two liberties
+      var chain = Array.from(this.currentChain.chain);
+      var owner = tempBoard[id];
+      var blackCheck, whiteCheck;
+      var tempInSeki = []; // ----------------------------------
+      // sharing two liberties
+      // ----------------------------------
 
       if (eyes.length == 0) {
-        console.log('---------ONE-----------------');
+        console.log('---------SEKI ONE-----------------');
 
         var checkTwoLiberties = function checkTwoLiberties(playingAs, eyesAndLibs, board) {
+          _this2.hasBeenChecked = new Set();
           board = board.replaceAt(eyesAndLibs[0], playingAs);
           board = board.replaceAt(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x');
           return !_this2.hasLiberties(eyesAndLibs[0], playingAs, board) && !_this2.hasLiberties(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x', board);
@@ -4401,30 +4421,176 @@ var Validate = /*#__PURE__*/function () {
         blackCheck = checkTwoLiberties('x', chainEyesAndLibs, tempBoard); // check black at 0 and white at 1
 
         whiteCheck = checkTwoLiberties('o', chainEyesAndLibs, tempBoard);
-        return blackCheck && whiteCheck;
-      } // one eye each and one shared liberty
+        console.log('SEKI has been checked - ONE', id, blackCheck, whiteCheck, chain, this.hasBeenChecked);
+
+        if (blackCheck && whiteCheck) {
+          Array.from(this.hasBeenChecked).filter(function (id) {
+            return id === chainEyesAndLibs[0] || id === chainEyesAndLibs[1] ? false : true;
+          }).forEach(function (id) {
+            return _this2.inSeki.add(id);
+          });
+          return true;
+        } else {
+          return false;
+          tempBoard = tempBoard.replaceAt(chainEyesAndLibs[0], this.board[id]);
+          tempBoard = tempBoard.replaceAt(chainEyesAndLibs[1], this.board[id]);
+          var tempA, tempB;
+          this.clearChainData();
+          this.countEyesAndLibs(chainEyesAndLibs[0], this.board[id] === 'x' ? 'o' : 'x', tempBoard); // exit if nodes adjacent
+
+          console.log('nodes adjacent', this.currentChain.chain, chainEyesAndLibs[0], chainEyesAndLibs[1], tempBoard);
+
+          if (this.currentChain.chain.has(chainEyesAndLibs[0]) && this.currentChain.chain.has(chainEyesAndLibs[1])) {
+            return false;
+          }
+
+          tempA = this.currentChain.eyesAndLibs.size == 1;
+          console.log('A seki', this.currentChain);
+
+          if (tempA) {
+            var _tempInSeki;
+
+            (_tempInSeki = tempInSeki).push.apply(_tempInSeki, _toConsumableArray(this.currentChain.chain));
+          }
+
+          this.clearChainData();
+          this.countEyesAndLibs(chainEyesAndLibs[1], this.board[id] === 'x' ? 'o' : 'x', tempBoard);
+          tempB = this.currentChain.eyesAndLibs.size == 1;
+          console.log('B seki', this.currentChain);
+
+          if (tempB) {
+            var _tempInSeki2;
+
+            (_tempInSeki2 = tempInSeki).push.apply(_tempInSeki2, _toConsumableArray(this.currentChain.chain));
+          }
+
+          if (tempA && tempB) {
+            var _tempInSeki3;
+
+            (_tempInSeki3 = tempInSeki).push.apply(_tempInSeki3, _toConsumableArray(chain));
+
+            tempInSeki = tempInSeki.filter(function (id) {
+              if (id == chainEyesAndLibs[0] || id == chainEyesAndLibs[1]) {
+                return false;
+              } else {
+                return true;
+              }
+            });
+            console.log('SEKI has been checked 1.5', id, tempInSeki, chainEyesAndLibs[0], chainEyesAndLibs[1]);
+            tempInSeki.forEach(function (id) {
+              return _this2.inSeki.add(id);
+            });
+            return true;
+          } else {
+            return false;
+          }
+        }
+      } // ------------------------------------------
+      // one eye each and one shared liberty
+      // ------------------------------------------
 
 
-      if (eyes.length == 1 && eyes[0].length == 1) {
-        console.log('---------TWO-----------------');
-        this.clearChainData();
+      if (eyes.length == 1 && eyes[0].length == 1 && libs.length == 1) {
+        console.log('---------SEKI TWO-----------------');
 
-        var checkOneEyeEach = function checkOneEyeEach(playingAs) {
+        var checkOneEyeEach = function checkOneEyeEach(a, playingAs, board) {
           _this2.clearChainData();
 
-          tempBoard = tempBoard.replaceAt(libs[0], playingAs); // if one eye left of length one then check for liberties
-
-          if (_this2.currentChain.eyes.size == 1 && _this2.currentChain.eyes.values().next().value.length == 1) {
-            tempBoard.replaceAt(_this2.currentChain.eyes[0], playingAs === 'x' ? 'o' : 'x');
-            return !_this2.hasLiberties(libs[0], playingAs, tempBoard);
-          }
+          board = board.replaceAt(a, playingAs);
+          console.log(playingAs, _this2.countEyesAndLibs(a, playingAs, board));
+          return _this2.currentChain.eyesAndLibs.size == 1;
         }; // check black for life
 
 
-        blackCheck = checkOneEyeEach('x');
-        whiteCheck = checkOneEyeEach('o');
-        console.log('SEKI has been checked 2', this.currentChain.chain, this.hasBeenChecked);
-        return blackCheck && whiteCheck;
+        blackCheck = checkOneEyeEach(libs[0], 'x', tempBoard);
+
+        if (blackCheck) {
+          var _tempInSeki4;
+
+          this.currentChain.chain["delete"](libs[0]);
+
+          (_tempInSeki4 = tempInSeki).push.apply(_tempInSeki4, _toConsumableArray(this.currentChain.chain));
+        } // check for white life
+
+
+        whiteCheck = checkOneEyeEach(libs[0], 'o', tempBoard);
+
+        if (whiteCheck) {
+          var _tempInSeki5;
+
+          this.currentChain.chain["delete"](libs[0]);
+
+          (_tempInSeki5 = tempInSeki).push.apply(_tempInSeki5, _toConsumableArray(this.currentChain.chain));
+        }
+
+        console.log('SEKI has been checked - TWO', blackCheck, whiteCheck);
+
+        if (blackCheck && whiteCheck) {
+          tempInSeki.forEach(function (id) {
+            return _this2.inSeki.add(id);
+          });
+          return true;
+        } else {
+          // return to previous chain for removal
+          this.currentChain.chain = chain;
+          return false;
+        }
+      } // ----------------------------
+      // one false eye
+      // ----------------------------
+
+
+      if (eyes.length == 1 && chainEyesAndLibs.length == 3 && libs.length == 2) {
+        console.log('------------------------------SEKI THREE-----------------------------');
+        console.log('THREE', eyes, libs, chainEyesAndLibs, chain, owner);
+        this.clearChainData();
+        tempBoard = tempBoard.replaceAt(eyes[0][0], owner === 'x' ? 'o' : 'x');
+        tempBoard = tempBoard.replaceAt(libs[0], owner === 'x' ? 'o' : 'x');
+        var doesCapture = false;
+
+        var _iterator = _createForOfIteratorHelper(chain),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var _id = _step.value;
+
+            if (doesCapture) {
+              continue;
+            }
+
+            if (!this.hasLiberties(_id, owner, tempBoard)) {
+              doesCapture = true;
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        console.log('SEKI has been checked - THREE', doesCapture, chain); // if capture then check for mutual 
+
+        if (doesCapture) {
+          tempBoard = tempBoard.replaceAt(libs[1], owner);
+          console.log(this.countEyesAndLibs(libs[0], owner === 'x' ? 'o' : 'x', tempBoard));
+
+          if (this.currentChain.eyesAndLibs.size == 0) {
+            chain.filter(function (id) {
+              return id !== libs[0];
+            });
+            chain.forEach(function (id) {
+              return _this2.inSeki.add(id);
+            });
+            this.currentChain.chain["delete"](libs[0]);
+            this.currentChain.chain.forEach(function (id) {
+              return _this2.inSeki.add(id);
+            });
+            return true;
+          }
+        } else {
+          return false;
+        }
       }
     }
   }, {
@@ -4433,10 +4599,9 @@ var Validate = /*#__PURE__*/function () {
       var _this3 = this;
 
       this.clearChainData();
-      this.currentChain.chain.add(i);
       console.log('count', i, this.countEyesAndLibs(i, this.board[i]));
       var deadBehindEnemyLines = this.deadBehindEnemyLines(i);
-      console.log('dead behind lines', deadBehindEnemyLines, this.currentChain.chain, this.inSeki);
+      console.log('dead behind lines: DOA: ', deadBehindEnemyLines, '  chain:', this.currentChain.chain, '   seki: ', this.inSeki);
 
       if (deadBehindEnemyLines) {
         if (this.board[i] === 'o') {
@@ -4445,9 +4610,14 @@ var Validate = /*#__PURE__*/function () {
           this.whiteDraftCaptures += this.currentChain.chain.size;
         }
 
-        this.currentChain.chain.forEach(function (node) {
-          return _this3.board = _this3.board.replaceAt(node, '.');
-        });
+        if (this.currentChain.chain.size == 0) {
+          this.board = this.board.replaceAt(i, '.');
+        } else {
+          this.currentChain.chain.forEach(function (node) {
+            return _this3.board = _this3.board.replaceAt(node, '.');
+          });
+        }
+
         this.calculateAreas();
       }
     }
@@ -4457,15 +4627,17 @@ var Validate = /*#__PURE__*/function () {
       console.log(this.board.length);
       this.blackDraftCaptures = 0;
       this.whiteDraftCaptures = 0;
-      this.calculateAreas(); // this.scoreDraftCaptures(15)
+      this.calculateAreas(); // this.scoreDraftCaptures(1)
 
       for (var i = 0; i < this.board.length; i++) {
-        if (this.board[i] !== '.') {
+        if (this.board[i] !== '.' && !this.inSeki.has(i)) {
           this.scoreDraftCaptures(i);
         }
       }
 
-      console.log(this.areas);
+      console.log('***********************');
+      console.log('SCORE: ', this.areas, this.inSeki);
+      console.log('***********************');
       return {
         areas: this.areas,
         blackDraftCaptures: this.blackDraftCaptures,
@@ -4525,17 +4697,21 @@ var initialState = {
   toPlay: 'white',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
-  // board: '.xxo.ox..xxxooox..oooxxxx....ooo.................................................',
   // seki 1
   // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+  // board: '..............................................ooxxx....oxoox....ox.ox....ox.ox...',
   // seki 2
   // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
+  // board: '.xo.ox...x.ooox.o.oooxxx.o.xxx...................................................',
   // seki 3
   // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
+  // board: '........................x....................ooooo....xxxxxoo...oooxo...xxx.xo...',
   // seki 4
   // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
+  // seki 5
+  // board: 'xxxxx......x........ooooo...ooxxxoo.ooxx.xxo.oxxxo.xo.oxoxoxxo.oxoooxoo.oxxxxoo..',
   // scoring
-  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxxoxx.x.oxxooox..oxo...o',
+  // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx.x.oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
