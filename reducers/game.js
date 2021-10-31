@@ -15,30 +15,30 @@ import {
 
 const boardSize = 9
 const initialState = {
-    toPlay: 'white',
+    toPlay: 'black',
     boardSize: boardSize,
     // board: '.'.repeat(Math.pow(boardSize, 2)),
+
+    // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
 
     // seki 1
     // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
     // board: '..............................................ooxxx....oxoox....ox.ox....ox.ox...',
+    // board: '........................x....................ooooo....xxxxxoo...oooxo...xxx.xo...',
+    // board: 'xxxxx......x........ooooo...ooxxxoo.ooxx.xxo.oxxxo.xo.oxoxoxxo.oxoooxoo.oxxxxoo..',
 
     // seki 2
     // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
     // board: '.xo.ox...x.ooox.o.oooxxx.o.xxx...................................................',
 
-    // seki 3
+
     // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
-    // board: '........................x....................ooooo....xxxxxoo...oooxo...xxx.xo...',
 
     // seki 4
     // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
 
-    // seki 5
-    // board: 'xxxxx......x........ooooo...ooxxxoo.ooxx.xxo.oxxxo.xo.oxoxoxxo.oxoooxoo.oxxxxoo..',
-
     // scoring
-    // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx.x.oxxooox..oxo...o',
+    board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
 
     focusPoint: null,
     stonesToBeRemoved: [],

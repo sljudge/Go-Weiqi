@@ -3890,6 +3890,10 @@ function handleCheckScore(action) {
               area.chain.forEach(function (node) {
                 tempBoard = tempBoard.replaceAt(node, area.owner.toUpperCase());
               });
+            } else {
+              area.chain.forEach(function (node) {
+                tempBoard = tempBoard.replaceAt(node, '.');
+              });
             }
           });
           _context3.next = 15;
@@ -4003,8 +4007,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -4062,7 +4064,6 @@ var Validate = /*#__PURE__*/function () {
   }, {
     key: "clearChainData",
     value: function clearChainData() {
-      console.log('!!!!!!!!!!!!!!!!!! CLEAR CHAIN DATA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       this.hasBeenChecked = new Set();
       this.currentChain = {
         owner: undefined,
@@ -4073,118 +4074,80 @@ var Validate = /*#__PURE__*/function () {
       };
     }
   }, {
-    key: "captureChain",
-    value: function captureChain(i) {
-      this.hasBeenChecked.add(i);
-      this.isValid = false;
-      var id;
-      var row = Math.floor(i / this.boardSize);
-      var column = i % this.boardSize; // top
+    key: "getAdjacentNodes",
+    value: function getAdjacentNodes(id) {
+      var row = Math.floor(id / this.boardSize);
+      var column = id % this.boardSize;
+      var output = []; // top
 
-      id = i - this.boardSize;
-
-      if (row != 0 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
-        this.handleCaptureChain(id);
+      if (row != 0) {
+        output.push(id - this.boardSize);
       } // right
 
 
-      id = i + 1;
-
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
-        this.handleCaptureChain(id);
+      if (column != this.boardSize - 1) {
+        output.push(id + 1);
       } // bottom
 
 
-      id = i + this.boardSize;
-
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
-        this.handleCaptureChain(id);
+      if (row != this.boardSize - 1) {
+        output.push(id + this.boardSize);
       } // left
 
 
-      id = i - 1;
-
-      if (column != 0 && !this.hasBeenChecked.has(id) && this.board[id] === this.opponentChar) {
-        this.handleCaptureChain(id);
+      if (column != 0) {
+        output.push(id - 1);
       }
 
+      return output;
+    }
+  }, {
+    key: "hasLiberties",
+    value: function hasLiberties(id) {
+      var _this = this;
+
+      var playingAs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.playerChar;
+      var board = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.board;
+      this.hasBeenChecked.add(id);
+      var nodesToBeChecked = this.getAdjacentNodes(id);
+      nodesToBeChecked.forEach(function (node) {
+        if (!_this.hasBeenChecked.has(node)) {
+          if (board[node] === '.') {
+            _this.isValid = true;
+          } else if (board[node] === playingAs) {
+            _this.hasLiberties(node, playingAs, board);
+          }
+        }
+      });
+      return this.isValid || false;
+    }
+  }, {
+    key: "captureChain",
+    value: function captureChain(id) {
+      var _this2 = this;
+
+      this.hasBeenChecked.add(id);
+      this.isValid = false;
+      var nodesToBeChecked = this.getAdjacentNodes(id);
+      nodesToBeChecked.forEach(function (node) {
+        if (_this2.board[node] === _this2.opponentChar && !_this2.hasBeenChecked.has(node)) {
+          _this2.isValid = undefined;
+
+          var hasLibs = _this2.hasLiberties(node, _this2.opponentChar);
+
+          if (!hasLibs) {
+            _this2.toBeRemoved.add(Array.from(_this2.hasBeenChecked).slice(_this2.startOfChain, _this2.hasBeenChecked.size));
+          }
+
+          _this2.startOfChain = _this2.hasBeenChecked.size;
+        }
+      });
       this.isValid = false;
       return Array.from(this.toBeRemoved);
     }
   }, {
-    key: "handleCaptureChain",
-    value: function handleCaptureChain(i) {
-      this.isValid = undefined;
-      var hasLibs = this.hasLiberties(i, this.opponentChar);
-      console.log('has libs', i, this.opponentChar, hasLibs);
-
-      if (!hasLibs) {
-        this.toBeRemoved.add(Array.from(this.hasBeenChecked).slice(this.startOfChain, this.hasBeenChecked.size));
-      }
-
-      this.startOfChain = this.hasBeenChecked.size;
-    }
-  }, {
-    key: "hasLiberties",
-    value: function hasLiberties(i) {
-      var playingAs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.playerChar;
-      var board = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.board;
-      this.hasBeenChecked.add(i);
-      var id;
-      var row = Math.floor(i / this.boardSize);
-      var column = i % this.boardSize; // top
-
-      id = i - this.boardSize;
-
-      if (row != 0 && !this.hasBeenChecked.has(id)) {
-        // console.log('L - top', id)
-        this.handleHasLiberties(id, playingAs, board);
-      } //right
-
-
-      id = i + 1;
-
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        // console.log('L - right', id)
-        this.handleHasLiberties(id, playingAs, board);
-      } // bottom
-
-
-      id = i + this.boardSize;
-
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        // console.log('L - bottom', id)
-        this.handleHasLiberties(id, playingAs, board);
-      } // left
-
-
-      id = i - 1;
-
-      if (column != 0 && !this.hasBeenChecked.has(id)) {
-        // console.log('L - left', id)
-        this.handleHasLiberties(id, playingAs, board);
-      } // console.log('END has libs: ', i, this.isValid || false, this.hasBeenChecked)
-
-
-      return this.isValid || false;
-    }
-  }, {
-    key: "handleHasLiberties",
-    value: function handleHasLiberties(id, playingAs, board) {
-      // console.log('handle has libs', id, playingAs)
-      if (board[id] === '.') {
-        // console.log('-------------libs END 1------------------', this.hasBeenChecked)
-        this.isValid = true;
-      } else if (board[id] === playingAs) {
-        // console.log('libs CONTINUE ', id)
-        this.hasLiberties(id, playingAs, board);
-      } else {// console.log('no libs', id)
-      }
-    }
-  }, {
     key: "calculateAreas",
     value: function calculateAreas() {
-      console.log('---------------checking areas--------------');
       this.areas = [];
       this.hasBeenChecked = new Set();
       this.startOfChain = 0;
@@ -4201,142 +4164,81 @@ var Validate = /*#__PURE__*/function () {
         }
       }
 
-      console.log('-------------checking areas END----------', this.areas);
       return this.areas;
     }
   }, {
     key: "scoreChain",
-    value: function scoreChain(i) {
-      if (!this.hasBeenChecked.has(i)) {
-        this.hasBeenChecked.add(i);
+    value: function scoreChain(id) {
+      var _this3 = this;
+
+      if (!this.hasBeenChecked.has(id)) {
+        this.hasBeenChecked.add(id);
       } else {
         return;
       }
 
-      var id;
-      var row = Math.floor(i / this.boardSize);
-      var column = i % this.boardSize; // top
-
-      id = i - this.boardSize;
-
-      if (row != 0 && !this.hasBeenChecked.has(id)) {
-        this.handleScoreChain(id);
-      } //right
-
-
-      id = i + 1;
-
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        this.handleScoreChain(id);
-      } // bottom
-
-
-      id = i + this.boardSize;
-
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        this.handleScoreChain(id);
-      } // left
-
-
-      id = i - 1;
-
-      if (column != 0 && !this.hasBeenChecked.has(id)) {
-        this.handleScoreChain(id);
-      }
-
+      var nodesToBeChecked = this.getAdjacentNodes(id);
+      nodesToBeChecked.forEach(function (node) {
+        if (!_this3.hasBeenChecked.has(node)) {
+          if (_this3.board[node] === '.') {
+            _this3.scoreChain(node);
+          } else if (!_this3.currentChain.owner) {
+            _this3.currentChain.owner = _this3.board[node];
+          } else if (_this3.board[node] !== _this3.currentChain.owner) {
+            _this3.currentChain.owner = '.';
+          }
+        }
+      });
       return {
         owner: this.currentChain.owner,
         chain: Array.from(this.hasBeenChecked).slice(this.startOfChain, this.hasBeenChecked.size)
       };
     }
   }, {
-    key: "handleScoreChain",
-    value: function handleScoreChain(id) {
-      if (this.board[id] === '.') {
-        this.scoreChain(id);
-      } else if (!this.currentChain.owner) {
-        this.currentChain.owner = this.board[id];
-      } else if (this.board[id] !== this.currentChain.owner) {
-        this.currentChain.owner = '.';
-      }
-    }
-  }, {
     key: "countEyesAndLibs",
-    value: function countEyesAndLibs(i, owner) {
+    value: function countEyesAndLibs(id, owner) {
+      var _this4 = this;
+
       var board = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.board;
-      var id;
-      var row = Math.floor(i / this.boardSize);
-      var column = i % this.boardSize; // top
-
-      id = i - this.boardSize;
-
-      if (row != 0 && !this.hasBeenChecked.has(id)) {
-        this.handleCountEyesAndLibs(id, owner, board);
-      } //right
+      var nodesToBeChecked = this.getAdjacentNodes(id);
+      nodesToBeChecked.forEach(function (node) {
+        if (!_this4.hasBeenChecked.has(node) && !_this4.currentChain.eyesAndLibs.has(node)) {
+          _this4.hasBeenChecked.add(node); // console.log(node, [...this.hasBeenChecked])
 
 
-      id = i + 1;
+          if (board[node] === '.') {
+            _this4.areas.forEach(function (area) {
+              if (area.chain.includes(node)) {
+                if (area.owner === owner) {
+                  area.chain.forEach(function (node) {
+                    return _this4.currentChain.eyesAndLibs.add(node);
+                  });
 
-      if (column != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        this.handleCountEyesAndLibs(id, owner, board);
-      } // bottom
+                  _this4.currentChain.eyes.add(area.chain);
 
+                  _this4.countEyesAndLibs(node, owner, board);
+                } else if (area.owner === '.') {
+                  _this4.currentChain.libs.add(node);
 
-      id = i + this.boardSize;
+                  _this4.currentChain.eyesAndLibs.add(node);
+                }
+              }
+            });
+          } else if (board[node] === owner && !_this4.currentChain.chain.has(node)) {
+            _this4.currentChain.chain.add(node);
 
-      if (row != this.boardSize - 1 && !this.hasBeenChecked.has(id)) {
-        this.handleCountEyesAndLibs(id, owner, board);
-      } // left
-
-
-      id = i - 1;
-
-      if (column != 0 && !this.hasBeenChecked.has(id)) {
-        this.handleCountEyesAndLibs(id, owner, board);
-      }
-
+            _this4.countEyesAndLibs(node, owner, board);
+          }
+        }
+      });
       console.log('---------------counting eyes and libs--------------');
       return {
-        id: i,
+        id: id,
         hasBeenChecked: this.hasBeenChecked,
         currentChain: this.currentChain,
         owner: owner,
         board: board
       };
-    }
-  }, {
-    key: "handleCountEyesAndLibs",
-    value: function handleCountEyesAndLibs(id, owner, board) {
-      var _this = this;
-
-      if (this.currentChain.eyesAndLibs.has(id)) {
-        return;
-      }
-
-      this.hasBeenChecked.add(id);
-
-      if (board[id] === '.') {
-        this.areas.forEach(function (area) {
-          if (area.chain.includes(id)) {
-            if (area.owner === owner) {
-              var _this$currentChain$ey;
-
-              (_this$currentChain$ey = _this.currentChain.eyesAndLibs).add.apply(_this$currentChain$ey, _toConsumableArray(area.chain));
-
-              _this.currentChain.eyes.add(area.chain);
-
-              _this.countEyesAndLibs(id, owner, board);
-            } else if (area.owner === '.') {
-              _this.currentChain.libs.add(id);
-
-              _this.currentChain.eyesAndLibs.add(id);
-            }
-          }
-        });
-      } else if (board[id] === owner && !this.currentChain.chain.has(id)) {
-        this.currentChain.chain.add(id);
-        this.countEyesAndLibs(id, owner, board);
-      }
     }
   }, {
     key: "deadBehindEnemyLines",
@@ -4348,7 +4250,7 @@ var Validate = /*#__PURE__*/function () {
       } // more than two liberties??
 
 
-      if (this.currentChain.libs.size > 2) {
+      if (this.currentChain.libs.size > 3) {
         console.log('DBL - 2');
         return false;
       }
@@ -4356,7 +4258,10 @@ var Validate = /*#__PURE__*/function () {
       if (this.currentChain.eyes.size == 0 && this.currentChain.libs.size < 2) {
         console.log('DBL - 3');
         return true;
-      } // SEKI: shared liberties / one eye each && one liberty each
+      } // LIBS three or under
+      // capture or extend??
+      // else SEKI
+      // SEKI: shared liberties / one eye each && one liberty each
 
 
       if (this.currentChain.eyesAndLibs.size == 2 || this.currentChain.eyes.size == 1 && this.currentChain.eyesAndLibs.size == 3 && this.currentChain.libs.size == 2) {
@@ -4379,13 +4284,9 @@ var Validate = /*#__PURE__*/function () {
 
       if (this.currentChain.eyes.size === 1) {
         console.log('DBL - 5');
-        var isDead = true;
-        this.currentChain.eyes.forEach(function (eye) {
-          if (eye.length >= 3) {
-            isDead = false;
-          }
+        return !Array.from(this.currentChain.eyes).some(function (eye) {
+          return eye.length >= 3;
         });
-        return isDead;
       }
 
       return true;
@@ -4393,7 +4294,7 @@ var Validate = /*#__PURE__*/function () {
   }, {
     key: "checkForSeki",
     value: function checkForSeki(id) {
-      var _this2 = this;
+      var _this5 = this;
 
       console.log('---------checking for seki-----------------', id);
       var tempBoard = this.board;
@@ -4401,89 +4302,84 @@ var Validate = /*#__PURE__*/function () {
       var libs = Array.from(this.currentChain.libs);
       var chainEyesAndLibs = Array.from(this.currentChain.eyesAndLibs);
       var chain = Array.from(this.currentChain.chain);
-      var owner = tempBoard[id];
-      var blackCheck, whiteCheck;
-      var tempInSeki = []; // ----------------------------------
-      // sharing two liberties
-      // ----------------------------------
+      var checkOne, checkTwo;
+      var tempInSeki = [];
+      var tempCheck;
 
-      if (eyes.length == 0) {
-        console.log('---------SEKI ONE-----------------');
+      if (eyes.length == 0 && libs.length == 2) {
+        console.log('---------SEKI ONE-----------------'); // ----------------------------------
+        // split liberties
+        // ----------------------------------
+        // add current chain to potential collection of seki nodes
+
+        tempInSeki.push.apply(tempInSeki, _toConsumableArray(this.currentChain.chain)); // for each spare liberty
+
+        libs.forEach(function (node, i) {
+          tempBoard = _this5.board;
+          tempBoard = tempBoard.replaceAt(node, _this5.board[id] === 'x' ? 'o' : 'x');
+
+          _this5.clearChainData(); // if on either side there is only one liberty/eye space left then seki
+
+
+          if (_this5.currentChain.eyesAndLibs.size == 1) {
+            tempCheck = true;
+          } else if (_this5.currentChain.eyesAndLibs.size == 2) {
+            // else if two options available then check both
+            tempCheck = !_this5.hasLiberties(node, _this5.board[id], tempBoard.replaceAt(_this5.currentChain.eyesAndLibs[0], _this5.board[id])) || !_this5.hasLiberties(node, _this5.board[id], tempBoard.replaceAt(_this5.currentChain.eyesAndLibs[1], _this5.board[id]));
+          } // if either side has passed then stones are in seki
+
+
+          if (tempCheck) {
+            _this5.currentChain.chain["delete"](node);
+
+            tempInSeki.push.apply(tempInSeki, _toConsumableArray(_this5.currentChain.chain));
+          }
+
+          if (i == 0) {
+            checkOne = tempCheck;
+          } else {
+            checkTwo = tempCheck;
+          }
+        });
+
+        if (checkOne || checkTwo) {
+          tempInSeki.forEach(function (node) {
+            return _this5.inSeki.add(node);
+          });
+          return true;
+        } else {
+          this.currentChain.chain = chain;
+          return false;
+        }
+      }
+
+      if (eyes.length == 0 && libs.length == 1) {
+        console.log('---------SEKI TWO-----------------'); // ----------------------------------
+        // sharing two liberties
+        // ----------------------------------
 
         var checkTwoLiberties = function checkTwoLiberties(playingAs, eyesAndLibs, board) {
-          _this2.hasBeenChecked = new Set();
+          _this5.hasBeenChecked = new Set();
           board = board.replaceAt(eyesAndLibs[0], playingAs);
           board = board.replaceAt(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x');
-          return !_this2.hasLiberties(eyesAndLibs[0], playingAs, board) && !_this2.hasLiberties(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x', board);
+          return !_this5.hasLiberties(eyesAndLibs[0], playingAs, board) && !_this5.hasLiberties(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x', board);
         }; // check white at 0 && check black at 1
 
 
-        blackCheck = checkTwoLiberties('x', chainEyesAndLibs, tempBoard); // check black at 0 and white at 1
+        checkOne = checkTwoLiberties('x', chainEyesAndLibs, tempBoard); // check black at 0 and white at 1
 
-        whiteCheck = checkTwoLiberties('o', chainEyesAndLibs, tempBoard);
-        console.log('SEKI has been checked - ONE', id, blackCheck, whiteCheck, chain, this.hasBeenChecked);
+        checkTwo = checkTwoLiberties('o', chainEyesAndLibs, tempBoard);
+        console.log('SEKI has been checked - ONE', id, checkOne, checkTwo, chain, this.hasBeenChecked); // both groups die in both eventualities
 
-        if (blackCheck && whiteCheck) {
+        if (checkOne && checkTwo) {
           Array.from(this.hasBeenChecked).filter(function (id) {
             return id === chainEyesAndLibs[0] || id === chainEyesAndLibs[1] ? false : true;
           }).forEach(function (id) {
-            return _this2.inSeki.add(id);
+            return _this5.inSeki.add(id);
           });
           return true;
         } else {
           return false;
-          tempBoard = tempBoard.replaceAt(chainEyesAndLibs[0], this.board[id]);
-          tempBoard = tempBoard.replaceAt(chainEyesAndLibs[1], this.board[id]);
-          var tempA, tempB;
-          this.clearChainData();
-          this.countEyesAndLibs(chainEyesAndLibs[0], this.board[id] === 'x' ? 'o' : 'x', tempBoard); // exit if nodes adjacent
-
-          console.log('nodes adjacent', this.currentChain.chain, chainEyesAndLibs[0], chainEyesAndLibs[1], tempBoard);
-
-          if (this.currentChain.chain.has(chainEyesAndLibs[0]) && this.currentChain.chain.has(chainEyesAndLibs[1])) {
-            return false;
-          }
-
-          tempA = this.currentChain.eyesAndLibs.size == 1;
-          console.log('A seki', this.currentChain);
-
-          if (tempA) {
-            var _tempInSeki;
-
-            (_tempInSeki = tempInSeki).push.apply(_tempInSeki, _toConsumableArray(this.currentChain.chain));
-          }
-
-          this.clearChainData();
-          this.countEyesAndLibs(chainEyesAndLibs[1], this.board[id] === 'x' ? 'o' : 'x', tempBoard);
-          tempB = this.currentChain.eyesAndLibs.size == 1;
-          console.log('B seki', this.currentChain);
-
-          if (tempB) {
-            var _tempInSeki2;
-
-            (_tempInSeki2 = tempInSeki).push.apply(_tempInSeki2, _toConsumableArray(this.currentChain.chain));
-          }
-
-          if (tempA && tempB) {
-            var _tempInSeki3;
-
-            (_tempInSeki3 = tempInSeki).push.apply(_tempInSeki3, _toConsumableArray(chain));
-
-            tempInSeki = tempInSeki.filter(function (id) {
-              if (id == chainEyesAndLibs[0] || id == chainEyesAndLibs[1]) {
-                return false;
-              } else {
-                return true;
-              }
-            });
-            console.log('SEKI has been checked 1.5', id, tempInSeki, chainEyesAndLibs[0], chainEyesAndLibs[1]);
-            tempInSeki.forEach(function (id) {
-              return _this2.inSeki.add(id);
-            });
-            return true;
-          } else {
-            return false;
-          }
         }
       } // ------------------------------------------
       // one eye each and one shared liberty
@@ -4491,43 +4387,37 @@ var Validate = /*#__PURE__*/function () {
 
 
       if (eyes.length == 1 && eyes[0].length == 1 && libs.length == 1) {
-        console.log('---------SEKI TWO-----------------');
+        console.log('---------SEKI THREE-----------------'); // fill shared liberty and check that only one liberty remains
 
         var checkOneEyeEach = function checkOneEyeEach(a, playingAs, board) {
-          _this2.clearChainData();
+          _this5.clearChainData();
 
           board = board.replaceAt(a, playingAs);
-          console.log(playingAs, _this2.countEyesAndLibs(a, playingAs, board));
-          return _this2.currentChain.eyesAndLibs.size == 1;
-        }; // check black for life
+          console.log(playingAs, _this5.countEyesAndLibs(a, playingAs, board));
+          return _this5.currentChain.eyesAndLibs.size == 1;
+        }; // check black
 
 
-        blackCheck = checkOneEyeEach(libs[0], 'x', tempBoard);
+        checkOne = checkOneEyeEach(libs[0], 'x', tempBoard);
 
-        if (blackCheck) {
-          var _tempInSeki4;
-
+        if (checkOne) {
           this.currentChain.chain["delete"](libs[0]);
+          tempInSeki.push.apply(tempInSeki, _toConsumableArray(this.currentChain.chain));
+        } // check white
 
-          (_tempInSeki4 = tempInSeki).push.apply(_tempInSeki4, _toConsumableArray(this.currentChain.chain));
-        } // check for white life
 
+        checkTwo = checkOneEyeEach(libs[0], 'o', tempBoard);
 
-        whiteCheck = checkOneEyeEach(libs[0], 'o', tempBoard);
-
-        if (whiteCheck) {
-          var _tempInSeki5;
-
+        if (checkTwo) {
           this.currentChain.chain["delete"](libs[0]);
-
-          (_tempInSeki5 = tempInSeki).push.apply(_tempInSeki5, _toConsumableArray(this.currentChain.chain));
+          tempInSeki.push.apply(tempInSeki, _toConsumableArray(this.currentChain.chain));
         }
 
-        console.log('SEKI has been checked - TWO', blackCheck, whiteCheck);
+        console.log('SEKI has been checked - THREE', checkOne, checkTwo);
 
-        if (blackCheck && whiteCheck) {
+        if (checkOne && checkTwo) {
           tempInSeki.forEach(function (id) {
-            return _this2.inSeki.add(id);
+            return _this5.inSeki.add(id);
           });
           return true;
         } else {
@@ -4535,68 +4425,12 @@ var Validate = /*#__PURE__*/function () {
           this.currentChain.chain = chain;
           return false;
         }
-      } // ----------------------------
-      // one false eye
-      // ----------------------------
-
-
-      if (eyes.length == 1 && chainEyesAndLibs.length == 3 && libs.length == 2) {
-        console.log('------------------------------SEKI THREE-----------------------------');
-        console.log('THREE', eyes, libs, chainEyesAndLibs, chain, owner);
-        this.clearChainData();
-        tempBoard = tempBoard.replaceAt(eyes[0][0], owner === 'x' ? 'o' : 'x');
-        tempBoard = tempBoard.replaceAt(libs[0], owner === 'x' ? 'o' : 'x');
-        var doesCapture = false;
-
-        var _iterator = _createForOfIteratorHelper(chain),
-            _step;
-
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var _id = _step.value;
-
-            if (doesCapture) {
-              continue;
-            }
-
-            if (!this.hasLiberties(_id, owner, tempBoard)) {
-              doesCapture = true;
-            }
-          }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
-        }
-
-        console.log('SEKI has been checked - THREE', doesCapture, chain); // if capture then check for mutual 
-
-        if (doesCapture) {
-          tempBoard = tempBoard.replaceAt(libs[1], owner);
-          console.log(this.countEyesAndLibs(libs[0], owner === 'x' ? 'o' : 'x', tempBoard));
-
-          if (this.currentChain.eyesAndLibs.size == 0) {
-            chain.filter(function (id) {
-              return id !== libs[0];
-            });
-            chain.forEach(function (id) {
-              return _this2.inSeki.add(id);
-            });
-            this.currentChain.chain["delete"](libs[0]);
-            this.currentChain.chain.forEach(function (id) {
-              return _this2.inSeki.add(id);
-            });
-            return true;
-          }
-        } else {
-          return false;
-        }
       }
     }
   }, {
     key: "scoreDraftCaptures",
     value: function scoreDraftCaptures(i) {
-      var _this3 = this;
+      var _this6 = this;
 
       this.clearChainData();
       console.log('count', i, this.countEyesAndLibs(i, this.board[i]));
@@ -4611,10 +4445,12 @@ var Validate = /*#__PURE__*/function () {
         }
 
         if (this.currentChain.chain.size == 0) {
+          console.log('removing from board 1');
           this.board = this.board.replaceAt(i, '.');
         } else {
+          console.log('removing from board 2');
           this.currentChain.chain.forEach(function (node) {
-            return _this3.board = _this3.board.replaceAt(node, '.');
+            return _this6.board = _this6.board.replaceAt(node, '.');
           });
         }
 
@@ -4627,7 +4463,7 @@ var Validate = /*#__PURE__*/function () {
       console.log(this.board.length);
       this.blackDraftCaptures = 0;
       this.whiteDraftCaptures = 0;
-      this.calculateAreas(); // this.scoreDraftCaptures(1)
+      this.calculateAreas(); // this.scoreDraftCaptures(54)
 
       for (var i = 0; i < this.board.length; i++) {
         if (this.board[i] !== '.' && !this.inSeki.has(i)) {
@@ -4694,24 +4530,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var boardSize = 9;
 var initialState = {
-  toPlay: 'white',
+  toPlay: 'black',
   boardSize: boardSize,
   // board: '.'.repeat(Math.pow(boardSize, 2)),
+  // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
   // seki 1
   // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
   // board: '..............................................ooxxx....oxoox....ox.ox....ox.ox...',
+  // board: '........................x....................ooooo....xxxxxoo...oooxo...xxx.xo...',
+  // board: 'xxxxx......x........ooooo...ooxxxoo.ooxx.xxo.oxxxo.xo.oxoxoxxo.oxoooxoo.oxxxxoo..',
   // seki 2
   // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
   // board: '.xo.ox...x.ooox.o.oooxxx.o.xxx...................................................',
-  // seki 3
   // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
-  // board: '........................x....................ooooo....xxxxxoo...oooxo...xxx.xo...',
   // seki 4
   // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
-  // seki 5
-  // board: 'xxxxx......x........ooooo...ooxxxoo.ooxx.xxo.oxxxo.xo.oxoxoxxo.oxoooxoo.oxxxxoo..',
   // scoring
-  // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx.x.oxxooox..oxo...o',
+  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,

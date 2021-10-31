@@ -99,6 +99,10 @@ function* handleCheckScore(action) {
                 area.chain.forEach(node => {
                     tempBoard = tempBoard.replaceAt(node, area.owner.toUpperCase())
                 })
+            } else {
+                area.chain.forEach(node => {
+                    tempBoard = tempBoard.replaceAt(node, '.')
+                })
             }
         })
 
