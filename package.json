@@ -17,6 +17,7 @@
   "dependencies": {
     "connected-react-router": "^6.9.1",
     "cross-env": "^7.0.3",
+    "gsap": "^3.8.0",
     "immer": "^9.0.6",
     "laravel-mix": "^6.0.31",
     "mix-tailwindcss": "^1.3.0",

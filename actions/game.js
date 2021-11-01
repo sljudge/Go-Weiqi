@@ -102,3 +102,17 @@ export const updateScore = (json = { black: {}, white: {} }) => ({
 })
 
 // ------------------------------------------------------------------------------
+
+export const PASS_GO = 'PASS_GO'
+
+export const passGo = () => ({
+   type: PASS_GO
+})
+
+// ------------------------------------------------------------------------------
+
+export const HANDLE_PASS_GO = 'HANDLE_PASS_GO'
+
+export const handlePassGo = () => ({
+   type: HANDLE_PASS_GO
+})

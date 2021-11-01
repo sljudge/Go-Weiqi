@@ -26,7 +26,7 @@ const Line = props => {
         <div
             key={identifier}
             id={identifier}
-            className={`absolute ${isHighlighting ? 'border-gray-200 border-2 shadow-2xl' : 'bg-gray-500'} ${direction === "horizontal" ? 'w-full' : 'h-full'}`}
+            className={`absolute ${isHighlighting ? 'border-gray-200 border shadow-2xl' : 'bg-gray-500'} ${direction === "horizontal" ? 'w-full' : 'h-full'}`}
             style={{
                 top: direction === 'horizontal' ? spaceIncrement : 0,
                 left: direction === 'vertical' ? spaceIncrement : 0,

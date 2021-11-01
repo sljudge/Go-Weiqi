@@ -10,7 +10,8 @@ import {
     UPDATE_BOARD,
     CHECK_SCORE,
     CANCEL_SCORING,
-    UPDATE_SCORE
+    UPDATE_SCORE,
+    HANDLE_PASS_GO
 } from '../actions/game'
 
 const boardSize = 9
@@ -43,6 +44,7 @@ const initialState = {
     focusPoint: null,
     stonesToBeRemoved: [],
     ko: false,
+    pass: false,
     previousBoardPosition: null,
     checkingScore: false,
     score: {
@@ -157,6 +159,15 @@ const reducer = (state = initialState, action) => {
                             draftCaptures: whiteData.captures
                         }
                     },
+                }
+            })
+        //-----------------------------------------------------------------------------------------------------//
+        case HANDLE_PASS_GO:
+            return produce(state, draftState => {
+                return {
+                    ...draftState,
+                    pass: true,
+                    toPlay: draftState.toPlay === 'white' ? 'black' : 'white'
                 }
             })
         //-----------------------------------------------------------------------------------------------------//

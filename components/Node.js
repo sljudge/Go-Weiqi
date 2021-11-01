@@ -63,16 +63,16 @@ const Node = props => {
     }, [focusPoint])
 
     useEffect(() => {
-        if (boardSize <= 9) {
-            setSizeClassNames("min-w-12 min-h-12 h-12 w-12")
-            setOffset('1.5rem')
-        } else if (boardSize <= 13) {
-            setSizeClassNames("min-w-8 min-h-8 h-8 w-8")
-            setOffset('1rem')
-        } else {
-            setSizeClassNames("min-w-6 min-h-6 h-6 w-6")
-            setOffset('0.75rem')
-        }
+        // if (boardSize <= 9) {
+        //     setSizeClassNames("min-w-4 min-h-4 h-4 w-4 md:min-h-8 md:h-8 md:w-8 lg:min-w-12 lg:min-h-12 lg:h-12 lg:w-12")
+        //     setOffset('1.5rem')
+        // } else if (boardSize <= 13) {
+        //     setSizeClassNames(" lg:min-w-8 lg:min-h-8 lg:h-8 lg:w-8")
+        //     setOffset('1rem')
+        // } else {
+        //     setSizeClassNames(" lg:min-w-6 lg:min-h-6 lg:h-6 lg:w-6")
+        //     setOffset('0.75rem')
+        // }
     }, [boardSize])
 
     useEffect(() => {
@@ -89,13 +89,19 @@ const Node = props => {
             className={`absolute z-20 ${sizeClassNames} ${hoverClass} ${backgroundClass} ${scoreClassName}`}
             style={
                 {
+                    width: `${(100 / boardSize) / 1.5}%`,
+                    minWidth: `${(100 / boardSize) / 1.5}%`,
+                    height: `${(100 / boardSize) / 1.5}%`,
+                    minHeight: `${(100 / boardSize) / 1.5}%`,
                     opacity: ['.', 'X', 'O'].includes(status) ? 0.25 : 1,
-                    left: `calc(${Math.floor(column / (boardSize - 1) * 100)}% - ${offset})`,
-                    top: `calc(${Math.floor(row / (boardSize - 1) * 100)}% - ${offset})`
+                    left: `${(column / (boardSize - 1) * 100) - ((100 / boardSize) / 3)}%`,
+                    top: `${(row / (boardSize - 1) * 100) - ((100 / boardSize) / 3)}%`
                 }
             }
             onClick={handleClick} >
-            <span className="text-gray-500">{i}</span>
+            <span className="text-gray-500">
+                {/* {i} */}
+            </span>
         </div>
 
     )

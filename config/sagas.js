@@ -1,6 +1,6 @@
 import { takeEvery, select, call, put, delay } from 'redux-saga/effects'
 import { push } from 'connected-react-router'
-import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO, CHECK_SCORE, UPDATE_BOARD, UPDATE_SCORE } from '../actions/game'
+import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO, CHECK_SCORE, UPDATE_BOARD, UPDATE_SCORE, PASS_GO, HANDLE_PASS_GO } from '../actions/game'
 import { Validate } from '../helpers'
 
 
@@ -122,7 +122,17 @@ function* handleCheckScore(action) {
     }
 }
 
+function* handlePassGo(action) {
+    const pass = yield select(state => state.game.pass)
+    if (pass) {
+        yield put({ type: CHECK_SCORE })
+    } else {
+        yield put({ type: HANDLE_PASS_GO })
+    }
+}
+
 export function* watcher() {
     yield takeEvery(ATTEMPT_MOVE, handleAttemptMove)
     yield takeEvery(CHECK_SCORE, handleCheckScore)
+    yield takeEvery(PASS_GO, handlePassGo)
 }

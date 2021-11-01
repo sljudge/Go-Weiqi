@@ -14,7 +14,7 @@ module.exports = {
       width: {
       },
       height: {
-
+        '100vw': "100vw"
       },
       minWidth: {
         "1": '.25rem',
@@ -25,6 +25,7 @@ module.exports = {
         "12": "3rem"
       },
       maxWidth: {
+        "board": '600px',
         "1": '.25rem',
         "2": '.5rem',
         "4": '1rem',
@@ -41,18 +42,26 @@ module.exports = {
         "12": "3rem"
       },
       maxHeight: {
+        "board": '600px',
+        "75vh": "75vh",
         "1": '.25rem',
         "2": '.5rem',
         "4": '1rem',
         "6": '1.5rem',
         "8": '2rem',
         "12": "3rem"
+      },
+      outline: {
+        'white-xl': '4px solid #ffffff'
       }
     },
   },
   variants: {
     extend: {
-      borderRadius: ['hover']
+      borderRadius: ['hover'],
+      borderWidth: ['hover'],
+      outline: ['hover'],
+      fontWeight: ['hover']
     },
   },
   plugins: [
