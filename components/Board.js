@@ -3,18 +3,25 @@ import { useSelector, useDispatch } from 'react-redux'
 import { gsap } from 'gsap';
 import { CSSPlugin } from "gsap/all";
 CSSPlugin.defaultTransformPerspective = 1000;
+import { throttle } from "lodash";
+
+import { cancelScoring } from '../actions/game'
+import { setBoardWidth } from '../actions/display'
 
 import Node from './Node'
 import Handicap from './Handicap'
 import Line from './Line'
 
 const Board = props => {
+    const dispatch = useDispatch()
     const boardSize = useSelector(state => state.game.boardSize)
     const checkingScore = useSelector(state => state.game.checkingScore)
-    const [boardWidth, setBoardWidth] = useState(0)
+    const boardWidth = useSelector(state => state.display.boardWidth)
+    // const [boardWidth, setBoardWidth] = useState(0)
     const boardRef = useRef(null)
     const overlayRef = useRef(null)
 
+    const cancelScore = () => dispatch(cancelScoring())
 
     const renderLibertiesAndHandicaps = () => {
         const output = []
@@ -55,9 +62,9 @@ const Board = props => {
         return [renderLines(), renderLibertiesAndHandicaps()]
     }
 
-    const handleScreenResize = () => {
-        setBoardWidth(boardRef.current.offsetWidth)
-    }
+    const handleScreenResize = throttle(() => {
+        dispatch(setBoardWidth(boardRef.current.offsetWidth))
+    }, 500)
 
     useEffect(() => {
         window.addEventListener("resize", handleScreenResize)
@@ -80,7 +87,7 @@ const Board = props => {
 
     return (
         <>
-            <div ref={overlayRef} className="absolute inset-0 transition duration-500 opacity-0" style={{ backgroundColor: 'rgba(30,30,30,0.6)' }} />
+            <div ref={overlayRef} onClick={cancelScore} className="absolute inset-0 transition duration-500 opacity-0" style={{ backgroundColor: 'rgba(30,30,30,0.6)' }} />
             <div ref={boardRef} className="relative bg-cover bg-no-repeat shadow-2xl z-40"
                 style={{
                     width: '100%',

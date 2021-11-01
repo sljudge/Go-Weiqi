@@ -20,6 +20,7 @@
     "gsap": "^3.8.0",
     "immer": "^9.0.6",
     "laravel-mix": "^6.0.31",
+    "lodash": "^4.17.21",
     "mix-tailwindcss": "^1.3.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

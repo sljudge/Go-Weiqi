@@ -32,7 +32,7 @@ const GameMenu = props => {
     useEffect(() => {
         openTimeline
             .to(logoRef.current, { backgroundColor: '#ffffff', rotate: 90, duration: .25, ease: 'power2.out' })
-            .to(menuRef.current, { display: 'block', width: '450%', height: '300%', ease: "expo.in", duration: .5, paddingTop: '2rem' }, "-=.25")
+            .to(menuRef.current, { display: 'block', width: '300px', height: '300%', ease: "expo.in", duration: .5, paddingTop: '2rem' }, "-=.25")
         closeTimeline
             .to(menuRef.current, { display: 'block', width: 0, height: 0, ease: "expo.in", duration: .5, paddingTop: 0 })
             .to(logoRef.current, { backgroundColor: 'rgb(107, 114, 128)', rotate: 0, duration: .25, ease: 'power2.out' }, "-=.5")

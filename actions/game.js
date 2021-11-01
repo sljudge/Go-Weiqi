@@ -116,3 +116,11 @@ export const HANDLE_PASS_GO = 'HANDLE_PASS_GO'
 export const handlePassGo = () => ({
    type: HANDLE_PASS_GO
 })
+
+// ------------------------------------------------------------------------------
+
+export const UNDO_MOVE = 'UNDO_MOVE'
+
+export const undoMove = () => ({
+   type: UNDO_MOVE
+})

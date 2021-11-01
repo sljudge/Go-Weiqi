@@ -11,7 +11,8 @@ import {
     CHECK_SCORE,
     CANCEL_SCORING,
     UPDATE_SCORE,
-    HANDLE_PASS_GO
+    HANDLE_PASS_GO,
+    UNDO_MOVE
 } from '../actions/game'
 
 const boardSize = 9
@@ -74,7 +75,7 @@ const reducer = (state = initialState, action) => {
                 }
                 return {
                     ...draftState,
-                    toPlay: nextToPlay
+                    toPlay: nextToPlay,
                 }
             })
         //-----------------------------------------------------------------------------------------------------//
@@ -82,6 +83,7 @@ const reducer = (state = initialState, action) => {
             return produce(state, draftState => ({
                 ...draftState,
                 board: draftState.board.replaceAt(action.i, draftState.toPlay === 'black' ? 'x' : 'o'),
+                previousBoardPosition: draftState.board
             }))
         //-----------------------------------------------------------------------------------------------------//
         case CLEAR_NODE:
@@ -112,7 +114,7 @@ const reducer = (state = initialState, action) => {
             return produce(state, draftState => ({
                 ...draftState,
                 ko: action.bool,
-                previousBoardPosition: action.bool ? draftState.board : null
+                // previousBoardPosition: action.bool ? draftState.board : null
             }))
         //-----------------------------------------------------------------------------------------------------//
         case CHECK_SCORE:
@@ -128,6 +130,7 @@ const reducer = (state = initialState, action) => {
                 ...draftState,
                 checkingScore: false,
                 board: draftState.previousBoardPosition,
+                previousBoardPosition: null,
                 score: {
                     black: {
                         area: 0,
@@ -168,6 +171,22 @@ const reducer = (state = initialState, action) => {
                     ...draftState,
                     pass: true,
                     toPlay: draftState.toPlay === 'white' ? 'black' : 'white'
+                }
+            })
+        //-----------------------------------------------------------------------------------------------------//
+        case UNDO_MOVE:
+            return produce(state, draftState => {
+                if (draftState.previousBoardPosition !== null) {
+                    return {
+                        ...draftState,
+                        board: draftState.previousBoardPosition,
+                        previousBoardPosition: null,
+                        toPlay: draftState.toPlay === 'white' ? 'black' : 'white'
+                    }
+                } else {
+                    return {
+                        ...draftState
+                    }
                 }
             })
         //-----------------------------------------------------------------------------------------------------//
