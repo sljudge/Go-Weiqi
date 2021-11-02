@@ -17,7 +17,6 @@ const Board = props => {
     const boardSize = useSelector(state => state.game.boardSize)
     const checkingScore = useSelector(state => state.game.checkingScore)
     const boardWidth = useSelector(state => state.display.boardWidth)
-    // const [boardWidth, setBoardWidth] = useState(0)
     const boardRef = useRef(null)
     const overlayRef = useRef(null)
 

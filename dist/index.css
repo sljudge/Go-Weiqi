@@ -32523,6 +32523,21 @@ video {
   transition-duration: 500ms;
 }
 
+.game-menu-cta {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  display: flex;
+  width: 5rem;
+  align-items: center;
+  justify-content: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  --tw-text-opacity: 1;
+  color: rgba(255, 255, 255, var(--tw-text-opacity));
+}
+
 @media (min-width: 640px) {
   .sm\:container {
     width: 100%;

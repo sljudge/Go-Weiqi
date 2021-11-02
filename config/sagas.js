@@ -9,11 +9,11 @@ function* handleAttemptMove(action) {
     const toPlay = yield select(state => state.game.toPlay)
     const focusPoint = yield select(state => state.game.focusPoint)
     const ko = yield select(state => state.game.ko)
-    const previousBoardPosition = yield select(state => state.game.previousBoardPosition)
+    const koPosition = yield select(state => state.game.koPosition)
 
     if (focusPoint !== action.i) {
         console.log('handle attempt move', toPlay, board)
-        const Validator = new Validate(board, toPlay, previousBoardPosition, ko)
+        const Validator = new Validate(board, toPlay, koPosition, ko)
 
         if (!Validator.validateKO(action.i)) {
             return;

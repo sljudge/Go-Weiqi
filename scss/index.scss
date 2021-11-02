@@ -7,3 +7,7 @@
 .cta{
     @apply relative w-16 h-16 p-2 hover:outline-white-xl rounded-full cursor-pointer transition duration-500 z-20;
 }
+
+.game-menu-cta {
+    @apply px-4 py-2 text-white mx-1 w-20 flex justify-center items-center;
+}

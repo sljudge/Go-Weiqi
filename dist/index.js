@@ -3003,8 +3003,10 @@ var setBoardWidth = function setBoardWidth(width) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "SET_BOARD_SIZE": () => (/* binding */ SET_BOARD_SIZE),
-/* harmony export */   "setBoardSize": () => (/* binding */ setBoardSize),
+/* harmony export */   "START_NEW_GAME": () => (/* binding */ START_NEW_GAME),
+/* harmony export */   "startNewGame": () => (/* binding */ startNewGame),
+/* harmony export */   "START_TUTORIAL": () => (/* binding */ START_TUTORIAL),
+/* harmony export */   "startTutorial": () => (/* binding */ startTutorial),
 /* harmony export */   "SET_TO_PLAY": () => (/* binding */ SET_TO_PLAY),
 /* harmony export */   "setToPlay": () => (/* binding */ setToPlay),
 /* harmony export */   "UPDATE_NODE": () => (/* binding */ UPDATE_NODE),
@@ -3034,11 +3036,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "UNDO_MOVE": () => (/* binding */ UNDO_MOVE),
 /* harmony export */   "undoMove": () => (/* binding */ undoMove)
 /* harmony export */ });
-var SET_BOARD_SIZE = 'SET_BOARD_SIZE';
-var setBoardSize = function setBoardSize(_int) {
+var START_NEW_GAME = 'START_NEW_GAME';
+var startNewGame = function startNewGame(boardSize) {
   return {
-    type: SET_BOARD_SIZE,
-    "int": _int
+    type: START_NEW_GAME,
+    boardSize: boardSize
+  };
+}; // ------------------------------------------------------------------------------
+
+var START_TUTORIAL = 'START_TUTORIAL';
+var startTutorial = function startTutorial() {
+  return {
+    type: START_TUTORIAL
   };
 }; // ------------------------------------------------------------------------------
 
@@ -3067,7 +3076,7 @@ var clearNode = function clearNode(i) {
 }; // ------------------------------------------------------------------------------
 
 var UPDATE_BOARD = 'UPDATE_BOARD';
-var updateBoard = function updateBoard(i) {
+var updateBoard = function updateBoard(board) {
   return {
     type: UPDATE_BOARD,
     board: board
@@ -3172,7 +3181,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _GameMenu__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./GameMenu */ "./components/GameMenu.js");
 /* harmony import */ var _CTAMenu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CTAMenu */ "./components/CTAMenu.js");
 /* harmony import */ var _ScoreBoard__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ScoreBoard */ "./components/ScoreBoard.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _Tutorial__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tutorial */ "./components/Tutorial.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
 
 
 
@@ -3184,9 +3195,15 @@ __webpack_require__.r(__webpack_exports__);
 
 var App = function App(props) {
   var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
-    className: "bg-gray-200 text-white flex flex-col justify-center items-center h-screen w-screen max-h-screen max-w-screen overflow-hidden pb-16 md:pb-0",
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Board__WEBPACK_IMPORTED_MODULE_2__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_GameMenu__WEBPACK_IMPORTED_MODULE_3__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_CTAMenu__WEBPACK_IMPORTED_MODULE_4__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_ScoreBoard__WEBPACK_IMPORTED_MODULE_5__["default"], {})]
+  var tutorial = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.tutorial;
+  });
+  var boardWidth = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.display.boardWidth;
+  });
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
+    className: "bg-gray-200 text-white flex ".concat(tutorial ? 'justify-end' : 'justify-center', " items-center h-screen w-screen max-h-screen max-w-screen overflow-hidden pb-16 md:pb-0"),
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_Board__WEBPACK_IMPORTED_MODULE_2__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_GameMenu__WEBPACK_IMPORTED_MODULE_3__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_CTAMenu__WEBPACK_IMPORTED_MODULE_4__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_ScoreBoard__WEBPACK_IMPORTED_MODULE_5__["default"], {}), !!tutorial && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_Tutorial__WEBPACK_IMPORTED_MODULE_6__["default"], {})]
   });
 };
 
@@ -3242,8 +3259,7 @@ var Board = function Board(props) {
   });
   var boardWidth = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.display.boardWidth;
-  }); // const [boardWidth, setBoardWidth] = useState(0)
-
+  });
   var boardRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   var overlayRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
 
@@ -3459,7 +3475,7 @@ var CTA = function CTA(props) {
   }, [selected.get]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     openTimeline.to(confirmRef.current, {
-      width: boardWidth < 500 ? '100%' : '340px',
+      width: boardWidth < 500 ? '100%' : '300px',
       height: '4rem',
       paddingLeft: boardWidth < 500 ? '2rem' : '5rem',
       paddingRight: '2rem',
@@ -3470,10 +3486,10 @@ var CTA = function CTA(props) {
     }).reverse();
   }, []);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-    className: "relative my-4 z-50 transition duration-500 ".concat(disabled && 'opacity-25'),
+    className: "relative my-4 transition duration-500 ".concat(confirm && 'z-50', " ").concat(disabled && 'opacity-25'),
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
       onClick: handleClick,
-      className: "cta z-20 ".concat(bgClass),
+      className: "cta z-20 ".concat(bgClass, " transition duration-200"),
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("img", {
         src: imageSrc,
         className: "w-full h-auto"
@@ -3483,7 +3499,7 @@ var CTA = function CTA(props) {
       className: "fixed md:absolute bg-gray-300 text-gray-800 bottom-0 left-0 md:top-0 md:left-4 md:rounded-full md:z-10 z-50 w-0 h-16 overflow-hidden",
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
         ref: confirmContentRef,
-        className: "hidden text-center md:text-left",
+        className: "hidden text-center",
         children: [confirmText, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
           className: "flex justify-center py-2",
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
@@ -3562,7 +3578,7 @@ var CTAMenu = function CTAMenu(props) {
       id: "pass",
       imageSrc: "./images/pass.png",
       confirmText: "Pass go?",
-      bgClass: "bg-yellow-300",
+      bgClass: "bg-yellow-400 hover:bg-yellow-300",
       action: _actions_game__WEBPACK_IMPORTED_MODULE_4__.passGo,
       selected: {
         get: selected,
@@ -3572,7 +3588,7 @@ var CTAMenu = function CTAMenu(props) {
       id: "brain",
       imageSrc: "./images/brain.png",
       confirmText: "Analyse the board?",
-      bgClass: "bg-green-400",
+      bgClass: "bg-green-500 hover:bg-green-400",
       action: _actions_game__WEBPACK_IMPORTED_MODULE_4__.checkScore,
       selected: {
         get: selected,
@@ -3582,7 +3598,7 @@ var CTAMenu = function CTAMenu(props) {
       id: "undo",
       imageSrc: "./images/undo.png",
       confirmText: "Undo the last move?",
-      bgClass: "bg-red-400",
+      bgClass: "bg-red-500 hover:bg-red-400",
       action: _actions_game__WEBPACK_IMPORTED_MODULE_4__.undoMove,
       disabled: previousBoardPosition === null || checkingScore,
       selected: {
@@ -3610,10 +3626,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
+/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
 /* harmony import */ var gsap_all__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gsap/all */ "./node_modules/gsap/CSSPlugin.js");
-/* harmony import */ var _Logo__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Logo */ "./components/Logo.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var _Logo__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Logo */ "./components/Logo.js");
+/* harmony import */ var _NewGameMenu__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./NewGameMenu */ "./components/NewGameMenu.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -3635,17 +3653,22 @@ gsap_all__WEBPACK_IMPORTED_MODULE_2__["default"].defaultTransformPerspective = 1
 
 
 
+
+
 var GameMenu = function GameMenu(props) {
   var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
+  var boardSize = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.boardSize;
+  });
 
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(gsap__WEBPACK_IMPORTED_MODULE_5__.gsap.timeline({
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(gsap__WEBPACK_IMPORTED_MODULE_7__.gsap.timeline({
     paused: true
   })),
       _useState2 = _slicedToArray(_useState, 2),
       openTimeline = _useState2[0],
       setOpenTimeline = _useState2[1];
 
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(gsap__WEBPACK_IMPORTED_MODULE_5__.gsap.timeline({
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(gsap__WEBPACK_IMPORTED_MODULE_7__.gsap.timeline({
     paused: true
   })),
       _useState4 = _slicedToArray(_useState3, 2),
@@ -3661,8 +3684,11 @@ var GameMenu = function GameMenu(props) {
   var menuRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
 
   var handleClick = function handleClick() {
-    // timeline.reversed(!timeline.reversed());
     setOpen(open === null ? true : !open);
+  };
+
+  var handleTutorialClick = function handleTutorialClick() {
+    dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.startTutorial)());
   };
 
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
@@ -3679,15 +3705,15 @@ var GameMenu = function GameMenu(props) {
       duration: .25,
       ease: 'power2.out'
     }).to(menuRef.current, {
-      display: 'block',
-      width: '300px',
-      height: '300%',
+      display: 'flex',
+      width: '325px',
+      height: '225px',
       ease: "expo.in",
       duration: .5,
-      paddingTop: '2rem'
+      paddingTop: '2.5rem'
     }, "-=.25");
     closeTimeline.to(menuRef.current, {
-      display: 'block',
+      display: 'flex',
       width: 0,
       height: 0,
       ease: "expo.in",
@@ -3700,25 +3726,21 @@ var GameMenu = function GameMenu(props) {
       ease: 'power2.out'
     }, "-=.5");
   }, []);
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
     className: "absolute top-0 left-0 z-50",
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
       ref: logoRef,
       onClick: handleClick,
       className: "relative w-20 h-20 p-2 bg-gray-500 hover:border-4 border-white rounded-full cursor-pointer transition duration-500 z-20",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_Logo__WEBPACK_IMPORTED_MODULE_3__["default"], {})
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Logo__WEBPACK_IMPORTED_MODULE_4__["default"], {})
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
       ref: menuRef,
-      className: "absolute top-4 left-4 rounded-xl bg-gray-700 z-10  px-8  w-0 h-0 overflow-hidden text-right ",
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-        children: "test 1"
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-        children: "test 2"
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-        children: "test 3"
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-        children: "test 4"
-      })]
+      className: "absolute top-4 left-4 rounded-xl bg-gray-700 z-10  px-4  w-0 h-0 overflow-hidden text-right flex flex-col items-end justify-start",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("button", {
+        onClick: handleTutorialClick,
+        className: "w-40 px-4 py-2 text-white mx-1 flex justify-center items-center  bg-blue-500 hover:bg-blue-700",
+        children: "Tutorial"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_NewGameMenu__WEBPACK_IMPORTED_MODULE_5__["default"], {})]
     })]
   });
 };
@@ -3760,17 +3782,16 @@ var Handicap = function Handicap(props) {
   });
   var row = Math.floor(i / boardSize);
   var column = i % boardSize;
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {}, []);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
     id: "h".concat(i),
     className: " absolute rounded-full bg-gray-800 absolute z-10",
     style: {
-      width: "".concat(100 / boardSize / 3, "%"),
-      minWidth: "".concat(100 / boardSize / 3, "%"),
-      height: "".concat(100 / boardSize / 3, "%"),
-      minHeight: "".concat(100 / boardSize / 3, "%"),
-      left: "".concat(column / (boardSize - 1) * 100 - 100 / boardSize / 6, "%"),
-      top: "".concat(row / (boardSize - 1) * 100 - 100 / boardSize / 6, "%")
+      width: "".concat(100 / boardSize / 4, "%"),
+      minWidth: "".concat(100 / boardSize / 4, "%"),
+      height: "".concat(100 / boardSize / 4, "%"),
+      minHeight: "".concat(100 / boardSize / 4, "%"),
+      left: "".concat(column / (boardSize - 1) * 100 - 100 / boardSize / 8, "%"),
+      top: "".concat(row / (boardSize - 1) * 100 - 100 / boardSize / 8, "%")
     }
   }, "h".concat(i));
 };
@@ -3948,6 +3969,115 @@ var Logo = function Logo(props) {
 
 /***/ }),
 
+/***/ "./components/NewGameMenu.js":
+/*!***********************************!*\
+  !*** ./components/NewGameMenu.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var gsap_all__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gsap/all */ "./node_modules/gsap/CSSPlugin.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+
+
+gsap_all__WEBPACK_IMPORTED_MODULE_2__["default"].defaultTransformPerspective = 1000;
+
+
+
+
+var MenuItem = function MenuItem(props) {
+  var _props = _objectSpread({}, props),
+      sizeID = _props.sizeID,
+      newGame = _props.newGame;
+
+  var handleClick = function handleClick() {
+    newGame.set(sizeID);
+  };
+
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("button", {
+    onClick: handleClick,
+    className: "game-menu-cta  ".concat(newGame.get === sizeID ? 'bg-green-500' : 'bg-gray-600 hover:bg-gray-100 hover:text-gray-800'),
+    children: [sizeID, "x", sizeID]
+  });
+};
+
+var NewGameMenu = function NewGameMenu(props) {
+  var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
+  var boardSize = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.boardSize;
+  });
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(boardSize),
+      _useState2 = _slicedToArray(_useState, 2),
+      newGameSize = _useState2[0],
+      setNewGameSize = _useState2[1];
+
+  var handleClick = function handleClick() {
+    dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.startNewGame)(newGameSize));
+  };
+
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+    className: "flex flex-col items-end pt-3 border-t border-white mt-3",
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      className: "flex justify-end",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(MenuItem, {
+        sizeID: 9,
+        newGame: {
+          get: newGameSize,
+          set: setNewGameSize
+        }
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(MenuItem, {
+        sizeID: 13,
+        newGame: {
+          get: newGameSize,
+          set: setNewGameSize
+        }
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(MenuItem, {
+        sizeID: 19,
+        newGame: {
+          get: newGameSize,
+          set: setNewGameSize
+        }
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+      onClick: handleClick,
+      className: "w-40 px-4 py-2 text-white mx-1 my-2 flex justify-center items-center  bg-gray-500 hover:bg-green-700",
+      children: "Start new game"
+    })]
+  });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (NewGameMenu);
+
+/***/ }),
+
 /***/ "./components/Node.js":
 /*!****************************!*\
   !*** ./components/Node.js ***!
@@ -4050,8 +4180,10 @@ var Node = function Node(props) {
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     if (status === '.') {
       setHoverClass(toPlay === 'white' ? 'hover:bg-gray-100' : 'hover:bg-gray-700');
+    } else {
+      setHoverClass('');
     }
-  }, [toPlay]);
+  }, [board]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     setBackgroundClass(status.toLowerCase() === 'o' ? 'bg-gray-100' : status.toLowerCase() === 'x' ? 'bg-gray-700' : '');
 
@@ -4070,18 +4202,6 @@ var Node = function Node(props) {
       }
     }
   }, [focusPoint]);
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {// if (boardSize <= 9) {
-    //     setSizeClassNames("min-w-4 min-h-4 h-4 w-4 md:min-h-8 md:h-8 md:w-8 lg:min-w-12 lg:min-h-12 lg:h-12 lg:w-12")
-    //     setOffset('1.5rem')
-    // } else if (boardSize <= 13) {
-    //     setSizeClassNames(" lg:min-w-8 lg:min-h-8 lg:h-8 lg:w-8")
-    //     setOffset('1rem')
-    // } else {
-    //     setSizeClassNames(" lg:min-w-6 lg:min-h-6 lg:h-6 lg:w-6")
-    //     setOffset('0.75rem')
-    // }
-  }, [boardSize]);
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {}, []);
   /*********************
    * RETURN
    *********************/
@@ -4100,7 +4220,8 @@ var Node = function Node(props) {
     },
     onClick: handleClick,
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-      className: "text-gray-500"
+      className: "text-gray-500",
+      children: i
     })
   }, i);
 };
@@ -4153,6 +4274,9 @@ var ScoreBoard = function ScoreBoard(props) {
   var checkingScore = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.checkingScore;
   });
+  var tutorial = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.tutorial;
+  });
 
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(gsap__WEBPACK_IMPORTED_MODULE_4__.gsap.timeline({
     paused: true
@@ -4164,7 +4288,9 @@ var ScoreBoard = function ScoreBoard(props) {
   var boardRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   var ctaRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    timeline.reversed(!timeline.reversed());
+    if (!tutorial) {
+      timeline.reversed(!timeline.reversed());
+    }
   }, [checkingScore]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     timeline.to(boardRef.current, {
@@ -4210,6 +4336,109 @@ var ScoreBoard = function ScoreBoard(props) {
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ScoreBoard);
+
+/***/ }),
+
+/***/ "./components/Tutorial.js":
+/*!********************************!*\
+  !*** ./components/Tutorial.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../data/tutorialData */ "./data/tutorialData.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
+
+
+
+
+
+
+var Tutorial = function Tutorial(props) {
+  var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(5),
+      _useState2 = _slicedToArray(_useState, 2),
+      index = _useState2[0],
+      setIndex = _useState2[1];
+
+  var tutorial = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.tutorial;
+  });
+  var boardWidth = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.display.boardWidth;
+  });
+
+  var handleNextClick = function handleNextClick() {
+    if (index < _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"].length - 1) {
+      setIndex(index + 1);
+    }
+  };
+
+  var handlePreviousClick = function handlePreviousClick() {
+    if (index > 0) {
+      setIndex(index - 1);
+    }
+  };
+
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    if (_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].board) {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.updateBoard)(_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].board));
+    }
+
+    if (_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].toPlay) {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.setToPlay)(_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].toPlay));
+    }
+  }, [index]);
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.Fragment, {
+    children: !!tutorial && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      className: "z-50 ml-16 bg-gray-600 p-8 h-full flex flex-col justify-center items-start",
+      style: {
+        width: "calc((100vw - ".concat(boardWidth, "px)/2)")
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        className: "pb-4 font-bold",
+        children: [index + 1, "/", _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"].length]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
+        children: _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].copy
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        className: "w-full flex justify-between",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+          onClick: handlePreviousClick,
+          className: "mx-2 px-4 py-2 text-white w-20 flex justify-center items-center bg-red-400 rounded-lg my-8 hover:bg-red-300 hover:outline-white transition duration-200",
+          children: "Previous"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+          onClick: handleNextClick,
+          className: "mx-2 px-4 py-2 text-white w-20 flex justify-center items-center bg-green-600 rounded-lg my-8 hover:bg-green-500 hover:outline-white transition duration-200",
+          children: "Next"
+        })]
+      })]
+    })
+  });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Tutorial);
 
 /***/ }),
 
@@ -4281,7 +4510,7 @@ var _marked = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0
 
 
 function handleAttemptMove(action) {
-  var board, toPlay, focusPoint, ko, previousBoardPosition, Validator, toBeRemoved, hasLiberty;
+  var board, toPlay, focusPoint, ko, koPosition, Validator, toBeRemoved, hasLiberty;
   return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function handleAttemptMove$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -4316,11 +4545,11 @@ function handleAttemptMove(action) {
           ko = _context.sent;
           _context.next = 14;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.select)(function (state) {
-            return state.game.previousBoardPosition;
+            return state.game.koPosition;
           });
 
         case 14:
-          previousBoardPosition = _context.sent;
+          koPosition = _context.sent;
 
           if (!(focusPoint !== action.i)) {
             _context.next = 43;
@@ -4328,7 +4557,7 @@ function handleAttemptMove(action) {
           }
 
           console.log('handle attempt move', toPlay, board);
-          Validator = new _helpers__WEBPACK_IMPORTED_MODULE_3__.Validate(board, toPlay, previousBoardPosition, ko);
+          Validator = new _helpers__WEBPACK_IMPORTED_MODULE_3__.Validate(board, toPlay, koPosition, ko);
 
           if (Validator.validateKO(action.i)) {
             _context.next = 20;
@@ -4739,6 +4968,77 @@ function configureStore(preloadedState) {
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (configureStore);
+
+/***/ }),
+
+/***/ "./data/tutorialData.js":
+/*!******************************!*\
+  !*** ./data/tutorialData.js ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ([{
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["The game of GO (or w\xE9iq\xED) has been played for over 2500 years.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "It is very simple to learn and yet extremely hard to master.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "The aim of the game is to try and control more area than your opponent by taking it in turn to place stones on the board.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "You can place stones on the board by clicking on the intersections between the lines."]
+  }),
+  board: '.'.repeat(81)
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["Starting in the corners is usually a good idea as it takes fewer stones to encircle an area.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Once the corners have been taken it is then a good idea to move onto the centre of the board.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Have a play around with the current board position to try and make areas.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "You can undo a move by clicking the ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", {
+      className: "text-red-400",
+      children: "red"
+    }), " icon in the bottom left hand corner."]
+  }),
+  board: '....................x...o...............x...............x...o....................',
+  toPlay: 'white'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["If an area touches both black and white stones then it is owned by nobody.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "If you want to check the state of the board then click the ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", {
+      className: "text-green-500",
+      children: "green"
+    }), " icon in the bottom left hand corner.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "See what happens if you place stones within enemy territory."]
+  }),
+  board: '..................xxx.x......xx.xxxx....x....ooo.x..oo...o..o...o.o..o.....o..o..'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["Stones on the board can be captured by the enemy if they become fully encircled and lose all of their 'liberties'.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Caputured stones are then added to players score once the game is over.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Take a look at the position in the centre of the board and capture the white stone.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {})]
+  }),
+  board: '...............................x........ox.......x...............................',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["Stones that are in contact with stones of the same colour form 'chains'.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Chains share their liberties.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "When a stone or chain only has one liberty left it is said to be in 'atari'.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Capture the chain in the centre of the board."]
+  }),
+  board: '..............................xxx.....xooox.....x.x..............................',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["A player can't place stones in a position where they won't have any liberties.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Unless the move results in a capture.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Take the white stone in the centre of the board."]
+  }),
+  board: '..............................ox......o.ox......ox...............................',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["If a stone is captured the opponent can't immediately recapture if this results in an identical position.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "This rule is called KO and stops the game from repeating indefinitely.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Try out the position on the board for yourself. White must ignore the atari and place their stone elsewhere on the board."]
+  }),
+  board: '..............................ox......o.ox......ox...............................',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["The white chain on the board is called a ladder.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Ladders are an important concept in GO. They normally occur when a player is trying to escape capture.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "A player who doesn't understand ladders can lose many stones!"]
+  }),
+  board: '...................xxx......xoox......xoox......xoox......xo........x............',
+  toPlay: 'black'
+}]);
 
 /***/ }),
 
@@ -5322,9 +5622,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var boardSize = 9;
 var initialState = {
+  tutorial: true,
   toPlay: 'black',
   boardSize: boardSize,
-  // board: '.'.repeat(Math.pow(boardSize, 2)),
+  board: '.'.repeat(Math.pow(boardSize, 2)),
   // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
   // seki 1
   // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
@@ -5338,10 +5639,11 @@ var initialState = {
   // seki 4
   // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
   // scoring
-  board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
+  // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
   focusPoint: null,
   stonesToBeRemoved: [],
   ko: false,
+  koPosition: null,
   pass: false,
   previousBoardPosition: null,
   checkingScore: false,
@@ -5360,10 +5662,29 @@ var initialState = {
 };
 
 var reducer = function reducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _objectSpread({}, initialState);
   var action = arguments.length > 1 ? arguments[1] : undefined;
 
   switch (action.type) {
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.START_NEW_GAME:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, initialState), {}, {
+          boardSize: action.boardSize,
+          board: '.'.repeat(Math.pow(action.boardSize, 2))
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.START_TUTORIAL:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          tutorial: true,
+          boardSize: 9,
+          board: '.'.repeat(81)
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
     case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_TO_PLAY:
       return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         var nextToPlay;
@@ -5424,8 +5745,8 @@ var reducer = function reducer() {
     case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_KO:
       return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
-          ko: action.bool // previousBoardPosition: action.bool ? draftState.board : null
-
+          ko: action.bool,
+          koPosition: action.bool ? draftState.board : null
         });
       });
     //-----------------------------------------------------------------------------------------------------//
@@ -5444,7 +5765,7 @@ var reducer = function reducer() {
       return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           checkingScore: false,
-          board: draftState.previousBoardPosition,
+          board: draftState.previousBoardPosition || draftState.board,
           previousBoardPosition: null,
           score: {
             black: {
@@ -5492,11 +5813,27 @@ var reducer = function reducer() {
 
     case _actions_game__WEBPACK_IMPORTED_MODULE_1__.UNDO_MOVE:
       return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
+        console.log('undo 1', draftState.ko && draftState.toPlay === 'black');
+        console.log('undo 1', draftState.ko && draftState.toPlay === 'white');
+
         if (draftState.previousBoardPosition !== null) {
           return _objectSpread(_objectSpread({}, draftState), {}, {
             board: draftState.previousBoardPosition,
             previousBoardPosition: null,
-            toPlay: draftState.toPlay === 'white' ? 'black' : 'white'
+            toPlay: draftState.toPlay === 'white' ? 'black' : 'white',
+            ko: false,
+            score: {
+              black: {
+                area: draftState.score.black.area,
+                captures: draftState.ko && draftState.toPlay === 'white' ? draftState.score.black.captures - 1 : draftState.score.black.captures,
+                draftCaptures: 0
+              },
+              white: {
+                area: draftState.score.white.area,
+                captures: draftState.ko && draftState.toPlay === 'black' ? draftState.score.white.captures - 1 : draftState.score.white.captures,
+                draftCaptures: 0
+              }
+            }
           });
         } else {
           return _objectSpread({}, draftState);

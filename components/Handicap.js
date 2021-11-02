@@ -7,19 +7,15 @@ const Handicap = props => {
     const row = Math.floor((i) / boardSize)
     const column = i % boardSize
 
-    useEffect(() => {
-
-    }, [])
-
     return (
         <div key={`h${i}`} id={`h${i}`} className=" absolute rounded-full bg-gray-800 absolute z-10"
             style={{
-                width: `${(100 / boardSize) / 3}%`,
-                minWidth: `${(100 / boardSize) / 3}%`,
-                height: `${(100 / boardSize) / 3}%`,
-                minHeight: `${(100 / boardSize) / 3}%`,
-                left: `${(column / (boardSize - 1) * 100) - ((100 / boardSize) / 6)}%`,
-                top: `${(row / (boardSize - 1) * 100) - ((100 / boardSize) / 6)}%`
+                width: `${(100 / boardSize) / 4}%`,
+                minWidth: `${(100 / boardSize) / 4}%`,
+                height: `${(100 / boardSize) / 4}%`,
+                minHeight: `${(100 / boardSize) / 4}%`,
+                left: `${(column / (boardSize - 1) * 100) - ((100 / boardSize) / 8)}%`,
+                top: `${(row / (boardSize - 1) * 100) - ((100 / boardSize) / 8)}%`
             }} />
 
     )

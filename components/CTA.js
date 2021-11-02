@@ -48,7 +48,7 @@ const CTA = props => {
     useEffect(() => {
         openTimeline
             .to(confirmRef.current, {
-                width: boardWidth < 500 ? '100%' : '340px',
+                width: boardWidth < 500 ? '100%' : '300px',
                 height: '4rem',
                 paddingLeft: boardWidth < 500 ? '2rem' : '5rem',
                 paddingRight: '2rem',
@@ -60,12 +60,12 @@ const CTA = props => {
     }, [])
 
     return (
-        <div className={`relative my-4 z-50 transition duration-500 ${disabled && 'opacity-25'}`}>
-            <div onClick={handleClick} className={`cta z-20 ${bgClass}`}>
+        <div className={`relative my-4 transition duration-500 ${confirm && 'z-50'} ${disabled && 'opacity-25'}`}>
+            <div onClick={handleClick} className={`cta z-20 ${bgClass} transition duration-200`}>
                 <img src={imageSrc} className="w-full h-auto" />
             </div>
             <div ref={confirmRef} className="fixed md:absolute bg-gray-300 text-gray-800 bottom-0 left-0 md:top-0 md:left-4 md:rounded-full md:z-10 z-50 w-0 h-16 overflow-hidden">
-                <div ref={confirmContentRef} className="hidden text-center md:text-left">
+                <div ref={confirmContentRef} className="hidden text-center">
                     {confirmText}
                     <div className="flex justify-center py-2">
                         <span onClick={handleConfirmClick} className="text-white bg-green-500 rounded-lg px-4 mx-4 cursor-pointer hover:outline-white transition duration-300">Yes</span>

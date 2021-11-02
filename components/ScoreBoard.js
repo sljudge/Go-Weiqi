@@ -9,12 +9,15 @@ CSSPlugin.defaultTransformPerspective = 1000;
 const ScoreBoard = props => {
     const score = useSelector(state => state.game.score)
     const checkingScore = useSelector(state => state.game.checkingScore)
+    const tutorial = useSelector(state => state.game.tutorial)
     const [timeline, setTimeline] = useState(gsap.timeline({ paused: true }))
     const boardRef = useRef(null)
     const ctaRef = useRef(null)
 
     useEffect(() => {
-        timeline.reversed(!timeline.reversed())
+        if (!tutorial) {
+            timeline.reversed(!timeline.reversed())
+        }
     }, [checkingScore])
 
     useEffect(() => {

@@ -1,8 +1,16 @@
-export const SET_BOARD_SIZE = 'SET_BOARD_SIZE'
+export const START_NEW_GAME = 'START_NEW_GAME'
 
-export const setBoardSize = (int) => ({
-   type: SET_BOARD_SIZE,
-   int
+export const startNewGame = (boardSize) => ({
+   type: START_NEW_GAME,
+   boardSize
+})
+
+// ------------------------------------------------------------------------------
+
+export const START_TUTORIAL = 'START_TUTORIAL'
+
+export const startTutorial = () => ({
+   type: START_TUTORIAL
 })
 
 // ------------------------------------------------------------------------------
@@ -35,7 +43,7 @@ export const clearNode = (i) => ({
 
 export const UPDATE_BOARD = 'UPDATE_BOARD'
 
-export const updateBoard = (i) => ({
+export const updateBoard = (board) => ({
    type: UPDATE_BOARD,
    board
 })

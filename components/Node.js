@@ -36,8 +36,10 @@ const Node = props => {
             setHoverClass(
                 toPlay === 'white' ? 'hover:bg-gray-100' : 'hover:bg-gray-700'
             )
+        } else {
+            setHoverClass('')
         }
-    }, [toPlay])
+    }, [board])
 
     useEffect(() => {
         setBackgroundClass(
@@ -62,22 +64,6 @@ const Node = props => {
         }
     }, [focusPoint])
 
-    useEffect(() => {
-        // if (boardSize <= 9) {
-        //     setSizeClassNames("min-w-4 min-h-4 h-4 w-4 md:min-h-8 md:h-8 md:w-8 lg:min-w-12 lg:min-h-12 lg:h-12 lg:w-12")
-        //     setOffset('1.5rem')
-        // } else if (boardSize <= 13) {
-        //     setSizeClassNames(" lg:min-w-8 lg:min-h-8 lg:h-8 lg:w-8")
-        //     setOffset('1rem')
-        // } else {
-        //     setSizeClassNames(" lg:min-w-6 lg:min-h-6 lg:h-6 lg:w-6")
-        //     setOffset('0.75rem')
-        // }
-    }, [boardSize])
-
-    useEffect(() => {
-
-    }, [])
 
     /*********************
      * RETURN
@@ -100,7 +86,7 @@ const Node = props => {
             }
             onClick={handleClick} >
             <span className="text-gray-500">
-                {/* {i} */}
+                {i}
             </span>
         </div>
 

@@ -12,14 +12,17 @@ import {
     CANCEL_SCORING,
     UPDATE_SCORE,
     HANDLE_PASS_GO,
-    UNDO_MOVE
+    UNDO_MOVE,
+    START_NEW_GAME,
+    START_TUTORIAL
 } from '../actions/game'
 
 const boardSize = 9
 const initialState = {
+    tutorial: true,
     toPlay: 'black',
     boardSize: boardSize,
-    // board: '.'.repeat(Math.pow(boardSize, 2)),
+    board: '.'.repeat(Math.pow(boardSize, 2)),
 
     // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
 
@@ -40,11 +43,12 @@ const initialState = {
     // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
 
     // scoring
-    board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
+    // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
 
     focusPoint: null,
     stonesToBeRemoved: [],
     ko: false,
+    koPosition: null,
     pass: false,
     previousBoardPosition: null,
     checkingScore: false,
@@ -62,9 +66,28 @@ const initialState = {
     },
 }
 
-const reducer = (state = initialState, action) => {
+const reducer = (state = { ...initialState }, action) => {
 
     switch (action.type) {
+        case START_NEW_GAME:
+            return produce(state, draftState => {
+                return {
+                    ...initialState,
+                    boardSize: action.boardSize,
+                    board: '.'.repeat(Math.pow(action.boardSize, 2)),
+                }
+            })
+        //-----------------------------------------------------------------------------------------------------//
+        case START_TUTORIAL:
+            return produce(state, draftState => {
+                return {
+                    ...draftState,
+                    tutorial: true,
+                    boardSize: 9,
+                    board: '.'.repeat(81)
+                }
+            })
+        //-----------------------------------------------------------------------------------------------------//
         case SET_TO_PLAY:
             return produce(state, draftState => {
                 let nextToPlay
@@ -114,7 +137,7 @@ const reducer = (state = initialState, action) => {
             return produce(state, draftState => ({
                 ...draftState,
                 ko: action.bool,
-                // previousBoardPosition: action.bool ? draftState.board : null
+                koPosition: action.bool ? draftState.board : null
             }))
         //-----------------------------------------------------------------------------------------------------//
         case CHECK_SCORE:
@@ -129,7 +152,7 @@ const reducer = (state = initialState, action) => {
             return produce(state, draftState => ({
                 ...draftState,
                 checkingScore: false,
-                board: draftState.previousBoardPosition,
+                board: draftState.previousBoardPosition || draftState.board,
                 previousBoardPosition: null,
                 score: {
                     black: {
@@ -176,12 +199,29 @@ const reducer = (state = initialState, action) => {
         //-----------------------------------------------------------------------------------------------------//
         case UNDO_MOVE:
             return produce(state, draftState => {
+
+                console.log('undo 1', draftState.ko && draftState.toPlay === 'black')
+                console.log('undo 1', draftState.ko && draftState.toPlay === 'white')
+
                 if (draftState.previousBoardPosition !== null) {
                     return {
                         ...draftState,
                         board: draftState.previousBoardPosition,
                         previousBoardPosition: null,
-                        toPlay: draftState.toPlay === 'white' ? 'black' : 'white'
+                        toPlay: draftState.toPlay === 'white' ? 'black' : 'white',
+                        ko: false,
+                        score: {
+                            black: {
+                                area: draftState.score.black.area,
+                                captures: draftState.ko && draftState.toPlay === 'white' ? draftState.score.black.captures - 1 : draftState.score.black.captures,
+                                draftCaptures: 0
+                            },
+                            white: {
+                                area: draftState.score.white.area,
+                                captures: draftState.ko && draftState.toPlay === 'black' ? draftState.score.white.captures - 1 : draftState.score.white.captures,
+                                draftCaptures: 0
+                            }
+                        }
                     }
                 } else {
                     return {
