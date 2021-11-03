@@ -14,12 +14,15 @@ import {
     HANDLE_PASS_GO,
     UNDO_MOVE,
     START_NEW_GAME,
-    START_TUTORIAL
+    TOGGLE_TUTORIAL,
+    INCREMENT_OR_DECREMENT_TUTORIAL,
+    SET_IN_SEKI
 } from '../actions/game'
 
 const boardSize = 9
 const initialState = {
-    tutorial: true,
+    tutorial: false,
+    tutorialIndex: 0,
     toPlay: 'black',
     boardSize: boardSize,
     board: '.'.repeat(Math.pow(boardSize, 2)),
@@ -27,19 +30,19 @@ const initialState = {
     // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
 
     // seki 1
-    // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
-    // board: '..............................................ooxxx....oxoox....ox.ox....ox.ox...',
     // board: '........................x....................ooooo....xxxxxoo...oooxo...xxx.xo...',
     // board: 'xxxxx......x........ooooo...ooxxxoo.ooxx.xxo.oxxxo.xo.oxoxoxxo.oxoooxoo.oxxxxoo..',
 
     // seki 2
+    // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+    // board: '..............................................ooxxx....oxoox....ox.ox....ox.ox...',
     // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
     // board: '.xo.ox...x.ooox.o.oooxxx.o.xxx...................................................',
 
 
     // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
 
-    // seki 4
+    // seki 4 - TBC
     // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
 
     // scoring
@@ -64,6 +67,7 @@ const initialState = {
             draftCaptures: 0
         }
     },
+    inSeki: []
 }
 
 const reducer = (state = { ...initialState }, action) => {
@@ -78,13 +82,26 @@ const reducer = (state = { ...initialState }, action) => {
                 }
             })
         //-----------------------------------------------------------------------------------------------------//
-        case START_TUTORIAL:
+        case TOGGLE_TUTORIAL:
             return produce(state, draftState => {
                 return {
                     ...draftState,
-                    tutorial: true,
+                    tutorial: !draftState.tutorial,
                     boardSize: 9,
                     board: '.'.repeat(81)
+                }
+            })
+        //-----------------------------------------------------------------------------------------------------//
+        case INCREMENT_OR_DECREMENT_TUTORIAL:
+            return produce(state, draftState => {
+                return {
+                    ...draftState,
+                    tutorialIndex: action.arg === '+' ? draftState.tutorialIndex + 1 : draftState.tutorialIndex - 1,
+                    ko: false,
+                    focusPoint: null,
+                    pass: null,
+                    previousBoardPosition: null,
+                    checkingScore: false
                 }
             })
         //-----------------------------------------------------------------------------------------------------//
@@ -200,9 +217,6 @@ const reducer = (state = { ...initialState }, action) => {
         case UNDO_MOVE:
             return produce(state, draftState => {
 
-                console.log('undo 1', draftState.ko && draftState.toPlay === 'black')
-                console.log('undo 1', draftState.ko && draftState.toPlay === 'white')
-
                 if (draftState.previousBoardPosition !== null) {
                     return {
                         ...draftState,
@@ -227,6 +241,14 @@ const reducer = (state = { ...initialState }, action) => {
                     return {
                         ...draftState
                     }
+                }
+            })
+        //-----------------------------------------------------------------------------------------------------//
+        case SET_IN_SEKI:
+            return produce(state, draftState => {
+                return {
+                    ...draftState,
+                    inSeki: action.array
                 }
             })
         //-----------------------------------------------------------------------------------------------------//

@@ -7,10 +7,19 @@ export const startNewGame = (boardSize) => ({
 
 // ------------------------------------------------------------------------------
 
-export const START_TUTORIAL = 'START_TUTORIAL'
+export const TOGGLE_TUTORIAL = 'TOGGLE_TUTORIAL'
 
-export const startTutorial = () => ({
-   type: START_TUTORIAL
+export const toggleTutorial = () => ({
+   type: TOGGLE_TUTORIAL
+})
+
+// ------------------------------------------------------------------------------
+
+export const INCREMENT_OR_DECREMENT_TUTORIAL = 'INCREMENT_OR_DECREMENT_TUTORIAL'
+
+export const incrementOrDecrementTutorial = (arg) => ({
+   type: INCREMENT_OR_DECREMENT_TUTORIAL,
+   arg
 })
 
 // ------------------------------------------------------------------------------
@@ -131,4 +140,11 @@ export const UNDO_MOVE = 'UNDO_MOVE'
 
 export const undoMove = () => ({
    type: UNDO_MOVE
+})
+// ------------------------------------------------------------------------------
+
+export const SET_IN_SEKI = 'SET_IN_SEKI'
+
+export const setInSeki = (array) => ({
+   type: SET_IN_SEKI
 })

@@ -3005,8 +3005,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "START_NEW_GAME": () => (/* binding */ START_NEW_GAME),
 /* harmony export */   "startNewGame": () => (/* binding */ startNewGame),
-/* harmony export */   "START_TUTORIAL": () => (/* binding */ START_TUTORIAL),
-/* harmony export */   "startTutorial": () => (/* binding */ startTutorial),
+/* harmony export */   "TOGGLE_TUTORIAL": () => (/* binding */ TOGGLE_TUTORIAL),
+/* harmony export */   "toggleTutorial": () => (/* binding */ toggleTutorial),
+/* harmony export */   "INCREMENT_OR_DECREMENT_TUTORIAL": () => (/* binding */ INCREMENT_OR_DECREMENT_TUTORIAL),
+/* harmony export */   "incrementOrDecrementTutorial": () => (/* binding */ incrementOrDecrementTutorial),
 /* harmony export */   "SET_TO_PLAY": () => (/* binding */ SET_TO_PLAY),
 /* harmony export */   "setToPlay": () => (/* binding */ setToPlay),
 /* harmony export */   "UPDATE_NODE": () => (/* binding */ UPDATE_NODE),
@@ -3034,7 +3036,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "HANDLE_PASS_GO": () => (/* binding */ HANDLE_PASS_GO),
 /* harmony export */   "handlePassGo": () => (/* binding */ handlePassGo),
 /* harmony export */   "UNDO_MOVE": () => (/* binding */ UNDO_MOVE),
-/* harmony export */   "undoMove": () => (/* binding */ undoMove)
+/* harmony export */   "undoMove": () => (/* binding */ undoMove),
+/* harmony export */   "SET_IN_SEKI": () => (/* binding */ SET_IN_SEKI),
+/* harmony export */   "setInSeki": () => (/* binding */ setInSeki)
 /* harmony export */ });
 var START_NEW_GAME = 'START_NEW_GAME';
 var startNewGame = function startNewGame(boardSize) {
@@ -3044,10 +3048,18 @@ var startNewGame = function startNewGame(boardSize) {
   };
 }; // ------------------------------------------------------------------------------
 
-var START_TUTORIAL = 'START_TUTORIAL';
-var startTutorial = function startTutorial() {
+var TOGGLE_TUTORIAL = 'TOGGLE_TUTORIAL';
+var toggleTutorial = function toggleTutorial() {
   return {
-    type: START_TUTORIAL
+    type: TOGGLE_TUTORIAL
+  };
+}; // ------------------------------------------------------------------------------
+
+var INCREMENT_OR_DECREMENT_TUTORIAL = 'INCREMENT_OR_DECREMENT_TUTORIAL';
+var incrementOrDecrementTutorial = function incrementOrDecrementTutorial(arg) {
+  return {
+    type: INCREMENT_OR_DECREMENT_TUTORIAL,
+    arg: arg
   };
 }; // ------------------------------------------------------------------------------
 
@@ -3160,6 +3172,13 @@ var undoMove = function undoMove() {
   return {
     type: UNDO_MOVE
   };
+}; // ------------------------------------------------------------------------------
+
+var SET_IN_SEKI = 'SET_IN_SEKI';
+var setInSeki = function setInSeki(array) {
+  return {
+    type: SET_IN_SEKI
+  };
 };
 
 /***/ }),
@@ -3202,7 +3221,7 @@ var App = function App(props) {
     return state.display.boardWidth;
   });
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
-    className: "bg-gray-200 text-white flex ".concat(tutorial ? 'justify-end' : 'justify-center', " items-center h-screen w-screen max-h-screen max-w-screen overflow-hidden pb-16 md:pb-0"),
+    className: "bg-gray-200 relative text-white flex ".concat(tutorial ? 'justify-end' : 'justify-center', " items-center h-screen w-screen max-h-screen max-w-screen overflow-hidden pb-16 md:pb-0"),
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_Board__WEBPACK_IMPORTED_MODULE_2__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_GameMenu__WEBPACK_IMPORTED_MODULE_3__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_CTAMenu__WEBPACK_IMPORTED_MODULE_4__["default"], {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_ScoreBoard__WEBPACK_IMPORTED_MODULE_5__["default"], {}), !!tutorial && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_Tutorial__WEBPACK_IMPORTED_MODULE_6__["default"], {})]
   });
 };
@@ -3573,7 +3592,7 @@ var CTAMenu = function CTAMenu(props) {
     return state.game.previousBoardPosition;
   });
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
-    className: "absolute bottom-0 left-0 w-full p-4 pb-16 md:pb-4 flex md:flex-col justify-evenly ".concat(checkingScore && 'z-20'),
+    className: "absolute bottom-0 left-0 w-full p-4 pb-16 md:pb-4 flex md:flex-col justify-evenly ".concat(!!checkingScore ? 'z-20' : ''),
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_CTA__WEBPACK_IMPORTED_MODULE_3__["default"], {
       id: "pass",
       imageSrc: "./images/pass.png",
@@ -3688,7 +3707,8 @@ var GameMenu = function GameMenu(props) {
   };
 
   var handleTutorialClick = function handleTutorialClick() {
-    dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.startTutorial)());
+    dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.toggleTutorial)());
+    setOpen(false);
   };
 
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
@@ -3740,7 +3760,9 @@ var GameMenu = function GameMenu(props) {
         onClick: handleTutorialClick,
         className: "w-40 px-4 py-2 text-white mx-1 flex justify-center items-center  bg-blue-500 hover:bg-blue-700",
         children: "Tutorial"
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_NewGameMenu__WEBPACK_IMPORTED_MODULE_5__["default"], {})]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_NewGameMenu__WEBPACK_IMPORTED_MODULE_5__["default"], {
+        setOpen: setOpen
+      })]
     })]
   });
 };
@@ -4029,6 +4051,9 @@ var MenuItem = function MenuItem(props) {
 };
 
 var NewGameMenu = function NewGameMenu(props) {
+  var _props2 = _objectSpread({}, props),
+      setOpen = _props2.setOpen;
+
   var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
   var boardSize = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.boardSize;
@@ -4041,6 +4066,7 @@ var NewGameMenu = function NewGameMenu(props) {
 
   var handleClick = function handleClick() {
     dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.startNewGame)(newGameSize));
+    setOpen(false);
   };
 
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
@@ -4136,6 +4162,9 @@ var Node = function Node(props) {
   var checkingScore = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.checkingScore;
   });
+  var inSeki = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.inSeki;
+  });
   var status = board[i];
   var row = Math.floor(i / boardSize);
   var column = i % boardSize;
@@ -4150,20 +4179,15 @@ var Node = function Node(props) {
       backgroundClass = _useState4[0],
       setBackgroundClass = _useState4[1];
 
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("min-w-12 min-h-12 h-12 w-12"),
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("rounded-full"),
       _useState6 = _slicedToArray(_useState5, 2),
-      sizeClassNames = _useState6[0],
-      setSizeClassNames = _useState6[1];
+      scoreClassName = _useState6[0],
+      setScoreClassName = _useState6[1];
 
-  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("rounded-full"),
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(""),
       _useState8 = _slicedToArray(_useState7, 2),
-      scoreClassName = _useState8[0],
-      setScoreClassName = _useState8[1];
-
-  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('1.5rem'),
-      _useState10 = _slicedToArray(_useState9, 2),
-      offset = _useState10[0],
-      setOffset = _useState10[1];
+      borderClass = _useState8[0],
+      setBorderClass = _useState8[1];
   /**********************
    * FUNCTIONS
    **********************/
@@ -4202,13 +4226,19 @@ var Node = function Node(props) {
       }
     }
   }, [focusPoint]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {// if (checkingScore && inSeki.includes(i)) {
+    //     setBorderClass("border-2 border-purple-600")
+    // } else {
+    //     setBorderClass("")
+    // }
+  }, [checkingScore]);
   /*********************
    * RETURN
    *********************/
 
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
     id: i,
-    className: "absolute z-20 ".concat(sizeClassNames, " ").concat(hoverClass, " ").concat(backgroundClass, " ").concat(scoreClassName),
+    className: "absolute z-20 ".concat(hoverClass, " ").concat(backgroundClass, " ").concat(scoreClassName, " ").concat(borderClass),
     style: {
       width: "".concat(100 / boardSize / 1.5, "%"),
       minWidth: "".concat(100 / boardSize / 1.5, "%"),
@@ -4218,11 +4248,7 @@ var Node = function Node(props) {
       left: "".concat(column / (boardSize - 1) * 100 - 100 / boardSize / 3, "%"),
       top: "".concat(row / (boardSize - 1) * 100 - 100 / boardSize / 3, "%")
     },
-    onClick: handleClick,
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
-      className: "text-gray-500",
-      children: i
-    })
+    onClick: handleClick
   }, i);
 };
 
@@ -4288,17 +4314,16 @@ var ScoreBoard = function ScoreBoard(props) {
   var boardRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   var ctaRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    if (!tutorial) {
-      timeline.reversed(!timeline.reversed());
-    }
+    // if (!tutorial) {
+    timeline.reversed(!timeline.reversed()); // }
   }, [checkingScore]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     timeline.to(boardRef.current, {
-      y: 0,
+      x: 0,
       duration: .5,
       ease: "power2.in"
     }).to(ctaRef.current, {
-      y: 0,
+      x: 0,
       duration: .5,
       ease: "power2.in"
     }).reverse();
@@ -4306,7 +4331,7 @@ var ScoreBoard = function ScoreBoard(props) {
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.Fragment, {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
       ref: boardRef,
-      className: "absolute top-0 right-0 text-right bg-gray-600 p-2 px-20 md:px-12 rounded-bl-lg z-40 transform -translate-y-80",
+      className: "absolute top-40 left-0 text-right bg-gray-600 p-2 px-20 md:px-12 rounded-r-lg z-40 transform -translate-x-80",
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
         className: "text-center md:py-12",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
@@ -4352,23 +4377,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
-/* harmony import */ var _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../data/tutorialData */ "./data/tutorialData.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
+/* harmony import */ var gsap_all__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gsap/all */ "./node_modules/gsap/CSSPlugin.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var _data_tutorialData__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../data/tutorialData */ "./data/tutorialData.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 
 
 
+
+gsap_all__WEBPACK_IMPORTED_MODULE_2__["default"].defaultTransformPerspective = 1000;
 
 
 
@@ -4377,61 +4395,96 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 var Tutorial = function Tutorial(props) {
   var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
-
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(5),
-      _useState2 = _slicedToArray(_useState, 2),
-      index = _useState2[0],
-      setIndex = _useState2[1];
-
+  var index = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.tutorialIndex;
+  });
   var tutorial = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.tutorial;
   });
   var boardWidth = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.display.boardWidth;
   });
+  var containerRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
 
   var handleNextClick = function handleNextClick() {
-    if (index < _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"].length - 1) {
-      setIndex(index + 1);
+    if (index < _data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"].length - 1) {
+      // setIndex(index + 1)
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.incrementOrDecrementTutorial)('+'));
+    } else {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.toggleTutorial)());
     }
   };
 
   var handlePreviousClick = function handlePreviousClick() {
     if (index > 0) {
-      setIndex(index - 1);
+      // setIndex(index - 1)
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.incrementOrDecrementTutorial)('-'));
     }
   };
 
+  var handleCollapse = function handleCollapse() {
+    gsap__WEBPACK_IMPORTED_MODULE_6__.gsap.to(containerRef.current, {
+      x: '100%',
+      duration: .5,
+      ease: 'power2.out'
+    });
+  };
+
+  var handleExpand = function handleExpand() {
+    gsap__WEBPACK_IMPORTED_MODULE_6__.gsap.to(containerRef.current, {
+      x: '0',
+      duration: .5,
+      ease: 'power2.in'
+    });
+  };
+
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
-    if (_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].board) {
-      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.updateBoard)(_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].board));
+    if (_data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"][index].board) {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.updateBoard)(_data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"][index].board));
     }
 
-    if (_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].toPlay) {
-      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_2__.setToPlay)(_data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].toPlay));
+    if (_data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"][index].toPlay) {
+      dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.setToPlay)(_data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"][index].toPlay));
     }
   }, [index]);
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.Fragment, {
-    children: !!tutorial && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-      className: "z-50 ml-16 bg-gray-600 p-8 h-full flex flex-col justify-center items-start",
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.Fragment, {
+    children: !!tutorial && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+      id: "tutorial-container",
+      ref: containerRef,
+      className: "z-50 md:ml-16 bg-gray-600 px-8 pb-8 pt-14 h-full bg-opacity-80 md:bg-opacity-100 absolute bottom-0 left-0 right-0 md:relative flex flex-col justify-center items-start transform translate-x-full md:translate-x-0",
       style: {
         width: "calc((100vw - ".concat(boardWidth, "px)/2)")
       },
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+        onClick: handleCollapse,
+        className: "absolute top-0 left-0 px-4 my-4 py-2 bg-gray-300 hover:bg-blue-400 rounded-r-full w-20 md:hidden",
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
+          src: "./images/chevron-right.png",
+          "class": "h-12 w-auto"
+        })
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
+        onClick: handleExpand,
+        className: "absolute top-0 left-0 px-4 my-4 py-2 bg-gray-300 hover:bg-blue-400 rounded-l-full w-20 transform -translate-x-20 md:hidden",
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
+          src: "./images/hat.png",
+          "class": "h-12 w-auto"
+        })
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
         className: "pb-4 font-bold",
-        children: [index + 1, "/", _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"].length]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
-        children: _data_tutorialData__WEBPACK_IMPORTED_MODULE_3__["default"][index].copy
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        children: [index + 1, "/", _data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"].length]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("p", {
+        className: "text-sm",
+        children: _data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"][index].copy
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
         className: "w-full flex justify-between",
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
           onClick: handlePreviousClick,
-          className: "mx-2 px-4 py-2 text-white w-20 flex justify-center items-center bg-red-400 rounded-lg my-8 hover:bg-red-300 hover:outline-white transition duration-200",
+          className: "".concat(index == 0 ? 'opacity-50' : 'opacity-100', " mx-2 px-4 py-2 text-white w-20 flex justify-center items-center bg-red-400 rounded-lg my-8 hover:bg-red-300 hover:outline-white transition duration-200"),
           children: "Previous"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("button", {
           onClick: handleNextClick,
           className: "mx-2 px-4 py-2 text-white w-20 flex justify-center items-center bg-green-600 rounded-lg my-8 hover:bg-green-500 hover:outline-white transition duration-200",
-          children: "Next"
+          children: index == _data_tutorialData__WEBPACK_IMPORTED_MODULE_4__["default"].length - 1 ? 'End' : 'Next'
         })]
       })]
     })
@@ -4496,6 +4549,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-saga/effects */ "./node_modules/redux-saga/dist/redux-saga-effects-npm-proxy.esm.js");
 /* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
 /* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../helpers */ "./helpers/index.js");
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 
 
 var _marked = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(handleAttemptMove),
@@ -4798,10 +4863,22 @@ function handleCheckScore(action) {
 
         case 6:
           scoreData = _context3.sent;
-          console.log('scoring areas', scoreData.areas); // yield put({ type: UPDATE_BOARD, board: scoreData.areas })
+          console.log('scoring data', scoreData); // yield put({ type: UPDATE_BOARD, board: scoreData.areas })
 
-          if (!(scoreData.areas.length > 1)) {
-            _context3.next = 17;
+          if (!(scoreData.inSeki.size > 0)) {
+            _context3.next = 11;
+            break;
+          }
+
+          _context3.next = 11;
+          return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
+            type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.SET_IN_SEKI,
+            array: _toConsumableArray(scoreData.inSeki)
+          });
+
+        case 11:
+          if (!scoreData.areas) {
+            _context3.next = 20;
             break;
           }
 
@@ -4825,14 +4902,14 @@ function handleCheckScore(action) {
               });
             }
           });
-          _context3.next = 15;
+          _context3.next = 18;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_BOARD,
             board: tempBoard
           });
 
-        case 15:
-          _context3.next = 17;
+        case 18:
+          _context3.next = 20;
           return (0,redux_saga_effects__WEBPACK_IMPORTED_MODULE_1__.put)({
             type: _actions_game__WEBPACK_IMPORTED_MODULE_2__.UPDATE_SCORE,
             json: {
@@ -4847,7 +4924,7 @@ function handleCheckScore(action) {
             }
           });
 
-        case 17:
+        case 20:
         case "end":
           return _context3.stop();
       }
@@ -4996,7 +5073,7 @@ __webpack_require__.r(__webpack_exports__);
     children: ["Starting in the corners is usually a good idea as it takes fewer stones to encircle an area.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Once the corners have been taken it is then a good idea to move onto the centre of the board.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Have a play around with the current board position to try and make areas.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "You can undo a move by clicking the ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", {
       className: "text-red-400",
       children: "red"
-    }), " icon in the bottom left hand corner."]
+    }), " undo icon."]
   }),
   board: '....................x...o...............x...............x...o....................',
   toPlay: 'white'
@@ -5005,12 +5082,14 @@ __webpack_require__.r(__webpack_exports__);
     children: ["If an area touches both black and white stones then it is owned by nobody.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "If you want to check the state of the board then click the ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("span", {
       className: "text-green-500",
       children: "green"
-    }), " icon in the bottom left hand corner.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "See what happens if you place stones within enemy territory."]
+    }), " analyse icon.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "See what happens if you place stones within enemy territory.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("em", {
+      children: "(When scoring the application may remove stones deemed 'dead behind enemy lines'. More on this later...)"
+    })]
   }),
   board: '..................xxx.x......xx.xxxx....x....ooo.x..oo...o..o...o.o..o.....o..o..'
 }, {
   copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-    children: ["Stones on the board can be captured by the enemy if they become fully encircled and lose all of their 'liberties'.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Caputured stones are then added to players score once the game is over.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Take a look at the position in the centre of the board and capture the white stone.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {})]
+    children: ["Stones on the board can be captured by the enemy if they become fully encircled and lose all of their 'liberties' (adjacent intersections with no stones).", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Caputured stones are then added to players score once the game is over.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Take a look at the position in the centre of the board and capture the white stone.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {})]
   }),
   board: '...............................x........ox.......x...............................',
   toPlay: 'black'
@@ -5018,7 +5097,7 @@ __webpack_require__.r(__webpack_exports__);
   copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
     children: ["Stones that are in contact with stones of the same colour form 'chains'.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Chains share their liberties.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "When a stone or chain only has one liberty left it is said to be in 'atari'.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Capture the chain in the centre of the board."]
   }),
-  board: '..............................xxx.....xooox.....x.x..............................',
+  board: '..............................xxx.....xooox.....xox..............................',
   toPlay: 'black'
 }, {
   copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
@@ -5034,9 +5113,45 @@ __webpack_require__.r(__webpack_exports__);
   toPlay: 'black'
 }, {
   copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-    children: ["The white chain on the board is called a ladder.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Ladders are an important concept in GO. They normally occur when a player is trying to escape capture.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "A player who doesn't understand ladders can lose many stones!"]
+    children: ["In the current board position, black is currently in ownership of the three spaces in the bottom left hand corner.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "However, if white is allowed to place three stones without reply within this area the black stones will now be captured.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Have a go and capture the black stones."]
   }),
-  board: '...................xxx......xoox......xoox......xoox......xo........x............',
+  board: '......................................................ooooo....xxxxo.......xo....',
+  toPlay: 'white'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["In order to save the chain black must create two 'eyes'.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "An eye is an area controlled by a chain. If a chain has two eyes then it will never be killed as the opponent will never be able to play two stones simultaneously.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "A chain with two eyes is 'alive'."]
+  }),
+  board: '......................................................ooooo....xxxxo.....x.xo....',
+  toPlay: 'white'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["Take a look at the board position. Black is currently under threat.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "See if you can save the black stones by creating at least two eyes."]
+  }),
+  board: '...........oooo.o...oxxxo...ox...xo..oxx.xxo...ooxxoo.....oo.....................',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["The white chain on the board is called a ladder.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Ladders are an important concept in GO. They normally occur when a player is trying to escape capture.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "A player who doesn't understand ladders can lose many stones!", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Capture the ladder."]
+  }),
+  board: '...........x.......xox......xoox......xoox......xoox......xo........x............',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["The position on the board is what is called 'seki' (loosely translated as 'mutual life').", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Seki is a state in which neither player can capture as any attempt will be suicidal.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Try for yourself!"]
+  }),
+  board: 'x.ox.....x.ox.....xxox.....ooxx.......oo.........................................',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["Take a look at the position on the board.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "See if you can save the black group by making seki.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "(Once you are happy click the analyse button to check if the chains are in seki)"]
+  }),
+  board: '......................................o.........ooxx....oxxox....ox.ox....ox.o...',
+  toPlay: 'black'
+}, {
+  copy: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
+    children: ["The game is over once both players pass.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "The score is then calculated by adding up all of the occupied territories along with any captured stones.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "To avoid unecessary moves both players must agree if certain groups are alive or dead.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Take a look at the chain in the top left hand corner - it currently only has one liberty and can therefore be deemed 'dead'. The white stone in the top right equally has no chance of life as it will be unable to make two eyes.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Analyse the board, play a few moves and analyse again to see if the white stones can be rescued.", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)("br", {}), "Once you are happy with the board, try passing twice using the yellow hand icon to see the score."]
+  }),
+  board: '.ox..x...oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
   toPlay: 'black'
 }]);
 
@@ -5241,8 +5356,8 @@ var Validate = /*#__PURE__*/function () {
       };
     }
   }, {
-    key: "countEyesAndLibs",
-    value: function countEyesAndLibs(id, owner) {
+    key: "getChainData",
+    value: function getChainData(id, owner) {
       var _this4 = this;
 
       var board = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.board;
@@ -5262,7 +5377,7 @@ var Validate = /*#__PURE__*/function () {
 
                   _this4.currentChain.eyes.add(area.chain);
 
-                  _this4.countEyesAndLibs(node, owner, board);
+                  _this4.getChainData(node, owner, board);
                 } else if (area.owner === '.') {
                   _this4.currentChain.libs.add(node);
 
@@ -5273,7 +5388,7 @@ var Validate = /*#__PURE__*/function () {
           } else if (board[node] === owner && !_this4.currentChain.chain.has(node)) {
             _this4.currentChain.chain.add(node);
 
-            _this4.countEyesAndLibs(node, owner, board);
+            _this4.getChainData(node, owner, board);
           }
         }
       });
@@ -5296,7 +5411,7 @@ var Validate = /*#__PURE__*/function () {
       } // more than two liberties??
 
 
-      if (this.currentChain.libs.size > 3) {
+      if (this.currentChain.libs.size >= 3) {
         console.log('DBL - 2');
         return false;
       }
@@ -5305,9 +5420,9 @@ var Validate = /*#__PURE__*/function () {
         console.log('DBL - 3');
         return true;
       } // LIBS three or under
-      // capture or extend??
+      // capture or extend ??
       // else SEKI
-      // SEKI: shared liberties / one eye each && one liberty each
+      // SEKI
 
 
       if (this.currentChain.eyesAndLibs.size == 2 || this.currentChain.eyes.size == 1 && this.currentChain.eyesAndLibs.size == 3 && this.currentChain.libs.size == 2) {
@@ -5350,56 +5465,49 @@ var Validate = /*#__PURE__*/function () {
       var chain = Array.from(this.currentChain.chain);
       var checkOne, checkTwo;
       var tempInSeki = [];
-      var tempCheck;
+      var tempCheck; // if (eyes.length == 0 && libs.length == 2) {
+      //     console.log('---------SEKI ONE-----------------')
+      //     // ----------------------------------
+      //     // split liberties
+      //     // ----------------------------------
+      //     // add current chain to potential collection of seki nodes
+      //     tempInSeki.push(...this.currentChain.chain)
+      //     // for each spare liberty
+      //     libs.forEach((node, i) => {
+      //         tempBoard = this.board
+      //         tempBoard = tempBoard.replaceAt(node, this.board[id] === 'x' ? 'o' : 'x')
+      //         this.clearChainData()
+      //         // if on either side there is only one liberty/eye space left then seki
+      //         if (this.currentChain.eyesAndLibs.size == 1) {
+      //             tempCheck = true
+      //         } else if (this.currentChain.eyesAndLibs.size == 2) {
+      //             // else if two options available then check both
+      //             tempCheck = (
+      //                 !this.hasLiberties(node, this.board[id], tempBoard.replaceAt(this.currentChain.eyesAndLibs[0], this.board[id])) ||
+      //                 !this.hasLiberties(node, this.board[id], tempBoard.replaceAt(this.currentChain.eyesAndLibs[1], this.board[id]))
+      //             )
+      //         }
+      //         // if either side has passed then stones are in seki
+      //         if (tempCheck) {
+      //             this.currentChain.chain.delete(node)
+      //             tempInSeki.push(...this.currentChain.chain)
+      //         }
+      //         if (i == 0) {
+      //             checkOne = tempCheck
+      //         } else {
+      //             checkTwo = tempCheck
+      //         }
+      //     })
+      //     if (checkOne || checkTwo) {
+      //         tempInSeki.forEach(node => this.inSeki.add(node))
+      //         return true
+      //     } else {
+      //         this.currentChain.chain = chain
+      //         return false
+      //     }
+      // }
 
       if (eyes.length == 0 && libs.length == 2) {
-        console.log('---------SEKI ONE-----------------'); // ----------------------------------
-        // split liberties
-        // ----------------------------------
-        // add current chain to potential collection of seki nodes
-
-        tempInSeki.push.apply(tempInSeki, _toConsumableArray(this.currentChain.chain)); // for each spare liberty
-
-        libs.forEach(function (node, i) {
-          tempBoard = _this5.board;
-          tempBoard = tempBoard.replaceAt(node, _this5.board[id] === 'x' ? 'o' : 'x');
-
-          _this5.clearChainData(); // if on either side there is only one liberty/eye space left then seki
-
-
-          if (_this5.currentChain.eyesAndLibs.size == 1) {
-            tempCheck = true;
-          } else if (_this5.currentChain.eyesAndLibs.size == 2) {
-            // else if two options available then check both
-            tempCheck = !_this5.hasLiberties(node, _this5.board[id], tempBoard.replaceAt(_this5.currentChain.eyesAndLibs[0], _this5.board[id])) || !_this5.hasLiberties(node, _this5.board[id], tempBoard.replaceAt(_this5.currentChain.eyesAndLibs[1], _this5.board[id]));
-          } // if either side has passed then stones are in seki
-
-
-          if (tempCheck) {
-            _this5.currentChain.chain["delete"](node);
-
-            tempInSeki.push.apply(tempInSeki, _toConsumableArray(_this5.currentChain.chain));
-          }
-
-          if (i == 0) {
-            checkOne = tempCheck;
-          } else {
-            checkTwo = tempCheck;
-          }
-        });
-
-        if (checkOne || checkTwo) {
-          tempInSeki.forEach(function (node) {
-            return _this5.inSeki.add(node);
-          });
-          return true;
-        } else {
-          this.currentChain.chain = chain;
-          return false;
-        }
-      }
-
-      if (eyes.length == 0 && libs.length == 1) {
         console.log('---------SEKI TWO-----------------'); // ----------------------------------
         // sharing two liberties
         // ----------------------------------
@@ -5408,6 +5516,13 @@ var Validate = /*#__PURE__*/function () {
           _this5.hasBeenChecked = new Set();
           board = board.replaceAt(eyesAndLibs[0], playingAs);
           board = board.replaceAt(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x');
+
+          _this5.getChainData(eyesAndLibs[0]);
+
+          if (_this5.currentChain.chain.size === 2) {
+            return false;
+          }
+
           return !_this5.hasLiberties(eyesAndLibs[0], playingAs, board) && !_this5.hasLiberties(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x', board);
         }; // check white at 0 && check black at 1
 
@@ -5439,7 +5554,7 @@ var Validate = /*#__PURE__*/function () {
           _this5.clearChainData();
 
           board = board.replaceAt(a, playingAs);
-          console.log(playingAs, _this5.countEyesAndLibs(a, playingAs, board));
+          console.log(playingAs, _this5.getChainData(a, playingAs, board));
           return _this5.currentChain.eyesAndLibs.size == 1;
         }; // check black
 
@@ -5479,7 +5594,7 @@ var Validate = /*#__PURE__*/function () {
       var _this6 = this;
 
       this.clearChainData();
-      console.log('count', i, this.countEyesAndLibs(i, this.board[i]));
+      console.log('count', i, this.getChainData(i, this.board[i]));
       var deadBehindEnemyLines = this.deadBehindEnemyLines(i);
       console.log('dead behind lines: DOA: ', deadBehindEnemyLines, '  chain:', this.currentChain.chain, '   seki: ', this.inSeki);
 
@@ -5491,10 +5606,10 @@ var Validate = /*#__PURE__*/function () {
         }
 
         if (this.currentChain.chain.size == 0) {
-          console.log('removing from board 1');
+          console.log('removing from board 1', i);
           this.board = this.board.replaceAt(i, '.');
         } else {
-          console.log('removing from board 2');
+          console.log('removing from board 2', this.currentChain.chain);
           this.currentChain.chain.forEach(function (node) {
             return _this6.board = _this6.board.replaceAt(node, '.');
           });
@@ -5523,7 +5638,8 @@ var Validate = /*#__PURE__*/function () {
       return {
         areas: this.areas,
         blackDraftCaptures: this.blackDraftCaptures,
-        whiteDraftCaptures: this.whiteDraftCaptures
+        whiteDraftCaptures: this.whiteDraftCaptures,
+        inSeki: this.inSeki
       };
     }
   }]);
@@ -5622,21 +5738,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var boardSize = 9;
 var initialState = {
-  tutorial: true,
+  tutorial: false,
+  tutorialIndex: 0,
   toPlay: 'black',
   boardSize: boardSize,
   board: '.'.repeat(Math.pow(boardSize, 2)),
   // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
   // seki 1
-  // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
-  // board: '..............................................ooxxx....oxoox....ox.ox....ox.ox...',
   // board: '........................x....................ooooo....xxxxxoo...oooxo...xxx.xo...',
   // board: 'xxxxx......x........ooooo...ooxxxoo.ooxx.xxo.oxxxo.xo.oxoxoxxo.oxoooxoo.oxxxxoo..',
   // seki 2
+  // board: 'x.ox.....x.ox.....xxox.....ooxx.......oox.....o..o.......o.......................',
+  // board: '..............................................ooxxx....oxoox....ox.ox....ox.ox...',
   // board: '.x.o.ox..xxxooox..oooxxxx....ooo.................................................',
   // board: '.xo.ox...x.ooox.o.oooxxx.o.xxx...................................................',
   // board: '.o.x.o.oxoooxooooxxxxooxxxx..xxx..........oo.....................................',
-  // seki 4
+  // seki 4 - TBC
   // board: '.x.ox....oxoox.....oox.....oox.x...oxx.x....o....................................',
   // scoring
   // board: '.oxx.xx..oxxxxxo.xoooooxxx.xoxoxox.x.x.x.oxx.ooxx.ox.x..oxx.xx...oxxooox..oxo...o',
@@ -5658,7 +5775,8 @@ var initialState = {
       captures: 0,
       draftCaptures: 0
     }
-  }
+  },
+  inSeki: []
 };
 
 var reducer = function reducer() {
@@ -5675,12 +5793,25 @@ var reducer = function reducer() {
       });
     //-----------------------------------------------------------------------------------------------------//
 
-    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.START_TUTORIAL:
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.TOGGLE_TUTORIAL:
       return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
-          tutorial: true,
+          tutorial: !draftState.tutorial,
           boardSize: 9,
           board: '.'.repeat(81)
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.INCREMENT_OR_DECREMENT_TUTORIAL:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          tutorialIndex: action.arg === '+' ? draftState.tutorialIndex + 1 : draftState.tutorialIndex - 1,
+          ko: false,
+          focusPoint: null,
+          pass: null,
+          previousBoardPosition: null,
+          checkingScore: false
         });
       });
     //-----------------------------------------------------------------------------------------------------//
@@ -5813,9 +5944,6 @@ var reducer = function reducer() {
 
     case _actions_game__WEBPACK_IMPORTED_MODULE_1__.UNDO_MOVE:
       return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
-        console.log('undo 1', draftState.ko && draftState.toPlay === 'black');
-        console.log('undo 1', draftState.ko && draftState.toPlay === 'white');
-
         if (draftState.previousBoardPosition !== null) {
           return _objectSpread(_objectSpread({}, draftState), {}, {
             board: draftState.previousBoardPosition,
@@ -5838,6 +5966,14 @@ var reducer = function reducer() {
         } else {
           return _objectSpread({}, draftState);
         }
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_IN_SEKI:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          inSeki: action.array
+        });
       });
     //-----------------------------------------------------------------------------------------------------//
 

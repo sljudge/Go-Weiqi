@@ -32538,6 +32538,13 @@ video {
   color: rgba(255, 255, 255, var(--tw-text-opacity));
 }
 
+@media screen and (max-width: 1000px) {
+  #tutorial-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
 @media (min-width: 640px) {
   .sm\:container {
     width: 100%;

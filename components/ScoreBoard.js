@@ -15,21 +15,21 @@ const ScoreBoard = props => {
     const ctaRef = useRef(null)
 
     useEffect(() => {
-        if (!tutorial) {
-            timeline.reversed(!timeline.reversed())
-        }
+        // if (!tutorial) {
+        timeline.reversed(!timeline.reversed())
+        // }
     }, [checkingScore])
 
     useEffect(() => {
         timeline
-            .to(boardRef.current, { y: 0, duration: .5, ease: "power2.in" })
-            .to(ctaRef.current, { y: 0, duration: .5, ease: "power2.in" })
+            .to(boardRef.current, { x: 0, duration: .5, ease: "power2.in" })
+            .to(ctaRef.current, { x: 0, duration: .5, ease: "power2.in" })
             .reverse()
     }, [])
 
     return (
         <>
-            <div ref={boardRef} className="absolute top-0 right-0 text-right bg-gray-600 p-2 px-20 md:px-12 rounded-bl-lg z-40 transform -translate-y-80">
+            <div ref={boardRef} className="absolute top-40 left-0 text-right bg-gray-600 p-2 px-20 md:px-12 rounded-r-lg z-40 transform -translate-x-80">
                 <div className="text-center md:py-12">
                     <div className="mx-4 md:text-lg">
                         white: <strong>{score.white.area + score.white.captures}</strong>

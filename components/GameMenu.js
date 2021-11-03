@@ -4,7 +4,7 @@ import { gsap } from 'gsap';
 import { CSSPlugin } from "gsap/all";
 CSSPlugin.defaultTransformPerspective = 1000;
 
-import { startTutorial } from '../actions/game';
+import { toggleTutorial } from '../actions/game';
 
 import Logo from './Logo'
 import NewGameMenu from './NewGameMenu'
@@ -24,7 +24,8 @@ const GameMenu = props => {
     }
 
     const handleTutorialClick = () => {
-        dispatch(startTutorial())
+        dispatch(toggleTutorial())
+        setOpen(false)
     }
 
     useEffect(() => {
@@ -54,7 +55,7 @@ const GameMenu = props => {
                 <button onClick={handleTutorialClick} className="w-40 px-4 py-2 text-white mx-1 flex justify-center items-center  bg-blue-500 hover:bg-blue-700">
                     Tutorial
                 </button>
-                <NewGameMenu />
+                <NewGameMenu setOpen={setOpen} />
             </div>
         </div>
     )

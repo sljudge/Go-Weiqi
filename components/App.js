@@ -17,7 +17,7 @@ const App = props => {
 
 
     return (
-        <div className={`bg-gray-200 text-white flex ${tutorial ? 'justify-end' : 'justify-center'} items-center h-screen w-screen max-h-screen max-w-screen overflow-hidden pb-16 md:pb-0`}>
+        <div className={`bg-gray-200 relative text-white flex ${tutorial ? 'justify-end' : 'justify-center'} items-center h-screen w-screen max-h-screen max-w-screen overflow-hidden pb-16 md:pb-0`}>
 
 
             <Board />

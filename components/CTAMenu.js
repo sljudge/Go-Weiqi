@@ -15,7 +15,7 @@ const CTAMenu = props => {
 
 
     return (
-        <div className={`absolute bottom-0 left-0 w-full p-4 pb-16 md:pb-4 flex md:flex-col justify-evenly ${checkingScore && 'z-20'}`}>
+        <div className={`absolute bottom-0 left-0 w-full p-4 pb-16 md:pb-4 flex md:flex-col justify-evenly ${!!checkingScore ? 'z-20' : ''}`}>
             <CTA
                 id="pass"
                 imageSrc="./images/pass.png"

@@ -145,7 +145,7 @@ class Validate {
         return { owner: this.currentChain.owner, chain: Array.from(this.hasBeenChecked).slice(this.startOfChain, this.hasBeenChecked.size) }
     }
 
-    countEyesAndLibs(id, owner, board = this.board) {
+    getChainData(id, owner, board = this.board) {
         const nodesToBeChecked = this.getAdjacentNodes(id)
 
         nodesToBeChecked.forEach(node => {
@@ -159,7 +159,7 @@ class Validate {
                             if (area.owner === owner) {
                                 area.chain.forEach(node => this.currentChain.eyesAndLibs.add(node))
                                 this.currentChain.eyes.add(area.chain)
-                                this.countEyesAndLibs(node, owner, board)
+                                this.getChainData(node, owner, board)
                             } else if (area.owner === '.') {
                                 this.currentChain.libs.add(node)
                                 this.currentChain.eyesAndLibs.add(node)
@@ -168,7 +168,7 @@ class Validate {
                     })
                 } else if (board[node] === owner && !this.currentChain.chain.has(node)) {
                     this.currentChain.chain.add(node)
-                    this.countEyesAndLibs(node, owner, board)
+                    this.getChainData(node, owner, board)
                 }
             }
         })
@@ -186,7 +186,7 @@ class Validate {
             return false
         }
         // more than two liberties??
-        if (this.currentChain.libs.size > 3) {
+        if (this.currentChain.libs.size >= 3) {
             console.log('DBL - 2')
             return false
         }
@@ -195,15 +195,11 @@ class Validate {
             return true
         }
         // LIBS three or under
-        // capture or extend??
+        // capture or extend ??
 
         // else SEKI
 
-
-
-
-
-        // SEKI: shared liberties / one eye each && one liberty each
+        // SEKI
         if (
             this.currentChain.eyesAndLibs.size == 2 ||
             this.currentChain.eyes.size == 1 && this.currentChain.eyesAndLibs.size == 3 && this.currentChain.libs.size == 2
@@ -240,48 +236,48 @@ class Validate {
         let tempInSeki = []
         let tempCheck
 
+        // if (eyes.length == 0 && libs.length == 2) {
+        //     console.log('---------SEKI ONE-----------------')
+        //     // ----------------------------------
+        //     // split liberties
+        //     // ----------------------------------
+        //     // add current chain to potential collection of seki nodes
+        //     tempInSeki.push(...this.currentChain.chain)
+        //     // for each spare liberty
+        //     libs.forEach((node, i) => {
+        //         tempBoard = this.board
+        //         tempBoard = tempBoard.replaceAt(node, this.board[id] === 'x' ? 'o' : 'x')
+        //         this.clearChainData()
+        //         // if on either side there is only one liberty/eye space left then seki
+        //         if (this.currentChain.eyesAndLibs.size == 1) {
+        //             tempCheck = true
+        //         } else if (this.currentChain.eyesAndLibs.size == 2) {
+        //             // else if two options available then check both
+        //             tempCheck = (
+        //                 !this.hasLiberties(node, this.board[id], tempBoard.replaceAt(this.currentChain.eyesAndLibs[0], this.board[id])) ||
+        //                 !this.hasLiberties(node, this.board[id], tempBoard.replaceAt(this.currentChain.eyesAndLibs[1], this.board[id]))
+        //             )
+        //         }
+        //         // if either side has passed then stones are in seki
+        //         if (tempCheck) {
+        //             this.currentChain.chain.delete(node)
+        //             tempInSeki.push(...this.currentChain.chain)
+        //         }
+        //         if (i == 0) {
+        //             checkOne = tempCheck
+        //         } else {
+        //             checkTwo = tempCheck
+        //         }
+        //     })
+        //     if (checkOne || checkTwo) {
+        //         tempInSeki.forEach(node => this.inSeki.add(node))
+        //         return true
+        //     } else {
+        //         this.currentChain.chain = chain
+        //         return false
+        //     }
+        // }
         if (eyes.length == 0 && libs.length == 2) {
-            console.log('---------SEKI ONE-----------------')
-            // ----------------------------------
-            // split liberties
-            // ----------------------------------
-            // add current chain to potential collection of seki nodes
-            tempInSeki.push(...this.currentChain.chain)
-            // for each spare liberty
-            libs.forEach((node, i) => {
-                tempBoard = this.board
-                tempBoard = tempBoard.replaceAt(node, this.board[id] === 'x' ? 'o' : 'x')
-                this.clearChainData()
-                // if on either side there is only one liberty/eye space left then seki
-                if (this.currentChain.eyesAndLibs.size == 1) {
-                    tempCheck = true
-                } else if (this.currentChain.eyesAndLibs.size == 2) {
-                    // else if two options available then check both
-                    tempCheck = (
-                        !this.hasLiberties(node, this.board[id], tempBoard.replaceAt(this.currentChain.eyesAndLibs[0], this.board[id])) ||
-                        !this.hasLiberties(node, this.board[id], tempBoard.replaceAt(this.currentChain.eyesAndLibs[1], this.board[id]))
-                    )
-                }
-                // if either side has passed then stones are in seki
-                if (tempCheck) {
-                    this.currentChain.chain.delete(node)
-                    tempInSeki.push(...this.currentChain.chain)
-                }
-                if (i == 0) {
-                    checkOne = tempCheck
-                } else {
-                    checkTwo = tempCheck
-                }
-            })
-            if (checkOne || checkTwo) {
-                tempInSeki.forEach(node => this.inSeki.add(node))
-                return true
-            } else {
-                this.currentChain.chain = chain
-                return false
-            }
-        }
-        if (eyes.length == 0 && libs.length == 1) {
             console.log('---------SEKI TWO-----------------')
             // ----------------------------------
             // sharing two liberties
@@ -290,6 +286,10 @@ class Validate {
                 this.hasBeenChecked = new Set
                 board = board.replaceAt(eyesAndLibs[0], playingAs)
                 board = board.replaceAt(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x')
+                this.getChainData(eyesAndLibs[0])
+                if (this.currentChain.chain.size === 2) {
+                    return false
+                }
                 return (
                     !this.hasLiberties(eyesAndLibs[0], playingAs, board) &&
                     !this.hasLiberties(eyesAndLibs[1], playingAs === 'x' ? 'o' : 'x', board)
@@ -320,7 +320,7 @@ class Validate {
             const checkOneEyeEach = (a, playingAs, board) => {
                 this.clearChainData()
                 board = board.replaceAt(a, playingAs)
-                console.log(playingAs, this.countEyesAndLibs(a, playingAs, board))
+                console.log(playingAs, this.getChainData(a, playingAs, board))
                 return this.currentChain.eyesAndLibs.size == 1
             }
 
@@ -350,7 +350,7 @@ class Validate {
 
     scoreDraftCaptures(i) {
         this.clearChainData()
-        console.log('count', i, this.countEyesAndLibs(i, this.board[i]))
+        console.log('count', i, this.getChainData(i, this.board[i]))
         const deadBehindEnemyLines = this.deadBehindEnemyLines(i)
         console.log('dead behind lines: DOA: ', deadBehindEnemyLines, '  chain:', this.currentChain.chain, '   seki: ', this.inSeki)
         if (deadBehindEnemyLines) {
@@ -360,10 +360,10 @@ class Validate {
                 this.whiteDraftCaptures += this.currentChain.chain.size
             }
             if (this.currentChain.chain.size == 0) {
-                console.log('removing from board 1')
+                console.log('removing from board 1', i)
                 this.board = this.board.replaceAt(i, '.')
             } else {
-                console.log('removing from board 2')
+                console.log('removing from board 2', this.currentChain.chain)
                 this.currentChain.chain.forEach(node => this.board = this.board.replaceAt(node, '.'))
             }
             this.calculateAreas()
@@ -387,7 +387,7 @@ class Validate {
         console.log('SCORE: ', this.areas, this.inSeki)
         console.log('***********************')
 
-        return { areas: this.areas, blackDraftCaptures: this.blackDraftCaptures, whiteDraftCaptures: this.whiteDraftCaptures }
+        return { areas: this.areas, blackDraftCaptures: this.blackDraftCaptures, whiteDraftCaptures: this.whiteDraftCaptures, inSeki: this.inSeki }
     }
 
 

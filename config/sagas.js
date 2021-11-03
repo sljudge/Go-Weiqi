@@ -1,6 +1,6 @@
 import { takeEvery, select, call, put, delay } from 'redux-saga/effects'
 import { push } from 'connected-react-router'
-import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO, CHECK_SCORE, UPDATE_BOARD, UPDATE_SCORE, PASS_GO, HANDLE_PASS_GO } from '../actions/game'
+import { ATTEMPT_MOVE, UPDATE_NODE, SET_TO_PLAY, SET_FOCUS_POINT, CLEAR_NODE, SET_STONES_TO_BE_REMOVED, SET_KO, CHECK_SCORE, UPDATE_BOARD, UPDATE_SCORE, PASS_GO, HANDLE_PASS_GO, SET_IN_SEKI } from '../actions/game'
 import { Validate } from '../helpers'
 
 
@@ -79,17 +79,21 @@ function* handleCheckScore(action) {
     const Validator = new Validate(board)
 
     const scoreData = yield Validator.checkScore()
-    console.log('scoring areas', scoreData.areas)
+    console.log('scoring data', scoreData)
     // yield put({ type: UPDATE_BOARD, board: scoreData.areas })
 
-    if (scoreData.areas.length > 1) {
+    if (scoreData.inSeki.size > 0) {
+        yield put({ type: SET_IN_SEKI, array: [...scoreData.inSeki] })
+    }
+
+    if (scoreData.areas) {
 
         let tempBoard = board.slice(0, board.length)
         let blackArea = 0
         let whiteArea = 0
 
-        scoreData.areas.forEach(area => {
 
+        scoreData.areas.forEach(area => {
             if (area.owner !== '.') {
                 if (area.owner === 'x') {
                     blackArea += area.chain.length

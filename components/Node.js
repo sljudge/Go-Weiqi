@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { attemptMove, cancelScoring } from '../actions/game'
+import { attemptMove, cancelScoring, checkScore } from '../actions/game'
 
 const Node = props => {
     const { i } = { ...props }
@@ -11,14 +11,14 @@ const Node = props => {
     const boardSize = useSelector(state => state.game.boardSize)
     const board = useSelector(state => state.game.board)
     const checkingScore = useSelector(state => state.game.checkingScore)
+    const inSeki = useSelector(state => state.game.inSeki)
     const status = board[i]
     const row = Math.floor((i) / boardSize)
     const column = i % boardSize
     const [hoverClass, setHoverClass] = useState()
     const [backgroundClass, setBackgroundClass] = useState(status.toLowerCase() === 'o' ? 'bg-gray-100' : status.toLowerCase() === 'x' ? 'bg-gray-700' : '')
-    const [sizeClassNames, setSizeClassNames] = useState("min-w-12 min-h-12 h-12 w-12")
     const [scoreClassName, setScoreClassName] = useState("rounded-full")
-    const [offset, setOffset] = useState('1.5rem')
+    const [borderClass, setBorderClass] = useState("")
 
     /**********************
      * FUNCTIONS
@@ -65,6 +65,16 @@ const Node = props => {
     }, [focusPoint])
 
 
+    useEffect(() => {
+        // if (checkingScore && inSeki.includes(i)) {
+        //     setBorderClass("border-2 border-purple-600")
+        // } else {
+        //     setBorderClass("")
+        // }
+
+
+    }, [checkingScore])
+
     /*********************
      * RETURN
      *********************/
@@ -72,7 +82,7 @@ const Node = props => {
         <div
             key={i}
             id={i}
-            className={`absolute z-20 ${sizeClassNames} ${hoverClass} ${backgroundClass} ${scoreClassName}`}
+            className={`absolute z-20 ${hoverClass} ${backgroundClass} ${scoreClassName} ${borderClass}`}
             style={
                 {
                     width: `${(100 / boardSize) / 1.5}%`,
@@ -85,9 +95,9 @@ const Node = props => {
                 }
             }
             onClick={handleClick} >
-            <span className="text-gray-500">
+            {/* <span className="text-gray-500">
                 {i}
-            </span>
+            </span> */}
         </div>
 
     )

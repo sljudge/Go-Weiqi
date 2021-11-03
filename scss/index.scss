@@ -11,3 +11,10 @@
 .game-menu-cta {
     @apply px-4 py-2 text-white mx-1 w-20 flex justify-center items-center;
 }
+
+@media screen and (max-width:1000px) {
+    #tutorial-container{
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}

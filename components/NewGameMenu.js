@@ -24,12 +24,14 @@ const MenuItem = props => {
 
 
 const NewGameMenu = props => {
+    const { setOpen } = { ...props }
     const dispatch = useDispatch()
     const boardSize = useSelector(state => state.game.boardSize)
     const [newGameSize, setNewGameSize] = useState(boardSize)
 
     const handleClick = () => {
         dispatch(startNewGame(newGameSize))
+        setOpen(false)
     }
 
 
