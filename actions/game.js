@@ -141,10 +141,19 @@ export const UNDO_MOVE = 'UNDO_MOVE'
 export const undoMove = () => ({
    type: UNDO_MOVE
 })
+
 // ------------------------------------------------------------------------------
 
 export const SET_IN_SEKI = 'SET_IN_SEKI'
 
 export const setInSeki = (array) => ({
    type: SET_IN_SEKI
+})
+
+// ------------------------------------------------------------------------------
+
+export const SET_GAME_OVER = 'SET_GAME_OVER'
+
+export const setGameOver = () => ({
+   type: SET_GAME_OVER
 })

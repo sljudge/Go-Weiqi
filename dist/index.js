@@ -3038,7 +3038,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "UNDO_MOVE": () => (/* binding */ UNDO_MOVE),
 /* harmony export */   "undoMove": () => (/* binding */ undoMove),
 /* harmony export */   "SET_IN_SEKI": () => (/* binding */ SET_IN_SEKI),
-/* harmony export */   "setInSeki": () => (/* binding */ setInSeki)
+/* harmony export */   "setInSeki": () => (/* binding */ setInSeki),
+/* harmony export */   "SET_GAME_OVER": () => (/* binding */ SET_GAME_OVER),
+/* harmony export */   "setGameOver": () => (/* binding */ setGameOver)
 /* harmony export */ });
 var START_NEW_GAME = 'START_NEW_GAME';
 var startNewGame = function startNewGame(boardSize) {
@@ -3178,6 +3180,13 @@ var SET_IN_SEKI = 'SET_IN_SEKI';
 var setInSeki = function setInSeki(array) {
   return {
     type: SET_IN_SEKI
+  };
+}; // ------------------------------------------------------------------------------
+
+var SET_GAME_OVER = 'SET_GAME_OVER';
+var setGameOver = function setGameOver() {
+  return {
+    type: SET_GAME_OVER
   };
 };
 
@@ -4269,9 +4278,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
-/* harmony import */ var gsap_all__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gsap/all */ "./node_modules/gsap/CSSPlugin.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
+/* harmony import */ var gsap_all__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gsap/all */ "./node_modules/gsap/CSSPlugin.js");
+/* harmony import */ var _actions_game__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../actions/game */ "./actions/game.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -4288,35 +4298,56 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+gsap_all__WEBPACK_IMPORTED_MODULE_2__["default"].defaultTransformPerspective = 1000;
 
 
 
-gsap_all__WEBPACK_IMPORTED_MODULE_3__["default"].defaultTransformPerspective = 1000;
+
 
 var ScoreBoard = function ScoreBoard(props) {
+  var dispatch = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useDispatch)();
   var score = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.score;
   });
   var checkingScore = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
     return state.game.checkingScore;
   });
-  var tutorial = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
-    return state.game.tutorial;
+  var gameOver = (0,react_redux__WEBPACK_IMPORTED_MODULE_1__.useSelector)(function (state) {
+    return state.game.gameOver;
   });
 
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(gsap__WEBPACK_IMPORTED_MODULE_4__.gsap.timeline({
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(gsap__WEBPACK_IMPORTED_MODULE_5__.gsap.timeline({
     paused: true
   })),
       _useState2 = _slicedToArray(_useState, 2),
       timeline = _useState2[0],
       setTimeline = _useState2[1];
 
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
+      _useState4 = _slicedToArray(_useState3, 2),
+      whiteScore = _useState4[0],
+      setWhiteScore = _useState4[1];
+
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
+      _useState6 = _slicedToArray(_useState5, 2),
+      blackScore = _useState6[0],
+      setBlackScore = _useState6[1];
+
   var boardRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
   var ctaRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
+
+  var handleAcceptScore = function handleAcceptScore() {
+    dispatch((0,_actions_game__WEBPACK_IMPORTED_MODULE_3__.setGameOver)());
+  };
+
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     // if (!tutorial) {
     timeline.reversed(!timeline.reversed()); // }
   }, [checkingScore]);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    setWhiteScore(score.white.area + score.white.captures);
+    setBlackScore(score.black.area + score.black.captures);
+  }, [score]);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
     timeline.to(boardRef.current, {
       x: 0,
@@ -4328,35 +4359,32 @@ var ScoreBoard = function ScoreBoard(props) {
       ease: "power2.in"
     }).reverse();
   }, []);
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.Fragment, {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.Fragment, {
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
       ref: boardRef,
-      className: "absolute top-40 left-0 text-right bg-gray-600 p-2 px-20 md:px-12 rounded-r-lg z-40 transform -translate-x-80",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
-        className: "text-center md:py-12",
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+      className: "absolute md:top-40 bottom-4 left-0 text-right bg-gray-600 p-2 px-20 md:px-12 rounded-r-lg z-40 transform -translate-x-full",
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        className: "text-center md:py-12 flex flex-col justify-center items-center h-full",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
           className: "mx-4 md:text-lg",
-          children: ["white: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("strong", {
-            children: score.white.area + score.white.captures
+          children: ["white: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("strong", {
+            children: whiteScore
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
           className: "mx-4 md:text-lg",
-          children: ["black: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("strong", {
-            children: score.black.area + score.black.captures
+          children: ["black: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("strong", {
+            children: blackScore
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
-          className: "py-2 px-8 mt-8 bg-green-500 rounded-lg text-xl cursor-pointer hidden md:block hover:outline-white",
+        }), gameOver ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+          className: "py-2 px-8 mt-8 text-xl rounded-lg border-2 border-white",
+          children: whiteScore >= blackScore ? 'White wins' : 'Black wins'
+        }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+          onClick: handleAcceptScore,
+          className: "py-2 px-8 mt-8 bg-green-500 rounded-lg text-xl cursor-pointer hover:outline-white",
           children: "Accept score"
         })]
       })
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
-      className: "absolute bottom-0 right-0 left-0 flex justify-center items-center pb-4 z-40  md:hidden  overflow-hidden",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
-        ref: ctaRef,
-        className: " py-2 px-8 bg-green-500 rounded-lg cursor-pointer hover:outline-white transform translate-y-24",
-        children: "Accept score"
-      })
-    })]
+    })
   });
 };
 
@@ -4886,7 +4914,7 @@ function handleCheckScore(action) {
           blackArea = 0;
           whiteArea = 0;
           scoreData.areas.forEach(function (area) {
-            if (area.owner !== '.') {
+            if (area.owner && area.owner !== '.') {
               if (area.owner === 'x') {
                 blackArea += area.chain.length;
               } else {
@@ -5776,7 +5804,8 @@ var initialState = {
       draftCaptures: 0
     }
   },
-  inSeki: []
+  inSeki: [],
+  gameOver: false
 };
 
 var reducer = function reducer() {
@@ -5973,6 +6002,14 @@ var reducer = function reducer() {
       return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
         return _objectSpread(_objectSpread({}, draftState), {}, {
           inSeki: action.array
+        });
+      });
+    //-----------------------------------------------------------------------------------------------------//
+
+    case _actions_game__WEBPACK_IMPORTED_MODULE_1__.SET_GAME_OVER:
+      return (0,immer__WEBPACK_IMPORTED_MODULE_0__["default"])(state, function (draftState) {
+        return _objectSpread(_objectSpread({}, draftState), {}, {
+          gameOver: !draftState.gameOver
         });
       });
     //-----------------------------------------------------------------------------------------------------//

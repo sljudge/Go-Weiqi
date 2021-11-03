@@ -94,7 +94,7 @@ function* handleCheckScore(action) {
 
 
         scoreData.areas.forEach(area => {
-            if (area.owner !== '.') {
+            if (area.owner && area.owner !== '.') {
                 if (area.owner === 'x') {
                     blackArea += area.chain.length
                 } else {

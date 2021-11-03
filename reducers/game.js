@@ -16,7 +16,8 @@ import {
     START_NEW_GAME,
     TOGGLE_TUTORIAL,
     INCREMENT_OR_DECREMENT_TUTORIAL,
-    SET_IN_SEKI
+    SET_IN_SEKI,
+    SET_GAME_OVER
 } from '../actions/game'
 
 const boardSize = 9
@@ -67,7 +68,8 @@ const initialState = {
             draftCaptures: 0
         }
     },
-    inSeki: []
+    inSeki: [],
+    gameOver: false
 }
 
 const reducer = (state = { ...initialState }, action) => {
@@ -249,6 +251,14 @@ const reducer = (state = { ...initialState }, action) => {
                 return {
                     ...draftState,
                     inSeki: action.array
+                }
+            })
+        //-----------------------------------------------------------------------------------------------------//
+        case SET_GAME_OVER:
+            return produce(state, draftState => {
+                return {
+                    ...draftState,
+                    gameOver: !draftState.gameOver
                 }
             })
         //-----------------------------------------------------------------------------------------------------//

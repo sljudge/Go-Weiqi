@@ -7,7 +7,10 @@ const colors = {
 }
 
 module.exports = {
-  purge: [],
+  purge: [
+    './components/*.js',
+    './scss/*.scss'
+  ],
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
